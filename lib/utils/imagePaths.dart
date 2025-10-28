@@ -13,10 +13,10 @@ class ImagePaths {
   static const walkthrough3= '$basePath/walkthrough3.png'; 
   
   // user TYpes 
-  static const userType1= '$basePath/doctor.png'; 
+  static const userType1= '$basePath/patient.png'; 
   static const userType2= '$basePath/doctor.png'; 
-  static const userType3= '$basePath/doctor.png'; 
-  static const userType4= '$basePath/doctor.png'; 
+  static const userType3= '$basePath/pharmacist.png'; 
+  static const userType4= '$basePath/lab-tech.png'; 
 
   static const success = '$basePath/success.svg';
   static const failed = '$basePath/denial.svg';

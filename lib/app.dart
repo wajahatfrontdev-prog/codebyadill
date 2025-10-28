@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/providers/common_provider.dart';
+import 'package:icare/screens/create_profile.dart';
 import 'package:icare/screens/select_user_type.dart';
 import 'package:icare/screens/splash.dart';
+import 'package:icare/screens/tabs.dart';
 import 'package:icare/screens/verify_code.dart';
+import 'package:icare/utils/shared_pref.dart';
 
 class App extends ConsumerStatefulWidget {
   const App({super.key});
@@ -53,7 +56,7 @@ class _AppState extends ConsumerState<App> {
     
     
     setState(() {
-      content = CreateProfile(); 
+      content = TabsScreen(); 
     });
   }  
 
@@ -61,8 +64,6 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      body: SelectUserType(),
-    );
+    return content;
   }
 }
