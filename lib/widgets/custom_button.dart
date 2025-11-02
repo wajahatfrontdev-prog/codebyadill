@@ -15,6 +15,7 @@ class CustomButton extends StatelessWidget {
   final Gradient? gradient;
   final Color labelColor;
   final double labelSize;
+  final double? labelWidth;
   final FontWeight labelWeight;
   final Widget? leadingIcon;
   final Widget? trailingIcon;
@@ -32,6 +33,7 @@ class CustomButton extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.width,
+    this.labelWidth,
     this.height,
     this.bgColor,
     this.gradient,
@@ -74,12 +76,14 @@ class CustomButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(borderRadius),
           border: outlined
               ? Border.all(
+
                   color: borderColor ?? AppColors.primaryColor,
                   width: borderWidth,
                 )
               : null,
           boxShadow: outlined
-              ? []
+              ? [] 
+              
               : [
                   boxShadow ??
                       BoxShadow(
@@ -110,6 +114,7 @@ class CustomButton extends StatelessWidget {
               //   ),
               // ),
               CustomText(
+                width: labelWidth,
                 text: label,
                 color: labelColor,
                 isBold: true,

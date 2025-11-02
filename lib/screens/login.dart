@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
+import 'package:icare/screens/forget_password.dart';
+import 'package:icare/screens/tabs.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -304,7 +306,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ],
                                   ),
                                   TextButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=> ForgetPassword()));
+                                    },
                                     child: Text(
                                       "Forgot Password",
                                       style: TextStyle(
@@ -331,7 +335,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(30),
                                   ),
                                 ),
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => TabsScreen()));
+                                },
                                 child: Text(
                                   isLogin ? "Sign In" : "Sign Up",
                                   style: TextStyle(

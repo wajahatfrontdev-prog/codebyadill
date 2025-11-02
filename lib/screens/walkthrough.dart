@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/providers/auth_provider.dart';
+import 'package:icare/screens/login.dart';
+import 'package:icare/screens/select_user_type.dart';
 import 'package:icare/utils/shared_pref.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -82,26 +84,27 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             // Row(
-            //   mainAxisAlignment: MainAxisAlignment.end,
-            //   children: [
-            //     Padding(
-            //       padding: EdgeInsetsGeometry.only(right: ScallingConfig.moderateScale(12), bottom: ScallingConfig.moderateScale(22) ),
-            //     child:
-            //         ElevatedButton(
-            //           style: ElevatedButton.styleFrom(
+              // mainAxisAlignment: MainAxisAlignment.end,
+              // children: [
+                Padding(
+                  padding: EdgeInsetsGeometry.only(right: ScallingConfig.moderateScale(12), bottom: ScallingConfig.moderateScale(22) ),
+                child:
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
                         
-            //             backgroundColor:AppColors.white.withValues(alpha: 0.3)
-            //           ),
-            //           onPressed: 
-            //         () {
-            //           log("Pressed");
-            //         }, child: Text(
-            //           "Skip"
-            //         ))
+                        backgroundColor:AppColors.white.withValues(alpha: 0.3)
+                      ),
+                      onPressed: 
+                    () {
+                      // log("Pressed");
+                     Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => SelectUserType()));
+                    }, child: Text(
+                      "Skip"
+                    ))
+                ),   
                 
-            //     ),
-            //   ],
-            // ),
+            
+          
             SizedBox(
               width: Utils.windowWidth(context) * 0.7,
               height: Utils.windowHeight(context) * 0.55,
@@ -138,33 +141,36 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
                   ),
                   ),
       
-            // Row(
-            //           mainAxisAlignment: MainAxisAlignment.center,
-            //           children: List.generate(
-            //             listContentConfig.length,
-            //             (dotIndex) => AnimatedContainer(
-            //               duration: const Duration(milliseconds: 10),
-            //               margin: const EdgeInsets.symmetric(horizontal: 5),
-            //               height: 8,
-            //               width: currentIndex == dotIndex ? 20 : 8,
-            //               decoration: BoxDecoration(
-            //                 color: currentIndex == dotIndex
-            //                     ? Colors.red
-            //                     : Colors.grey.shade300,
-            //                 borderRadius: BorderRadius.circular(10),
-            //               ),
-            //             ),
-            //           ),
-            //         ),
+            Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: List.generate(
+                        listContentConfig.length,
+                        (dotIndex) => AnimatedContainer(
+                          duration: const Duration(milliseconds: 10),
+                          margin: const EdgeInsets.symmetric(horizontal: 5),
+                          height: 8,
+                          width: currentIndex == dotIndex ? 20 : 8,
+                          decoration: BoxDecoration(
+                            color: currentIndex == dotIndex
+                                ? Colors.red
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                      ),
+                    ),
 
-                  CustomButton(label: currentIndex < index ? "Next" : "Done", 
+                  CustomButton(label:  index != 2 ? "Next" : "Done", 
                   onPressed: (){
                  print('${currentIndex < index}');
-                if(currentIndex <= index) {
+                if(index != 2) {
                  goToTab(currentIndex + 1);
                 }else{
-                  ref.watch(authProvider.notifier).setUserWalkthrough(true);
-                  SharedPref().setUserWalkthrough(true);
+                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx){
+                    return SelectUserType();
+                  }));
+                  // ref.watch(authProvider.notifier).setUserWalkthrough(true);
+                  // SharedPref().setUserWalkthrough(true);
                 }
                   },
                   borderRadius: 40, 

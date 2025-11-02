@@ -5,10 +5,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/providers/common_provider.dart';
 import 'package:icare/screens/create_profile.dart';
+import 'package:icare/screens/decline_appointments.dart';
+import 'package:icare/screens/filters.dart';
+import 'package:icare/screens/intake_notes.dart';
+import 'package:icare/screens/patient_profile.dart';
+import 'package:icare/screens/profile_or_appointement_view.dart';
 import 'package:icare/screens/select_user_type.dart';
+import 'package:icare/screens/soap_notes.dart';
 import 'package:icare/screens/splash.dart';
 import 'package:icare/screens/tabs.dart';
 import 'package:icare/screens/verify_code.dart';
+import 'package:icare/screens/walkthrough.dart';
 import 'package:icare/utils/shared_pref.dart';
 
 class App extends ConsumerStatefulWidget {
@@ -56,7 +63,7 @@ class _AppState extends ConsumerState<App> {
     
     
     setState(() {
-      content = TabsScreen(); 
+      content = Walkthrough(); 
     });
   }  
 

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:icare/screens/create_profile.dart';
+import 'package:icare/widgets/custom_button.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -6,7 +8,12 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text("Profile"),
+      child: CustomButton(label: 
+      "Creaye Profile",
+      onPressed: () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => CreateProfile()));
+      },
+      ),
     );
   }
 }

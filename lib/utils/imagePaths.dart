@@ -25,6 +25,7 @@ class ImagePaths {
   static const pencil = '$basePath/pencil.svg';
   static const camera = '$basePath/camera.svg';
   static const back = '$basePath/back.svg';
+  static const arrowDown = '$basePath/arrowDown.svg';
 
   // tab's icons
   static const home = '$basePath/home.svg'; 
@@ -44,6 +45,21 @@ class ImagePaths {
   static const menu ='$basePath/menu.svg';
   static const google_icon ='$basePath/google_icon.png';
   static const facebook_icon ='$basePath/facebook_icon.png';
+
+  static const courseAd = '$basePath/course-ad.png';
+  static const user5 = '$basePath/user5.png';
+
+  static const user1 = '$basePath/user1.png';
+  static const scan = '$basePath/check.svg';
+  static const location = '$basePath/location.svg';
+
+  static const message = '$basePath/message.svg';
+  static const calll = '$basePath/call.svg';
+  static const sms = '$basePath/sms.svg';
+
+
+  static const clock = '$basePath/clock.svg';
+  static const calendar = '$basePath/calendar.svg';
 
 
 

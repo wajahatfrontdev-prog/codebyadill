@@ -91,7 +91,7 @@ class _TabsScreenState extends State<TabsScreen> {
          
                   IconButton(onPressed: (){
                     _selectPage(2);
-                  }, icon: SvgWrapper(assetPath: ImagePaths.chat, color: currentIndex == 2 ? AppColors.primaryColor : AppColors.grayColor ,)
+                  }, icon: SvgWrapper(assetPath: ImagePaths.message, color: currentIndex == 2 ? AppColors.primaryColor : AppColors.grayColor ,)
                   ),
                   CustomText(text: "Chat",)
          
