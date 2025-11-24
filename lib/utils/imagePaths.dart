@@ -77,6 +77,21 @@ class ImagePaths {
   static const recievedAmount = '$basePath/recieved-amounts.svg';
   static const user7 = '$basePath/user7.png';
 
+  // courses
+  static const course1 = '$basePath/course1.png';
+  static const course2 = '$basePath/course2.jpg';
+  static const instructor= '$basePath/instructor.svg';
+  
+  //payment method's logo
+  static const apple = '$basePath/apple_pay.svg';
+  static const mc = '$basePath/master_card_logo.svg';
+  static const visa = '$basePath/visa.svg';
+  static const gpay  = '$basePath/gpay.svg';
 
+  static const certificate = '$basePath/certificate.png';
+
+  static const send  = '$basePath/send.svg';
+  static const video = '$basePath/video.svg';
+  static const audio = '$basePath/audio-call.svg';
 
 }

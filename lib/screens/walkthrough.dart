@@ -187,7 +187,8 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
                        AppColors.white.withValues(alpha: 0.015),
                      ]),
                      onPressed: () {
-                       log("Pressed");
+                      //  log("Pressed");
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LoginScreen()));
                      },
                      labelColor: AppColors.primaryColor,
                       label: "Skip"))

@@ -9,14 +9,17 @@ static const tertiaryColor = Color(0xFF889098);
 
 
 static const bgColor = Color(0xFFF6FBFA);
+static const white50=Color(0xFFEFF2F5);
 static const primary500 = Color(0xFF171F3F);  // text Color
 
 static const grayColor = Color(0xFF888888);
 static const veryLightGrey = Color(0xFFEEF1F4);
 static const darkGreyColor = Color(0xFF545F71);
+static const darkGray500= Color(0xFF292929);
 
-static const lightGrey100= Color(0x80ffd6dde4);
-static const lightGrey200= Color(0x80ffb2b9c0);
+static const lightGrey100= Color(0xffd6dde4);
+static const lightGrey200= Color(0xffb2b9c0);
+static const lightGrey300= Color(0xffADB3BA);
 
 static const themeBlue= Color(0xFF00288D);
 static const themeGreen = Color(0xFF2EC447);

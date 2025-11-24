@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -17,14 +18,16 @@ class CustomBackButton extends StatelessWidget {
       },
       child: Container(
        margin: EdgeInsets.only(left:21), 
-        width: Utils.windowWidth(context) * 0.1, 
-        height: Utils.windowWidth(context) * 0.1, 
+        // width: ScallingConfig.scale(30), 
+        // height: ScallingConfig.scale(10), 
         // padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-        
-          color: AppColors.white,
-          borderRadius: BorderRadius.circular(20),
-        ),
+        // decoration: BoxDecoration(
+        //   border: Border.all(
+        //     // color: Colors.black
+        //   ),
+          // color: AppColors.themeRed,
+          // borderRadius: BorderRadius.circular((Utils.windowWidth(context) * 0.2 / 2)),
+        // ),
         child: Center(
           child: SvgWrapper(
             assetPath: ImagePaths.back 
