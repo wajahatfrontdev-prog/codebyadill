@@ -6,6 +6,7 @@ import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
+import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_drop_down.dart';
 import 'package:icare/widgets/custom_text.dart';
@@ -43,7 +44,10 @@ class _CreateReminderState extends State<CreateReminder> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: CustomText(text:"Create Reminder"),),
+      appBar: AppBar(
+                leading: CustomBackButton(),
+        automaticallyImplyLeading: false,
+        title: CustomText(text:"Create Reminder"),),
       body: SingleChildScrollView(
         child: Column( 
           children: [

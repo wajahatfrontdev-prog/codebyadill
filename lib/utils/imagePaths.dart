@@ -45,7 +45,7 @@ class ImagePaths {
 
   static const user = '$basePath/user.svg';
   static const key = '$basePath/key.svg';
-  static const email = '$basePath/email.svg';
+  // static const email = '$basePath/email.svg';
   static const profile = '$basePath/profile.svg';
 
 
@@ -94,4 +94,8 @@ class ImagePaths {
   static const video = '$basePath/video.svg';
   static const audio = '$basePath/audio-call.svg';
 
+  static const star = '$basePath/star.svg';
+  static const profile2User = '$basePath/profile-2user.svg';
+  static const edit = '$basePath/edit.svg';
+  
 }

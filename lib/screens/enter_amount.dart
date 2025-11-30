@@ -9,14 +9,14 @@ import 'package:icare/widgets/custom_dialog.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/custom_text_input.dart';
 import 'package:simple_numpad/simple_numpad.dart';
-class TopUpScreen extends StatefulWidget {
-  const TopUpScreen({super.key});
+class EnterAmountScreen extends StatefulWidget {
+  const EnterAmountScreen({super.key});
 
   @override
-  State<TopUpScreen> createState() => _TopUpScreenState();
+  State<EnterAmountScreen> createState() => _EnterAmountScreenState();
 }
 
-class _TopUpScreenState extends State<TopUpScreen> {
+class _EnterAmountScreenState extends State<EnterAmountScreen> {
   var amount = "";
   
   @override
@@ -26,14 +26,14 @@ class _TopUpScreenState extends State<TopUpScreen> {
           appBar: AppBar(
             leading: CustomBackButton(),
             automaticallyImplyLeading: false,
-            title: CustomText(text:"Top Up", fontFamily: "Gilroy-Bold", fontSize: 20,)
+            title: CustomText(text:"Enter Amount", fontFamily: "Gilroy-Bold", fontSize: 20,)
           ),
       body: Center(
         child: Column(
           // crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(height: ScallingConfig.verticalScale(10) ,),
-            CustomText(text:"Total Balance", width: Utils.windowWidth(context) * 0.85,
+            CustomText(text:"Enter the amount", width: Utils.windowWidth(context) * 0.85,
             fontFamily: "GIlroy-Bold",
             fontSize: 14,
             ),
@@ -41,18 +41,18 @@ class _TopUpScreenState extends State<TopUpScreen> {
               margin: EdgeInsets.only(top: ScallingConfig.verticalScale(8)),
               padding: EdgeInsets.symmetric(vertical: ScallingConfig.verticalScale(5), horizontal: ScallingConfig.scale(5)),
             width: Utils.windowWidth(context) * 0.85,
-            height: Utils.windowHeight(context) * 0.085,
+            height: Utils.windowHeight(context) * 0.06,
               decoration: BoxDecoration(
                 color: AppColors.white,
                 border: Border.all(
-                  color: AppColors.primary500
+                  color: AppColors.primaryColor
                 ),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(40),
               ),
               child: Center(
                 child: CustomText(
                width: double.infinity, 
-                text:amount.isEmpty ? "Total Balance" : amount ,
+                text:amount.isEmpty ? "Enter Amount" : amount ,
                 fontSize: amount.isEmpty ? 18 : 39,
                 fontFamily: "Gilroy-Bold",
                 color: amount.isEmpty ? AppColors.tertiaryColor : AppColors.primary500,
@@ -69,7 +69,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
     gridSpacing: 40,
 
     foregroundColor: AppColors.white,
-    backgroundColor: AppColors.secondaryColor,
+    backgroundColor: AppColors.veryLightGrey,
     buttonBorderRadius: 35,
     // buttonBorderSide: const BorderSide(
     //     color: Colors.black,
@@ -77,6 +77,7 @@ class _TopUpScreenState extends State<TopUpScreen> {
     // ),
     removeBlankButton: true,
     textStyle: TextStyle(
+      fontWeight: FontWeight.bold,
       fontSize: ScallingConfig.moderateScale(28),
       color: AppColors.darkGray500 
     ),
@@ -99,19 +100,19 @@ class _TopUpScreenState extends State<TopUpScreen> {
 SizedBox(
   height: ScallingConfig.scale(20),
 ),
-            CustomButton(label: "Transfer", borderRadius: 30, width: Utils.windowWidth(context) * 0.85,
+            CustomButton(label: "Done", borderRadius: 30, width: Utils.windowWidth(context) * 0.85,
             onPressed: () {
               CustomDialog.show(
               context: context, 
-              title: 'Success',
-              okText: "Go Back",
+              title: 'Successful',
+              okText: "Enjoy",
               onOk: () {
                 Navigator.of(context).pop();
               },
               descriptionMaxLines: 2,
               status: DialogStatus.success, 
               descriptionSize: 14,
-              description: "You have successfully tranfer you $amount in your account.", );
+              description: "You have Successfully bought full course, Enjoy!", );
             },
             )
           ],

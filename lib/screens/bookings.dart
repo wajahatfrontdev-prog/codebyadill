@@ -8,7 +8,8 @@ import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 
 class BookingsScreen extends StatelessWidget {
-  const BookingsScreen({super.key});
+  const BookingsScreen({super.key, this.tabs = false});
+  final bool tabs;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +80,8 @@ class BookingsScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 SizedBox(height: ScallingConfig.scale(20),),
-                CustomBackButton(),
+                if(!tabs) ...[
+                CustomBackButton()],
                 SizedBox(height: ScallingConfig.scale(20),),
                 Center(
                   child: CustomText(text: "Bookings Hsitory",
@@ -124,7 +126,7 @@ class BookingsScreen extends StatelessWidget {
                         child: Center(
                           child: ListView.builder(
                             padding: EdgeInsets.only(
-                              bottom: ScallingConfig.verticalScale(60),
+                              // bottom: ScallingConfig.verticalScale(60),
                               left: ScallingConfig.scale(10),
                               right: ScallingConfig.scale(10),
                               ),                          
@@ -141,8 +143,9 @@ class BookingsScreen extends StatelessWidget {
                           ),
                         ),
                     ),
+                // SizedBox(height: ScallingConfig.scale(20),)         
                   ],
-                ))         
+                )),
               ],
             ),
           ) 

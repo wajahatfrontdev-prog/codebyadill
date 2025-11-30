@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:icare/screens/chat.dart';
+import 'package:icare/screens/filters.dart';
 import 'package:icare/utils/imagePaths.dart';
+import 'package:icare/utils/utils.dart';
+import 'package:icare/widgets/custom_text_input.dart';
+import 'package:icare/widgets/svg_wrapper.dart';
 
 class ChatlistScreen extends StatelessWidget {
   const ChatlistScreen({super.key});
@@ -65,68 +70,89 @@ class ChatlistScreen extends StatelessWidget {
       //   title: const Text("Chats"),
       //   backgroundColor: Colors.teal.shade600,
       // ),
-      body: ListView.builder(
-        itemCount: chats.length,
-        itemBuilder: (context, index) {
-          final chat = chats[index];
-          return Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            margin: const EdgeInsets.only(bottom: 1),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: AssetImage(ImagePaths.user1),
-                  radius: 22,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            chat['name']!,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 15,
-                            ),
-                          ),
-                          Text(
-                            chat['time']!,
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        chat['title']!,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+      body: Column(
+        children: [
+          
+           CustomInputField(
+            width: Utils.windowWidth(context) * 0.9,
+            
+           hintText: "Search", 
+           trailingIcon: SvgWrapper(assetPath: ImagePaths.filters,onPress: () {
+            Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=> FiltersScreen()));
+           },),
+           leadingIcon: SvgWrapper(assetPath: ImagePaths.search),
+           ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: chats.length,
+              itemBuilder: (context, index) {
+                final chat = chats[index];
+                return InkWell(
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(builder:(ctx) => ChatScreen()));
+                  },
+                  child: Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    margin: const EdgeInsets.only(bottom: 1),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundImage: AssetImage(ImagePaths.user1),
+                          radius: 22,
                         ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        chat['message']!,
-                        style: TextStyle(
-                          color: Colors.grey.shade700,
-                          fontSize: 13,
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    chat['name']!,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                  Text(
+                                    chat['time']!,
+                                    style: TextStyle(
+                                      color: Colors.grey.shade600,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                chat['title']!,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                chat['message']!,
+                                style: TextStyle(
+                                  color: Colors.grey.shade700,
+                                  fontSize: 13,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
                         ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }

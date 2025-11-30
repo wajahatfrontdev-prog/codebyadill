@@ -9,7 +9,7 @@ import 'package:icare/widgets/svg_wrapper.dart';
 
 class CustomBackButton extends StatelessWidget {
   const CustomBackButton({super.key, this.margin});
-  final double? margin;
+  final EdgeInsets? margin;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -17,7 +17,7 @@ class CustomBackButton extends StatelessWidget {
          Navigator.of(context).pop();        
       },
       child: Container(
-       margin: EdgeInsets.only(left:21), 
+       margin: margin ?? EdgeInsets.only(left:21), 
         // width: ScallingConfig.scale(30), 
         // height: ScallingConfig.scale(10), 
         // padding: EdgeInsets.all(12),

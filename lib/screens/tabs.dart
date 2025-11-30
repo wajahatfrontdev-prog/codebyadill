@@ -31,9 +31,10 @@ class _TabsScreenState extends State<TabsScreen> {
   Widget build(BuildContext context) {
    Widget  activePage = HomeScreen();
    if(currentIndex == 1){
-    activePage= Center(
-      child: CustomText(text: "Bookings",),
-    );
+    activePage= BookingsScreen(tabs:true);
+    // activePage= Center(
+    //   child: CustomText(text: "Bookings",),
+    // );
    } else if(currentIndex == 2){
     activePage = ChatlistScreen();
    }else if(currentIndex == 3){
@@ -49,25 +50,31 @@ class _TabsScreenState extends State<TabsScreen> {
         automaticallyImplyLeading: false,
         leading: Builder(
           builder: (context) {
-            return GestureDetector(
-              onTap: (){
-                Scaffold.of(context).openDrawer();
-              },
-              child: CircleAvatar(
-                backgroundColor: AppColors.white,
-                child: SvgWrapper(assetPath: ImagePaths.menu),
-              ));
+            return Padding(
+              padding:  EdgeInsets.only(left:ScallingConfig.scale(28.0)),
+              child: GestureDetector(
+                onTap: (){
+                  Scaffold.of(context).openDrawer();
+                },
+                child: CircleAvatar(
+                  backgroundColor: AppColors.white,
+                  child: SvgWrapper(assetPath: ImagePaths.menu),
+                )),
+            );
           }
         ),
           actions: [
-             GestureDetector(
-              onTap: (){
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NotificationScreen()));
-              },
-          child: CircleAvatar(
-            backgroundColor: AppColors.white,
-            child: SvgWrapper(assetPath: ImagePaths.notification),
-          )),  
+             Padding(
+               padding:EdgeInsets.only(right: ScallingConfig.scale(10)),
+               child: GestureDetector(
+                onTap: (){
+                        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => NotificationScreen()));
+                },
+                         child: CircleAvatar(
+                           backgroundColor: AppColors.white,
+                           child: SvgWrapper(assetPath: ImagePaths.notification),
+                         )),
+             ),  
           ],
       ),
       drawer: CustomDrawer(),
@@ -148,7 +155,7 @@ class _TabsScreenState extends State<TabsScreen> {
              ),
             
               Positioned(
-                left: Utils.windowWidth(context) / 2.5,
+                left: Utils.windowWidth(context) * 0.41,
                 top: ScallingConfig.verticalScale(-30),
                 child: Container(
                 width: Utils.windowWidth(context) > 762 ? Utils.windowWidth(context) * 0.1 :Utils.windowWidth(context) * 0.2,

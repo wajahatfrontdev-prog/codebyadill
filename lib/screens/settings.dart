@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/screens/about_us.dart';
 import 'package:icare/screens/change_password.dart';
+import 'package:icare/screens/login.dart';
 import 'package:icare/screens/notification_settings.dart';
 import 'package:icare/screens/privacy_policy.dart';
 import 'package:icare/screens/reset_password.dart';
 import 'package:icare/screens/terms_and_conditions.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
+import 'package:icare/widgets/app_modals.dart';
 import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_text.dart';
@@ -103,13 +105,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
               }).toList(),
             ),
           ),
-          SizedBox(height: Utils.windowHeight(context) * 0.5,),
+          SizedBox(height: Utils.windowHeight(context) * 0.4,),
           CustomButton(
             borderRadius: 30,
             onPressed: () {
-              
+              AppModals.showWarningModal(context, "Are you sure do you want to delete your account", null, ["I don’t need it anymore","I don’t find it useful","Other"] ,
+                numOfActions: 2,
+                onPrimaryButtonPressed: (){
+                     Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=> LoginScreen()));
+                }
+              );
             },
-            label: "Delete Account")
+            label: "Delete Account"),
+            // SizedBox(height: ScallingConfig.scale(100),)
         ],
       ),
   ),

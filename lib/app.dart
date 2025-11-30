@@ -10,11 +10,14 @@ import 'package:icare/screens/booking_categories.dart';
 import 'package:icare/screens/bookings.dart';
 import 'package:icare/screens/change_password.dart';
 import 'package:icare/screens/chat.dart';
+import 'package:icare/screens/chatlist.dart';
 import 'package:icare/screens/confirm_details.dart';
+import 'package:icare/screens/consultations.dart';
 import 'package:icare/screens/courses.dart';
 import 'package:icare/screens/create_profile.dart';
 import 'package:icare/screens/create_reminder.dart';
 import 'package:icare/screens/decline_appointments.dart';
+import 'package:icare/screens/doctor_profile.dart';
 import 'package:icare/screens/filters.dart';
 import 'package:icare/screens/intake_notes.dart';
 import 'package:icare/screens/notifications.dart';
@@ -88,7 +91,7 @@ class _AppState extends ConsumerState<App> {
   @override
   Widget build(BuildContext context) {
 
-    return Courses();
+    return content;
   }
 }
 

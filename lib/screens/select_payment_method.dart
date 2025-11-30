@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
+import 'package:icare/screens/add_card.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/widgets/custom_text.dart';
@@ -51,7 +52,9 @@ class _SelectPaymentMethodState extends State<SelectPaymentMethod> {
                   log('logo == >  ${item['logo']}');
                    return (
                       PaymentMethodCard(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => AddCard()));
+                        },
                         expiry: item['expiry'],
                         number: item['number'],
                         type:item['type'],

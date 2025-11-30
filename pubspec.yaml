@@ -53,6 +53,9 @@ dependencies:
   uuid: ^4.5.2
   flutter_chat_ui: ^2.9.1
   flutter_chat_types: ^3.6.2
+  simple_numpad: ^1.0.5
+  flutter_smart_dialog: ^4.9.8+9
+  easy_date_timeline: ^2.0.9
 
 dev_dependencies:
   flutter_test:

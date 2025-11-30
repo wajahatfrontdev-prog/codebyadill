@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/screens/booking_categories.dart';
 import 'package:icare/screens/bookings.dart';
 import 'package:icare/screens/courses.dart';
+import 'package:icare/screens/doctor_profile.dart';
 import 'package:icare/screens/help_and_support.dart';
 import 'package:icare/screens/login.dart';
 import 'package:icare/screens/reminder_list.dart';
@@ -9,8 +11,10 @@ import 'package:icare/screens/settings.dart';
 import 'package:icare/screens/tabs.dart';
 import 'package:icare/screens/wallet.dart';
 import 'package:icare/utils/imagePaths.dart';
+import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/custom_button.dart';
+import 'package:icare/widgets/custom_text.dart';
 
 class CustomDrawer extends StatelessWidget {
   const CustomDrawer({super.key});
@@ -52,20 +56,26 @@ class CustomDrawer extends StatelessWidget {
               Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.blue, width: 2),
-                    ),
-                    child: const CircleAvatar(
-                      radius: 45,
-                      backgroundImage: AssetImage(ImagePaths.user5),
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => DoctorProfile()));
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(3),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.blue, width: 2),
+                      ),
+                      child: const CircleAvatar(
+                        radius: 45,
+                        backgroundImage: AssetImage(ImagePaths.user7),
+                      ),
                     ),
                   ),
                   Positioned(
-                    bottom: 4,
-                    right: 4,
+                    // bottom: 4,
+                    top: ScallingConfig.verticalScale(5),
+                    right: ScallingConfig.scale(5),
                     child: Container(
                       padding: const EdgeInsets.all(4),
                       decoration: const BoxDecoration(
@@ -154,19 +164,17 @@ class CustomDrawer extends StatelessWidget {
       children: [
         ListTile(
           dense: true,
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-              color: Colors.black,
-            ),
+          title: CustomText(
+            text: title,
+            fontFamily: "Gilroy-SemiBold",
+            fontSize: 14.78,
+            color: AppColors.primary500,
           ),
-          trailing: const Icon(
-            Icons.arrow_forward_ios,
-            size: 14,
-            color: Colors.grey,
-          ),
+          // trailing: const Icon(
+          //   Icons.arrow_forward_ios,
+          //   size: 14,
+          //   color: Colors.grey,
+          // ),
           onTap: onTap,
         ),
         // Divider(height: 1, thickness: 0.3, color: Colors.grey.shade300),

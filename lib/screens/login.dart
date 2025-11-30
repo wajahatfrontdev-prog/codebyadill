@@ -50,23 +50,23 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: Stack(
           children: [
-            Positioned(
-              top: ScallingConfig.moderateScale(40),
-              right: ScallingConfig.moderateScale(20),
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                onPressed: () {},
-                child: Text(
-                  "Skip",
-                  style: TextStyle(color: AppColors.primaryColor),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   top: ScallingConfig.moderateScale(40),
+            //   right: ScallingConfig.moderateScale(20),
+            //   child: ElevatedButton(
+            //     style: ElevatedButton.styleFrom(
+            //       backgroundColor: AppColors.white,
+            //       shape: RoundedRectangleBorder(
+            //         borderRadius: BorderRadius.circular(20),
+            //       ),
+            //     ),
+            //     onPressed: () {},
+            //     child: Text(
+            //       "Skip",
+            //       style: TextStyle(color: AppColors.primaryColor),
+            //     ),
+            //   ),
+            // ),
 
             SingleChildScrollView(
               padding: EdgeInsets.symmetric(

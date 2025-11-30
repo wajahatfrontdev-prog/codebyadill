@@ -6,7 +6,7 @@ import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/custom_text.dart';
 
 class CustomButton extends StatelessWidget {
-  final String label;
+  final String? label;
   final VoidCallback? onPressed;
   final double? width;
   final double? height;
@@ -30,7 +30,7 @@ class CustomButton extends StatelessWidget {
 
   const CustomButton({
     super.key,
-    required this.label,
+    this.label,
     this.onPressed,
     this.width,
     this.labelWidth,
@@ -99,9 +99,10 @@ class CustomButton extends StatelessWidget {
           children: [
             if (leadingIcon != null) ...[
             leadingIcon!,
-              const SizedBox(width: 8),
+              SizedBox(width: label == null ? 0: 8),
             ],
-            Flexible(
+            if(label !=null)
+             ...[Flexible(
               child: 
               // Text(
               //   label,
@@ -120,7 +121,7 @@ class CustomButton extends StatelessWidget {
                 isBold: true,
                 fontSize: ScallingConfig.moderateScale(labelSize),
               )
-            ),
+            ),],
             if (trailingIcon != null) ...[
               const SizedBox(width: 8),
                 trailingIcon!
