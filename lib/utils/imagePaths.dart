@@ -107,5 +107,14 @@ class ImagePaths {
   
   static const lab1 = '$basePath/lab1.png';
   static const lab2 = '$basePath/lab2.png';
+  static const lab3 = '$basePath/lab3.png';
+  static const user13 = '$basePath/user13.png';
+
+  static const receipt = '$basePath/receipt.png';
+
+  
+  static const lab_tech = '$basePath/lab.svg'; 
+  static const home_edit  = '$basePath/home_edit.svg'; 
+  static const marker2 = '$basePath/marker2.svg'; 
 
 }

@@ -4,6 +4,7 @@ class CommonData {
   final User? userData;
   final List<Map<dynamic, dynamic>>? cartData;
   final bool profileCreated;
+  
 
   const CommonData({
     this.userData,

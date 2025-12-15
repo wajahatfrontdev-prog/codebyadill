@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
+import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/screens/booking_categories.dart';
 import 'package:icare/screens/bookings.dart';
 import 'package:icare/screens/courses.dart';
 import 'package:icare/screens/doctor_profile.dart';
 import 'package:icare/screens/help_and_support.dart';
+import 'package:icare/screens/lab_list.dart';
 import 'package:icare/screens/login.dart';
+import 'package:icare/screens/my_appointment.dart';
+import 'package:icare/screens/patient_profile.dart';
+import 'package:icare/screens/payment_invoices.dart';
+import 'package:icare/screens/pharmacies.dart';
+import 'package:icare/screens/profile_or_appointement_view.dart';
 import 'package:icare/screens/reminder_list.dart';
 import 'package:icare/screens/settings.dart';
 import 'package:icare/screens/tabs.dart';
+import 'package:icare/screens/tasks.dart';
 import 'package:icare/screens/wallet.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
@@ -16,11 +25,83 @@ import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 
-class CustomDrawer extends StatelessWidget {
+class CustomDrawer extends ConsumerWidget {
   const CustomDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedRole = ref.watch(authProvider).userRole;
+     
+     var drawerItems = [
+_drawerItem('Booking History', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => BookingsScreen()));
+                    }),
+                    // _drawerItem('Become a Instructor', () {}),
+                    _drawerItem('Reminders', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ReminderList()));
+                    }),
+                    _drawerItem('Help & Support', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+
+                    }),
+                    _drawerItem('Wallet', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => WalletScreen()));
+                    }),
+                    _drawerItem('Courses', () {
+                                            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => Courses()));
+
+                    }),
+     ];
+   
+
+    if(selectedRole == "lab_technician"){
+           drawerItems=[
+            
+                    _drawerItem('Report Lab Results', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+
+                    }),
+                    _drawerItem('My Appointment', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ProfileOrAppointmentViewScreen()));
+
+                    }),
+            
+                    _drawerItem('Payment Invoices', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => PaymentInvoices()));
+
+                    }),
+                    _drawerItem('Help & Support', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+
+                    }),
+
+           ];
+  } else if(selectedRole == "patient"){
+    drawerItems= [
+                          _drawerItem('Report Lab Results', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
+
+                    }),
+                    _drawerItem('My Appointment', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => MyAppointment()));
+
+                    }),
+                    _drawerItem('Help & Support', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+
+                    }),
+                    _drawerItem('Pharmacies', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => PharmaciesScreen()));
+                    }),
+                          _drawerItem('Reminders', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ReminderList()));
+                    }),
+                    _drawerItem('Courses', () {
+                                            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => Courses()));
+
+                    }),
+    ];
+  }
     return ClipRRect(
       borderRadius: const BorderRadius.only(
         topRight: Radius.circular(40),
@@ -58,7 +139,9 @@ class CustomDrawer extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => DoctorProfile()));
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => 
+                      selectedRole == "patient" ? PatientProfile() 
+                      : DoctorProfile()));
                     },
                     child: Container(
                       padding: const EdgeInsets.all(3),
@@ -68,7 +151,9 @@ class CustomDrawer extends StatelessWidget {
                       ),
                       child: const CircleAvatar(
                         radius: 45,
-                        backgroundImage: AssetImage(ImagePaths.user7),
+                        backgroundImage: AssetImage(
+                          
+                          ImagePaths.user7),
                       ),
                     ),
                   ),
@@ -93,15 +178,15 @@ class CustomDrawer extends StatelessWidget {
               ),
 
               const SizedBox(height: 10),
-              const Text(
-                'Aaron Smith',
-                style: TextStyle(
+              Text(
+               selectedRole == "patient" ?  'Emily Jordan' : selectedRole == "lab_technician" ? "Muhammad" :"Aron Smith"  ,
+                style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 15,
                     color: Colors.black),
               ),
-              const Text(
-                'aaron@gmail.com',
+             Text(
+                  selectedRole == "patient" ?  'emily@gmail.com' : selectedRole == "lab_technician" ? "muhamma21@gmail.com" :'aaron@gmail.com',
                 style: TextStyle(fontSize: 13, color: Colors.grey),
               ),
               const SizedBox(height: 25),
@@ -114,25 +199,12 @@ class CustomDrawer extends StatelessWidget {
                     _drawerItem('Home', () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => TabsScreen()));
                     }),
+                    _drawerItem('Tasks', () {
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => TaskScreen()));
+                    }),
                     // _drawerItem('Reports/Lab Results', () {}),
-                    _drawerItem('Booking History', () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => BookingsScreen()));
-                    }),
-                    // _drawerItem('Become a Instructor', () {}),
-                    _drawerItem('Reminders', () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ReminderList()));
-                    }),
-                    _drawerItem('Help & Support', () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
-
-                    }),
-                    _drawerItem('Wallet', () {
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => WalletScreen()));
-                    }),
-                    _drawerItem('Courses', () {
-                                            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => Courses()));
-
-                    }),
+                    ...drawerItems,
+                    
                     _drawerItem('Settings', () {
                       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => SettingsScreen()));
 

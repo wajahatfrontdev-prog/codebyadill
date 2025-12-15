@@ -29,6 +29,7 @@ class CustomInputField extends StatefulWidget {
   final FontWeight titleFontWeight;
   final EdgeInsetsGeometry? margin;
   final int? maxLines;
+  final BoxBorder? borderType;
   const CustomInputField({
     Key? key,
     this.title,
@@ -45,6 +46,7 @@ class CustomInputField extends StatefulWidget {
     this.padding,
     this.controller,
     this.onChanged,
+    this.borderType,
     this.validator,
     this.keyboardType = TextInputType.text,
     this.textInputAction = TextInputAction.done,
@@ -100,7 +102,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
             decoration: BoxDecoration(
               color: widget.bgColor ?? AppColors.white,
               borderRadius: BorderRadius.circular(widget.borderRadius),
-              border: Border.all(
+              border: widget.borderType ?? Border.all(
                 color: widget.borderColor ?? Colors.transparent,
                 width: widget.borderWidth,
               ),

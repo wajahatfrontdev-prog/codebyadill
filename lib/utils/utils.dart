@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class Utils {
+  
   static double windowWidth(BuildContext context){
     return MediaQuery.of(context).size.width;
   }
@@ -8,5 +9,4 @@ class Utils {
     return MediaQuery.of(context).size.height;
   }
 
-  
 }

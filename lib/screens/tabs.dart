@@ -6,6 +6,7 @@ import 'package:icare/screens/chatlist.dart';
 import 'package:icare/screens/home.dart';
 import 'package:icare/screens/notifications.dart';
 import 'package:icare/screens/profile.dart';
+import 'package:icare/screens/upload_prescription.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -45,7 +46,7 @@ class _TabsScreenState extends State<TabsScreen> {
 
     return Scaffold(
 
-      appBar: AppBar(
+      appBar:  AppBar(
         
         automaticallyImplyLeading: false,
         leading: Builder(
@@ -62,6 +63,15 @@ class _TabsScreenState extends State<TabsScreen> {
                 )),
             );
           }
+        ),
+        centerTitle: false,
+        title: Column(
+         mainAxisAlignment: MainAxisAlignment.start,
+         crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomText(text:"Hello,", fontSize: 14, color: AppColors.darkGreyColor, fontWeight: FontWeight.w400, fontFamily: "Gilroy-Bold",),
+            CustomText(text:"Good Morning", fontSize: 14, color: AppColors.darkGreyColor, fontWeight: FontWeight.w400, fontFamily: "Gilroy-Bold",),
+          ],
         ),
           actions: [
              Padding(
@@ -167,7 +177,9 @@ class _TabsScreenState extends State<TabsScreen> {
                 ),
                   child: CircleAvatar(
                     backgroundColor: Colors.white,
-                    child: IconButton(onPressed: (){}, icon: SvgWrapper(assetPath: ImagePaths.centerIcon))) ,
+                    child: IconButton(onPressed: (){
+                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => UploadPrescriptionScreen() ));
+                    }, icon: SvgWrapper(assetPath: ImagePaths.centerIcon))) ,
                 ) 
                 ),
            ],

@@ -8,7 +8,7 @@ import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 class AppModals {
-  void showSuccessModal(
+ static void showSuccessModal(
     BuildContext ctx, 
     String? title, 
     String? description, 
@@ -84,7 +84,8 @@ class AppModals {
     
     builder: (context) {
   return Container(
-    height:  Utils.windowHeight(context) * 0.5,
+    // margin: EdgeInsets.symmetric(vertical: ScallingConfig.verticalScale(20)) ,
+    height:  Utils.windowHeight(context) * 0.35,
     width: Utils.windowWidth(context) * 0.9,
     decoration: BoxDecoration(
       color: AppColors.white,
@@ -159,7 +160,7 @@ class AppModals {
                     ),
                       ],
                     )],
-
+                  SizedBox(height: ScallingConfig.scale(20) ,),
                     if(numOfActions == 1) ...[
                       CustomButton(
                          label: primaryText,

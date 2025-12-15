@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
+import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/screens/login.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
@@ -34,24 +35,25 @@ class _SelectUserTypeState extends ConsumerState<SelectUserType> {
     "image": ImagePaths.userType2,
   },
   {
-    "id": 3,
-    "title": "I am a Pharmacist",
-    "description": "The easy way to reach your Medicine face-to-face.",
-    "role": "pharmacist",
-    "image": ImagePaths.userType3,
-  },
-  {
     "id": 4,
     "title": "I am a Lab Technician",
     "description": "The easy way to reach your Tests/Reports face-to-face.",
     "role": "lab_technician",
     "image":  ImagePaths.userType4,
   },
+  {
+    "id": 3,
+    "title": "I am a Pharmacist",
+    "description": "The easy way to reach your Medicine face-to-face.",
+    "role": "pharmacist",
+    "image": ImagePaths.userType3,
+  },
 ];
 
 var selected_id = null;
 
 void onSelect(int id) {
+
   setState(() {
     selected_id= id;
   });
@@ -132,6 +134,7 @@ void onSelect(int id) {
                             title: userTypes[i]["title"],
                             description: userTypes[i]["description"],
                             onPressed: () {
+  ref.read(authProvider.notifier).setUserRole(userTypes[i]["role"]);                              
                               onSelect(userTypes[i]["id"]);
                             },
                             isSelected: selected_id == userTypes[i]["id"]  ,

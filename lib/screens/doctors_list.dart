@@ -42,12 +42,15 @@ class DoctorsList extends StatelessWidget {
 
 
 class DoctorProfileCard extends StatelessWidget {
-  const DoctorProfileCard({super.key});
-
+  const DoctorProfileCard({super.key, this.width, this.padding});
+  final double? width;
+  final EdgeInsets? padding;
   @override
   Widget build(BuildContext context) {
     return Container(
-      // padding: EdgeInsets.symmetric(vertical: ScallingConfig.verticalScale(25)),
+      width: width,
+
+      padding: padding ??  EdgeInsets.zero,
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(20),

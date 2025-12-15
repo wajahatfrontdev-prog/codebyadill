@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/screens/create_profile.dart';
+import 'package:icare/screens/rating_n_reviews.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -11,8 +12,8 @@ import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
 class DoctorProfile extends StatelessWidget {
-  const DoctorProfile({super.key});
-
+  const DoctorProfile({super.key, this.fromViewProfile=false});
+  final bool fromViewProfile;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,7 +26,9 @@ class DoctorProfile extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => CreateProfile(isEdit: true,)));
             },
-            child: SvgWrapper(assetPath: ImagePaths.edit),
+            child: 
+            fromViewProfile ? Icon(Icons.favorite, color: AppColors.darkGray400,) :
+            SvgWrapper(assetPath: ImagePaths.edit),
           ),
           SizedBox(width: ScallingConfig.scale(20),)
         ],
@@ -66,10 +69,13 @@ class DoctorProfile extends StatelessWidget {
                   color: AppColors.primaryColor,
                   icon: SvgWrapper(assetPath: ImagePaths.profile2User),
                   number: "150",
-                  label: "Total Consultations",
+                  label: fromViewProfile ?  "Patients" : "Total Consultations",
                 ),
                 SizedBox(width: ScallingConfig.scale(15),),
                 CustomRecordCard(
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => RatingAndReviews()));
+                  },
                   icon: SvgWrapper(assetPath: ImagePaths.star),
                   number: "4.9" ,
                   label: "Ratings",
