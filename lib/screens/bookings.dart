@@ -81,7 +81,12 @@ class BookingsScreen extends StatelessWidget {
               children: [
                 SizedBox(height: ScallingConfig.scale(20),),
                 if(!tabs) ...[
-                CustomBackButton()],
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    CustomBackButton(),
+                  ],
+                )],
                 SizedBox(height: ScallingConfig.scale(20),),
                 Center(
                   child: CustomText(text: "Bookings Hsitory",

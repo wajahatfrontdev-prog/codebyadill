@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/screens/create_profile.dart';
+import 'package:icare/screens/rating_n_reviews.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -9,15 +12,22 @@ import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_record_card.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class DoctorProfile extends StatelessWidget {
-  const DoctorProfile({super.key});
-
+  const DoctorProfile({super.key, this.fromViewProfile=false});
+  final bool fromViewProfile;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: CustomText(text: "Create Profile", fontSize: 17, fontFamily: "Gilroy-Bold",),
+        title: CustomText(
+          text: fromViewProfile  ? "Doctor's Profile" :  "Create Profile", 
+          fontSize: 16.78, 
+          fontFamily: "Gilroy-Bold",
+          fontWeight: FontWeight.w400,
+          color: AppColors.primary500,
+        ),
         leading: CustomBackButton(),
         automaticallyImplyLeading: false,
         actions: [
@@ -25,7 +35,9 @@ class DoctorProfile extends StatelessWidget {
             onTap: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => CreateProfile(isEdit: true,)));
             },
-            child: SvgWrapper(assetPath: ImagePaths.edit),
+            child: 
+            fromViewProfile ? Icon(Icons.favorite, color: AppColors.darkGray400,) :
+            SvgWrapper(assetPath: ImagePaths.edit),
           ),
           SizedBox(width: ScallingConfig.scale(20),)
         ],
@@ -34,7 +46,11 @@ class DoctorProfile extends StatelessWidget {
         child: Center(
           child: Column(
             children: [
-              profilePicker(),
+              ProfilePicker(
+                onPickImage: (pickedImage) {
+                  
+                },
+              ),
               SizedBox(height: ScallingConfig.scale(15),),
               CustomText(
                 text: "Aaron Smith", 
@@ -66,10 +82,13 @@ class DoctorProfile extends StatelessWidget {
                   color: AppColors.primaryColor,
                   icon: SvgWrapper(assetPath: ImagePaths.profile2User),
                   number: "150",
-                  label: "Total Consultations",
+                  label: fromViewProfile ?  "Patients" : "Total Consultations",
                 ),
                 SizedBox(width: ScallingConfig.scale(15),),
                 CustomRecordCard(
+                  onTap: (){
+                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => RatingAndReviews()));
+                  },
                   icon: SvgWrapper(assetPath: ImagePaths.star),
                   number: "4.9" ,
                   label: "Ratings",
@@ -139,86 +158,144 @@ class DoctorProfile extends StatelessWidget {
   }
 }
 
-class profilePicker extends StatelessWidget {
-  const profilePicker({super.key});
+
+// class ImagePicker extends StatefulWidget {
+//   const ImagePicker({super.key, required this.onPickImage});
+//    final void Function(File pickedImage) onPickImage;
+
+
+ 
+
+//   @override
+//   State<ImagePicker> createState() => _ImagePickerState();
+// }
+
+// class _ImagePickerState extends State<ImagePicker> {
+//   @override
+//   Widget build(BuildContext context) {
+//     return const Placeholder();
+//   }
+// }
+
+class ProfilePicker extends StatefulWidget {
+  const ProfilePicker({
+    super.key,
+    required this.onPickImage,
+  });
+
+  final void Function(File pickedImage) onPickImage;
+
+  @override
+  State<ProfilePicker> createState() => _ProfilePickerState();
+}
+
+class _ProfilePickerState extends State<ProfilePicker> {
+  File? _selectedImage;
+  final ImagePicker _picker = ImagePicker();
+
+
+  Future<void> _pickImage(ImageSource source) async {
+    final pickedImage = await _picker.pickImage(
+      source: source,
+      imageQuality: 80,
+      maxWidth: 600,
+    );
+
+    if (pickedImage == null) return;
+
+    final imageFile = File(pickedImage.path);
+
+    setState(() {
+      _selectedImage = imageFile;
+    });
+
+    widget.onPickImage(imageFile);
+  }
+
+  void _showImageSourcePicker() {
+    showModalBottomSheet(
+      context: context,
+      builder: (_) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Gallery'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.gallery);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Camera'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _pickImage(ImageSource.camera);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    Future<void> _showImageSourcePicker(BuildContext context) async {
-  showModalBottomSheet(
-    context: context,
-    builder: (BuildContext bc) {
-      return SafeArea(
-        child: Wrap(
-          children: <Widget>[
-            ListTile(
-              leading: const Icon(Icons.photo_library),
-              title: const Text('Gallery'),
-              onTap: () {
-                // _pickImage(ImageSource.gallery);
-                Navigator.of(context).pop(); // Close the bottom sheet
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt),
-              title: const Text('Camera'),
-              onTap: () {
-                // _pickImage(ImageSource.camera);
-                Navigator.of(context).pop(); // Close the bottom sheet
-              },
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
-    
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
           width: Utils.windowWidth(context) * 0.3,
           height: Utils.windowHeight(context) * 0.15,
-          padding: EdgeInsets.all(7),
+          padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
             border: Border.all(
               width: 2,
-              color: AppColors.themeDarkGrey),
-
-            borderRadius: BorderRadius.all(Radius.circular(35)),
-
+              color: AppColors.themeDarkGrey,
+            ),
+            borderRadius: BorderRadius.circular(35),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadiusGeometry.circular(30),
+            borderRadius: BorderRadius.circular(30),
             child: SizedBox(
               width: Utils.windowWidth(context) * 0.26,
-              height: Utils.windowHeight(context) * 0.1 ,
-              child: Image.asset(ImagePaths.user7, 
-              fit: BoxFit.cover,
-              width: double.infinity,
-              height: double.infinity,
-              )),
+              height: Utils.windowHeight(context) * 0.1,
+              child: _selectedImage != null
+                  ? Image.file(
+                      _selectedImage!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    )
+                  : Image.asset(
+                      ImagePaths.user7,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    ),
+            ),
           ),
         ),
 
-        Positioned(
-
-          right: ScallingConfig.scale(-5),
-          bottom: ScallingConfig.scale(-5),
-          child: CustomButton(
-            onPressed: () {
-              _showImageSourcePicker(context);
-            },
-            padding: EdgeInsets.all(0),
-            width: ScallingConfig.scale(30),
-            borderRadius: 10,
-            height: ScallingConfig.scale(25),
-            bgColor: AppColors.lightGrey500,
-             leadingIcon: SvgWrapper(
-              width: ScallingConfig.scale(20),
-              assetPath: ImagePaths.camera),),
-        ),
+        // Positioned(
+        //   right: ScallingConfig.scale(-5),
+        //   bottom: ScallingConfig.scale(-5),
+        //   child: CustomButton(
+        //     onPressed: _showImageSourcePicker,
+        //     padding: EdgeInsets.zero,
+        //     width: ScallingConfig.scale(30),
+        //     height: ScallingConfig.scale(25),
+        //     borderRadius: 10,
+        //     bgColor: AppColors.lightGrey500,
+        //     leadingIcon: SvgWrapper(
+        //       width: ScallingConfig.scale(20),
+        //       assetPath: ImagePaths.camera,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

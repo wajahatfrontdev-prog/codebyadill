@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:icare/models/auth.dart';
 
@@ -20,6 +22,7 @@ class AuthNotifier extends StateNotifier<Auth> {
    }
 
     void setUserRole(String role) {
+      log(role);
       state = state.copyWith(userRole: role);
     }
 

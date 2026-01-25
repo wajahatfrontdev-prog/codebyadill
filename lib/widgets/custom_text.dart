@@ -19,6 +19,7 @@ class CustomText extends StatelessWidget {
   final TextAlign textAlign;
   final TextOverflow overflow;
   final int? maxLines;
+  final EdgeInsetsGeometry? margin;
   final EdgeInsetsGeometry? padding;
   final TextDecoration? decoration;
   final Color? decorationColor;
@@ -27,6 +28,11 @@ class CustomText extends StatelessWidget {
   final TextStyle? style;
   final bool underline;
   final bool disabled;
+  final Color? bgColor;
+  final double? borderradius;
+  final Color? borderColor;
+  final double? borderWidth;
+
   final double? lineHeight;
 
   const CustomText({
@@ -36,6 +42,12 @@ class CustomText extends StatelessWidget {
     this.width,
     this.height,
     this.color,
+    this.margin,
+    this.decoration,
+    this.bgColor,
+    this.borderWidth,
+    this.borderColor,
+    this.borderradius,
     this.fontSize = 14,
     this.isBold = false,
     this.isSemiBold = false,
@@ -48,7 +60,6 @@ class CustomText extends StatelessWidget {
     this.overflow = TextOverflow.ellipsis,
     this.maxLines,
     this.padding,
-    this.decoration,
     this.decorationColor,
     this.letterSpacing,
     this.wordSpacing,
@@ -95,7 +106,17 @@ class CustomText extends StatelessWidget {
 
     return GestureDetector(
       onTap: disabled ? null : onTap,
-      child: SizedBox(
+      child: Container(
+
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(borderradius ?? 0),
+          border: borderColor !=null ?   Border.all(
+            color: borderColor ?? Colors.transparent,
+            width: borderWidth ?? 0
+          ) : null
+        ) ,
+        margin: margin ?? EdgeInsets.zero,
         width: width,
         height: height,
         child: Padding(

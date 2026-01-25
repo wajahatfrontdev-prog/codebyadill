@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
+import 'package:icare/models/app_enums.dart';
+import 'package:icare/providers/auth_provider.dart';
 
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/boooking_card.dart';
 import 'package:icare/widgets/custom_text.dart';
-
+import 'package:icare/widgets/test_appointment.dart';
 
 class BookingCategories extends StatefulWidget {
   const BookingCategories({super.key});
@@ -63,15 +66,15 @@ class _BookingCategoriesState extends State<BookingCategories>
         controller: controller,
         children: [
           UpcomingBOokingsList(
-            status: Status.upcoming,
+            status: BookingStatus.upcoming,
             data:[1,2,3],
           ),
           UpcomingBOokingsList(
-            status: Status.cancelled,
+            status: BookingStatus.cancelled,
             data:[1,2,3],
           ),
           UpcomingBOokingsList(
-            status: Status.completed,
+            status: BookingStatus.completed,
             data:[1,2,3],
           ),
           
@@ -81,13 +84,14 @@ class _BookingCategoriesState extends State<BookingCategories>
   }
 }
 
-class UpcomingBOokingsList extends StatelessWidget {
+class UpcomingBOokingsList extends ConsumerWidget {
   const UpcomingBOokingsList({super.key, this.data, this.status});
   final List<dynamic>? data;
-  final Status? status;
+  final BookingStatus? status;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedRole = ref.watch(authProvider).userRole;
     return ListView.builder(
       itemCount: data!.length,
       padding: EdgeInsets.only(
@@ -95,7 +99,13 @@ class UpcomingBOokingsList extends StatelessWidget {
         bottom: ScallingConfig.scale(40),
         left: ScallingConfig.scale(20)),
       itemBuilder: (ctx, i) {
-        return (BookingCard(status: status));
+        return (
+          selectedRole == "lab_technician" ?
+          TestAppointment(status : status)
+           :
+          BookingCard(status: status)
+          
+          );
       },
     );
   }

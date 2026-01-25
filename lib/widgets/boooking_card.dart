@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:flutter_switch/flutter_switch.dart';
+import 'package:icare/models/app_enums.dart';
+import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/screens/profile_or_appointement_view.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
@@ -9,15 +12,16 @@ import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
-enum Status { upcoming, cancelled, completed }
+// enum Status { upcoming, cancelled, completed }
 
-class BookingCard extends StatelessWidget {
+class BookingCard extends ConsumerWidget {
   const BookingCard({super.key, this.status, this.showActions= true, this.onTap});
-  final Status? status;
+  final BookingStatus? status;
   final bool showActions;
   final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedRole = ref.watch(authProvider).userRole;
     Widget reminder = Row(
       // mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -48,7 +52,7 @@ class BookingCard extends StatelessWidget {
       ],
     );
 
-    Widget action = status == Status.upcoming ?  Row(
+    Widget action = status == BookingStatus.upcoming ?  Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomButton(
@@ -75,7 +79,7 @@ class BookingCard extends StatelessWidget {
                 },
               ),
             ],
-          ) : status == Status.cancelled ? 
+          ) : status == BookingStatus.cancelled ? 
           CustomButton(
             label: "View Appointment",
             height: Utils.windowHeight(context) * 0.055,
@@ -125,15 +129,11 @@ class BookingCard extends StatelessWidget {
                   fontSize: 12,
                   fontFamily: "Gilroy-SemiBold",
                 ),
-                if (status == Status.upcoming) reminder,
+                if (status == BookingStatus.upcoming) reminder,
               ],
             ),
       
-            // SwitchListTile(
-            //   title: CustomText(text: "Reminds me",),
-            //   value: true, onChanged: (value){
-      
-            // })
+            
             SizedBox(height: ScallingConfig.scale(10)),
             Row(
               children: [
@@ -141,9 +141,12 @@ class BookingCard extends StatelessWidget {
                   width: Utils.windowWidth(context) * 0.22,
                   height: Utils.windowWidth(context) * 0.22,
                   decoration: BoxDecoration(
+                    color: AppColors.darkGray400,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Image.asset(ImagePaths.user1, fit: BoxFit.cover),
+                  child: Image.asset(
+                    selectedRole == "patient" ? ImagePaths.walkthrough1 : 
+                    ImagePaths.user1 , fit: selectedRole == "patient" ? BoxFit.contain : BoxFit.cover),
                 ),
                 SizedBox(width: ScallingConfig.scale(12)),
                 Expanded(
@@ -152,7 +155,7 @@ class BookingCard extends StatelessWidget {
                     children: [
                       CustomText(
                         width: double.infinity,
-                        text: "Emily Jordan",
+                        text: selectedRole == "patient"? "Dr Aron Smith" : "Emily Jordan",
                         isSemiBold: true,
                         textAlign: TextAlign.start,
                       ),
