@@ -81,27 +81,38 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
                      fit: BoxFit.cover
                     )
                     ),
-                    child: Column(
+                    child: 
+                     Align(
+  alignment: Alignment.bottomCenter,
+  child: ConstrainedBox(
+    constraints: BoxConstraints(
+      maxWidth: kIsWeb ? ScallingConfig.scale(300): double.infinity,
+    ),
+    child:
+                    Column(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              // Row(
-                // mainAxisAlignment: MainAxisAlignment.end,
-                // children: [
                  
             
-              SizedBox(
-                width: Utils.windowWidth(context) * 0.7,
-                height: Utils.windowHeight(context) * 0.55,
+              Flexible(
+               flex: kIsWeb ? 4 : 6,
+
+               child: 
+               Padding(padding: const EdgeInsets.symmetric(horizontal: 20), 
                 child: Image.asset(item.pathImage!,
              
                 fit: BoxFit.cover,   
                 ),
-              ),
-              Container(
+               ),
+              
+               ),
+
+                         Container(
                 clipBehavior: Clip.hardEdge,
                 padding: EdgeInsets.symmetric(
                 horizontal: ScallingConfig.moderateScale(20), 
-                vertical: ScallingConfig.moderateScale(25)),
+                vertical: ScallingConfig.moderateScale(25)
+                ),
                 decoration: BoxDecoration(
                   color: AppColors.white,
                   borderRadius: BorderRadius.only(
@@ -109,7 +120,10 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
                     topLeft: Radius.circular(ScallingConfig.moderateScale(22.6)))
                 ),
             
-                child: Column(
+                child: 
+                SingleChildScrollView(
+                  child:
+                Column(
                   spacing: 25,
                   children: [
                               
@@ -163,18 +177,21 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
                     borderRadius: 40, 
                     
                     ),
+                    SizedBox(height: ScallingConfig.scale(20),),
+                  
             
-                  ])
+                  ])),
               )
             ]
-                    )
+                    ))),
                   ),
                   Positioned(
                     top: Utils.windowHeight(context) * 0.09,
                     right: Utils.windowWidth(context) * 0.08,
                     child: CustomButton(
-                      width: Utils.windowWidth(context) * 0.25,
-                      height: Utils.windowHeight(context) * 0.046,
+
+                      width: ScallingConfig.scale(70),
+                      // height: Utils.windowHeight(context) * 0.046,
                       borderRadius: 20,
                       gradient: LinearGradient(
                         begin: AlignmentGeometry.topRight
@@ -191,7 +208,9 @@ class _WalkthroughState extends ConsumerState<Walkthrough> {
                       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LoginScreen()));
                      },
                      labelColor: AppColors.primaryColor,
-                      label: "Skip"))
+                      label: "Skip",
+                      labelSize: 14,
+                      ))
             ]);
           
         }).toList() ,

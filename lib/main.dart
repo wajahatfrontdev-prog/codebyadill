@@ -1,18 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/app.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-
+import 'package:responsive_framework/responsive_framework.dart';
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  //   SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-  //   statusBarColor: Colors.deepOrange, // Set your desired color
-  //   statusBarIconBrightness: Brightness.dark, // For white icons
-  //   statusBarBrightness: Brightness.dark, // For iOS
-  // ));
   runApp(
     ProviderScope(child: const MyApp())
     );
@@ -29,10 +23,19 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.mainTheme,
       debugShowCheckedModeBanner: false,
       navigatorObservers: [FlutterSmartDialog.observer],
-      builder: FlutterSmartDialog.init(),
+       builder: (context, child) {
+        ScallingConfig().init(context);
+        return ResponsiveBreakpoints.builder(
+          child: FlutterSmartDialog.init()(context, child),
+          breakpoints: const [
+            Breakpoint(start: 0, end: 600, name: MOBILE),
+            Breakpoint(start: 601 , end: 850, name: TABLET),
+            Breakpoint(start: 851, end: 1200, name: DESKTOP),
+            Breakpoint(start: 1201, end: double.infinity, name: '4K'),
+          ],
+        );
+      },
       home: App(),
     );
-
-  
   }
 }

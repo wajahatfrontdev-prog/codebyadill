@@ -27,6 +27,7 @@ import 'package:icare/screens/intake_notes.dart';
 import 'package:icare/screens/lab_appointment.dart';
 import 'package:icare/screens/lab_filters.dart';
 import 'package:icare/screens/labb_details.dart';
+import 'package:icare/screens/login.dart';
 import 'package:icare/screens/my_cart.dart';
 import 'package:icare/screens/notifications.dart';
 import 'package:icare/screens/my_orders.dart';
@@ -114,7 +115,8 @@ class _AppState extends ConsumerState<App> {
   
   @override
   Widget build(BuildContext context) {
-    return content;
+    // return content;
+    return LoginScreen();
   }
 }
 
