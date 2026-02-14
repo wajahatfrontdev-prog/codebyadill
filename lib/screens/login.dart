@@ -8,18 +8,10 @@ import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/custom_text_input.dart';
 
-class LoginApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Login Screen',
-      home: LoginScreen(),
-    );
-  }
-}
+
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -37,9 +29,30 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+        final isMobile = ResponsiveHelper.isMobile(context);
+    
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: Container(
+      body: isMobile ? _buildMobileLayout() : _buildDesktopLayout()
+    );
+  }
+Widget _buildDesktopLayout () {
+  return Row(
+    children: [
+       SizedBox(
+        width: Utils.windowWidth(context) * 0.5,
+        height: double.infinity,
+        child: Image.asset("assets/images/splash.jpg", 
+        
+        fit: BoxFit.scaleDown,),
+       ),
+
+    ],
+  );
+}
+
+Widget _buildMobileLayout() {
+  return Container(
         width: Utils.windowWidth(context),
         height: Utils.windowHeight(context),
         decoration: BoxDecoration(
@@ -50,23 +63,6 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         child: Stack(
           children: [
-            // Positioned(
-            //   top: ScallingConfig.moderateScale(40),
-            //   right: ScallingConfig.moderateScale(20),
-            //   child: ElevatedButton(
-            //     style: ElevatedButton.styleFrom(
-            //       backgroundColor: AppColors.white,
-            //       shape: RoundedRectangleBorder(
-            //         borderRadius: BorderRadius.circular(20),
-            //       ),
-            //     ),
-            //     onPressed: () {},
-            //     child: Text(
-            //       "Skip",
-            //       style: TextStyle(color: AppColors.primaryColor),
-            //     ),
-            //   ),
-            // ),
 
             SingleChildScrollView(
               padding: EdgeInsets.symmetric(
@@ -380,9 +376,28 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
+      );
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   /// Social Button Widget
   Widget _socialButton(String assetPath, String label) {

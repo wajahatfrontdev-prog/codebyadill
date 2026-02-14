@@ -59,6 +59,7 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   flutter_steps: ^1.0.5
   dio: ^5.9.0
+  responsive_framework: ^1.5.1
 
 dev_dependencies:
   flutter_test:

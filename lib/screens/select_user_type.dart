@@ -64,7 +64,7 @@ class _SelectUserTypeState extends ConsumerState<SelectUserType> {
   },
 ];
 
-var selected_id = null;
+int? selected_id;
 
 void onSelect(int id) {
 
@@ -85,14 +85,28 @@ void onSelect(int id) {
   Widget build(BuildContext context) {
 
 
-    return Container(
+    
+   return LayoutBuilder(builder: (ctx, constraints) {
+      if(constraints.maxWidth < 600){
+   return _buildMobileLayout(context);
+      }
+      else if(constraints.maxWidth <1200) {
+        return _buildDesktopLayout(context, true);
+      }
+      else{
+        return _buildDesktopLayout(context, false);
+      }
+    });
+
+  
+}
+
+
+Widget _buildMobileLayout(BuildContext context){
+  return Container(
         width: Utils.windowWidth(context),
         height: Utils.windowHeight(context),
-        // margin: EdgeInsets.only(top: ),
-        // padding: EdgeInsets.only(top:ScallingConfig.verticalScale(40), left:ScallingConfig.scale(10) , right: ScallingConfig.scale(10)),
-        
         decoration: BoxDecoration(
-        
         image: DecorationImage(image: AssetImage("assets/images/bgImage.jpeg", ),
          fit: BoxFit.cover
         )
@@ -161,7 +175,9 @@ void onSelect(int id) {
                   Positioned(
                     bottom: ScallingConfig.verticalScale(20),
                     left: ScallingConfig.scale(20),
-                    child: CustomButton(label: "Continue", 
+                    child: CustomButton(
+                      width: Utils.windowWidth(context) * 0.9 ,
+                      label: "Continue", 
                     borderRadius: ScallingConfig.moderateScale(30),
                     onPressed: () {
                     Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LoginScreen()));
@@ -172,5 +188,89 @@ void onSelect(int id) {
           ),
         ) 
     );
-  }
+
+}
+Widget _buildDesktopLayout(BuildContext context, bool isTablet) {
+  return Center(
+    child: Container(
+decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage("assets/images/bgImage.jpeg", ),
+         fit: BoxFit.cover
+        )
+),
+      // color: AppColors.secondaryColor,
+      constraints:  BoxConstraints(maxWidth: Utils.windowWidth(context)),
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CustomText(
+              text: "Select Type Of Your Account",
+              fontSize: 32,
+              fontWeight: FontWeight.w700,
+              color: AppColors.themeBlue,
+            ),
+
+            const SizedBox(height: 10),
+
+            CustomText(
+              text:
+                  "Choose the type of your account, Note: Account type cannot be changed later",
+              fontSize: 14,
+            ),
+
+            const SizedBox(height: 40),
+
+            Expanded(
+              child: GridView.builder(
+                itemCount: userTypes.length,
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: isTablet ? 2 : 3,
+                  crossAxisSpacing: 20,
+                  mainAxisSpacing: 20,
+                  childAspectRatio: 1.4,
+                ),
+                itemBuilder: (ctx, i) {
+                  return UserTypeCard(
+                    image: userTypes[i]["image"],
+                    title: userTypes[i]["title"],
+                    description: userTypes[i]["description"],
+                    isSelected: selected_id == userTypes[i]["id"],
+                    onPressed: () {
+                      ref
+                          .read(authProvider.notifier)
+                          .setUserRole(userTypes[i]["role"]);
+                      onSelect(userTypes[i]["id"]);
+                    },
+                  );
+                },
+              ),
+            ),
+
+            Align(
+              // alignment: Alignment.centerRight,
+              child: CustomButton(
+                labelSize: isTablet ? 10 : 16,
+                width: ScallingConfig.scale(200) ,
+                label: "Continue",
+                onPressed: selected_id == null
+                    ? null
+                    : () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => LoginScreen(),
+                          ),
+                        );
+                      },
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 }
