@@ -11,32 +11,49 @@ class DoctorsList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = Utils.windowWidth(context) > 600;
+
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
         leading: CustomBackButton(),
         automaticallyImplyLeading: false,
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
         title: CustomText(
-          text: "Doctors",
+          text: "Find Doctors",
           fontFamily: "Gilroy-Bold",
-          fontSize: 16.78,
-          letterSpacing: -0.31,
-          lineHeight: 1.0,
-          fontWeight: FontWeight.bold,
-          color: AppColors.darkGray500,
+          fontSize: 18,
+          fontWeight: FontWeight.w900,
+          color: const Color(0xFF0F172A),
         ),
       ),
-      body: GridView.builder(
-        itemCount: 8,
-        padding: EdgeInsets.all(20),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          mainAxisExtent: Utils.windowHeight(context) * 0.28,
-          childAspectRatio: 3 / 2,
-          crossAxisSpacing: 20,
-          mainAxisSpacing: 20,
-        ),
-        itemBuilder: (ctx, i) {
-          return (DoctorProfileCard());
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          int crossAxisCount = 2;
+          if (constraints.maxWidth > 1200) {
+            crossAxisCount = 4;
+          } else if (constraints.maxWidth > 800) {
+            crossAxisCount = 3;
+          }
+
+          return GridView.builder(
+            itemCount: 12,
+            padding: EdgeInsets.symmetric(
+              horizontal: isDesktop ? 40 : 20,
+              vertical: 24,
+            ),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              mainAxisExtent: isDesktop ? 340 : 280,
+              crossAxisSpacing: 24,
+              mainAxisSpacing: 24,
+            ),
+            itemBuilder: (ctx, i) {
+              return const DoctorProfileCard();
+            },
+          );
         },
       ),
     );
@@ -47,79 +64,146 @@ class DoctorProfileCard extends StatelessWidget {
   const DoctorProfileCard({super.key, this.width, this.padding});
   final double? width;
   final EdgeInsets? padding;
+
   @override
   Widget build(BuildContext context) {
     return Container(
       width: width,
-
-      padding: padding ?? EdgeInsets.zero,
       decoration: BoxDecoration(
-        color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: AppColors.lightGrey100,
-            offset: Offset(0, 4),
-            blurRadius: 8,
+            color: const Color(0xFF0F172A).withOpacity(0.04),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            top: ScallingConfig.scale(-5),
-            right: ScallingConfig.scale(-5),
-            child: IconButton(onPressed: () {}, icon: Icon(Icons.favorite)),
-          ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Stack(
+          children: [
+            // Background decoration
+            Positioned(
+              top: -20,
+              right: -20,
+              child: Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: AppColors.primaryColor.withOpacity(0.03),
+                ),
+              ),
+            ),
+            
+            // Interaction overlay
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () {},
+                  child: const SizedBox.expand(),
+                ),
+              ),
+            ),
 
-          Column(
-            children: [
-              SizedBox(height: ScallingConfig.verticalScale(15)),
-
-              CircleAvatar(
-                backgroundColor: AppColors.darkGray400,
-                radius: ScallingConfig.scale(40),
-                child: Image.asset(ImagePaths.walkthrough1, fit: BoxFit.cover),
-              ),
-              SizedBox(height: ScallingConfig.scale(20)),
-              CustomText(
-                text: "Dr Aaron Smith",
-                color: AppColors.themeDarkGrey,
-                fontFamily: "Gilroy-Bold",
-                fontSize: 14,
-                fontWeight: FontWeight.w400,
-              ),
-              SizedBox(height: ScallingConfig.scale(10)),
-              CustomText(
-                text: "Therapist",
-                color: AppColors.themeDarkGrey,
-                fontFamily: "Gilroy-Regular",
-                fontSize: 10,
-                fontWeight: FontWeight.w400,
-              ),
-              SizedBox(height: ScallingConfig.scale(10)),
-              Row(
+            Padding(
+              padding: padding ?? const EdgeInsets.all(20),
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Icon(
-                    Icons.star,
-                    size: ScallingConfig.moderateScale(18),
-                    color: AppColors.themeDarkGrey,
+                   // Avatar Ring
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColors.primaryColor.withOpacity(0.1),
+                        width: 2,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      radius: 42,
+                      backgroundColor: const Color(0xFFF1F5F9),
+                      backgroundImage: AssetImage(ImagePaths.walkthrough1),
+                    ),
                   ),
-                  SizedBox(width: ScallingConfig.scale(5)),
+                  const SizedBox(height: 20),
+                  
+                  // Text Info
                   CustomText(
-                    text: "4.5 (135 reviews)",
-                    color: AppColors.themeDarkGrey,
-                    fontFamily: "Gilroy-Regular",
-                    fontSize: 10,
-                    fontWeight: FontWeight.w400,
+                    text: "Dr. Aaron Smith",
+                    color: const Color(0xFF0F172A),
+                    fontFamily: "Gilroy-Bold",
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                  const SizedBox(height: 6),
+                  CustomText(
+                    text: "Therapist Specialist",
+                    color: const Color(0xFF64748B),
+                    fontFamily: "Gilroy-Medium",
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 16),
+                  
+                  // Rating Badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFFF7ED),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star_rounded, size: 16, color: Color(0xFFF59E0B)),
+                        const SizedBox(width: 4),
+                        CustomText(
+                          text: "4.8",
+                          color: const Color(0xFF92400E),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                        ),
+                        const SizedBox(width: 4),
+                        CustomText(
+                          text: "(120)",
+                          color: const Color(0xFFD97706).withOpacity(0.6),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ],
+            ),
+            
+            // Favorite Button
+            Positioned(
+              top: 14,
+              right: 14,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: const Icon(Icons.favorite_border_rounded, color: Color(0xFFEF4444), size: 18),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -18,8 +18,212 @@ class TopUpScreen extends StatefulWidget {
 class _TopUpScreenState extends State<TopUpScreen> {
   var amount = "";
 
+  Widget _buildWebLayout(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FB),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: CustomBackButton(),
+        automaticallyImplyLeading: false,
+        title: CustomText(
+          text: "Top Up Wallet",
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.31,
+          lineHeight: 1.0,
+          fontSize: 20,
+          fontFamily: "Gilroy-Bold",
+          color: AppColors.primaryColor,
+        ),
+      ),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+          child: Container(
+            constraints: const BoxConstraints(maxWidth: 900),
+            padding: const EdgeInsets.all(40),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: const Color(0xFFF1F4F9), width: 1.5),
+              boxShadow: const [BoxShadow(color: Color(0x0A000000), offset: Offset(0, 4), blurRadius: 20)],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.account_balance_wallet_rounded, size: 40, color: AppColors.primaryColor),
+                ),
+                const SizedBox(height: 24),
+                const Text("Enter Top Up Amount", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: Color(0xFF1E293B), fontFamily: "Gilroy-Bold")),
+                const SizedBox(height: 8),
+                const Text("How much would you like to add to your wallet?", textAlign: TextAlign.center, style: TextStyle(fontSize: 15, color: Color(0xFF64748B))),
+                
+                const SizedBox(height: 32),
+                
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Left side: Amount & Quick Select
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Amount Display / Input Area
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 24),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: amount.isNotEmpty ? AppColors.primaryColor : const Color(0xFFE2E8F0), width: 1.5),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text("Amount (USD)", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+                                const SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    const Text("\$ ", style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+                                    Expanded(
+                                      child: Text(
+                                        amount.isEmpty ? "0.00" : amount,
+                                        style: TextStyle(
+                                          fontSize: 40,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: "Gilroy-Bold",
+                                          color: amount.isEmpty ? const Color(0xFFCBD5E1) : const Color(0xFF1E293B),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 24),
+                          
+                          // Quick Select Buttons
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            alignment: WrapAlignment.start,
+                            children: [
+                              _buildQuickAmountBtn("50"),
+                              _buildQuickAmountBtn("100"),
+                              _buildQuickAmountBtn("250"),
+                              _buildQuickAmountBtn("500"),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    
+                    const SizedBox(width: 48),
+
+                    // Right side: Numpad
+                    Expanded(
+                      flex: 1,
+                      child: Center(
+                        child: SizedBox(
+                          width: 280,
+                          child: SimpleNumpad(
+                            buttonWidth: 60,
+                            buttonHeight: 60,
+                            gridSpacing: 16,
+                            foregroundColor: Colors.white,
+                            backgroundColor: const Color(0xFFF1F5F9), // Light grey for buttons
+                            buttonBorderRadius: 16,
+                            textStyle: const TextStyle(fontSize: 24, color: Color(0xFF1E293B), fontWeight: FontWeight.w600),
+                            removeBlankButton: true,
+                            useBackspace: true,
+                            onPressed: (str) {
+                              setState(() {
+                                if (str == "BACKSPACE") {
+                                  if (amount.isNotEmpty) amount = amount.substring(0, amount.length - 1);
+                                } else {
+                                  amount += str;
+                                }
+                              });
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 40),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      if (amount.isEmpty) return;
+                      CustomDialog.show(
+                        context: context,
+                        title: 'Success',
+                        okText: "Return to Wallet",
+                        onOk: () {
+                          Navigator.of(context).pop();
+                          Navigator.of(context).pop(); // pop twice to go back to wallet
+                        },
+                        descriptionMaxLines: 2,
+                        status: DialogStatus.success,
+                        descriptionSize: 14,
+                        description: "You have successfully transferred \$$amount into your wallet account.",
+                      );
+                    },
+                    child: const Text("Confirm Transfer", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, fontFamily: "Gilroy-SemiBold")),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildQuickAmountBtn(String val) {
+    return InkWell(
+      onTap: () => setState(() => amount = val),
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Text("+\$$val", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).size.width > 600) {
+      return _buildWebLayout(context);
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: CustomBackButton(),

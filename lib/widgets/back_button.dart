@@ -8,8 +8,9 @@ import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
 class CustomBackButton extends StatelessWidget {
-  const CustomBackButton({super.key, this.margin});
+  const CustomBackButton({super.key, this.margin, this.color});
   final EdgeInsets? margin;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +33,7 @@ class CustomBackButton extends StatelessWidget {
         // ),
         child: Center(
           child: SvgWrapper(
+            color: color,
             assetPath: ImagePaths.back 
         )),
       ),

@@ -72,7 +72,13 @@ class CustomButton extends StatelessWidget {
                       Colors.grey.shade400,
                       Colors.grey.shade600,
                     ])
-                  : null),
+                  : (bgColor == null && !outlined
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Color(0xFF0B2D6E), Color(0xFF2255BB)],
+                        )
+                      : null)),
           borderRadius: BorderRadius.circular(borderRadius),
           border: outlined
               ? Border.all(
@@ -118,8 +124,8 @@ class CustomButton extends StatelessWidget {
                 width: labelWidth,
                 text: label,
                 color: labelColor,
-                isBold: true,
-                fontSize: ScallingConfig.moderateScale(labelSize),
+                fontWeight: labelWeight,
+                fontSize: labelSize,
               )
             ),],
             if (trailingIcon != null) ...[

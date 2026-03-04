@@ -38,174 +38,120 @@ class CustomDrawer extends ConsumerWidget {
     final selectedRole = ref.watch(authProvider).userRole;
 
     var drawerItems = [
-      _drawerItem('Tasks', () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (ctx) => TaskScreen()));
+      _drawerItem('Tasks', Icons.task_alt_rounded, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
       }),
-      _drawerItem('Booking History', () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (ctx) => BookingsScreen()));
+      _drawerItem('Booking History', Icons.history_rounded, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const BookingsScreen()));
       }),
-      // _drawerItem('Become a Instructor', () {}),
-      _drawerItem('Reminders', () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (ctx) => ReminderList()));
+      _drawerItem('Reminders', Icons.alarm_rounded, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const ReminderList()));
       }),
-      _drawerItem('Help & Support', () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+      _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
       }),
-      _drawerItem('Wallet', () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (ctx) => WalletScreen()));
+      _drawerItem('Wallet', Icons.account_balance_wallet_rounded, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const WalletScreen()));
       }),
-      _drawerItem('Courses', () {
-        Navigator.of(
-          context,
-        ).push(MaterialPageRoute(builder: (ctx) => Courses()));
+      _drawerItem('Courses', Icons.school_rounded, () {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const Courses()));
       }),
     ];
 
     if (selectedRole == "lab_technician") {
       drawerItems = [
-        _drawerItem('Tasks', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => TaskScreen()));
+        _drawerItem('Tasks', Icons.task_alt_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
         }),
-        _drawerItem('Report Lab Results', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+        _drawerItem('Report Lab Results', Icons.biotech_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
         }),
-        _drawerItem('My Appointment', () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (ctx) => ProfileOrAppointmentViewScreen(),
-            ),
-          );
+        _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const ProfileOrAppointmentViewScreen()));
         }),
-
-        _drawerItem('Payment Invoices', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => PaymentInvoices()));
+        _drawerItem('Payment Invoices', Icons.receipt_long_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PaymentInvoices()));
         }),
-        _drawerItem('Help & Support', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+        _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
         }),
       ];
     } else if (selectedRole == "patient") {
       drawerItems = [
-        _drawerItem('Tasks', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => TaskScreen()));
+        _drawerItem('Tasks', Icons.task_alt_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
         }),
-        _drawerItem('Report Lab Results', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
+        _drawerItem('Report Lab Results', Icons.biotech_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
         }),
-        _drawerItem('My Appointment', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => MyAppointment()));
+        _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyAppointment()));
         }),
-        _drawerItem('Help & Support', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+        _drawerItem('Pharmacies', Icons.medication_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
         }),
-        _drawerItem('Pharmacies', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => PharmaciesScreen()));
+        _drawerItem('Reminders', Icons.alarm_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const ReminderList()));
         }),
-        _drawerItem('Reminders', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => ReminderList()));
-        }),
-        _drawerItem('Courses', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => Courses()));
+        _drawerItem('Courses', Icons.school_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const Courses()));
         }),
       ];
     } else if (selectedRole == "pharmacist") {
       drawerItems = [
-        _drawerItem('My Orders', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => MyOrdersScreen()));
+        _drawerItem('Tasks', Icons.task_alt_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
         }),
-                _drawerItem('Payment Invoices', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => PaymentInvoices()));
+        _drawerItem('My Orders', Icons.shopping_basket_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyOrdersScreen()));
         }),
-        _drawerItem('Help & Support', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+        _drawerItem('Payment Invoices', Icons.receipt_long_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PaymentInvoices()));
         }),
-        _drawerItem('Prescriptions', () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (ctx) => PrescriptionsScreen()),
-          );
+        _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyAppointment()));
         }),
-        _drawerItem('PHarmcy Management', () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (ctx) => PharmacyManagementScreen()),
-          );
+        _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
         }),
-      ];
-    } else if(selectedRole == "instructor"){
-      drawerItems = [
-
-        _drawerItem('Pharmacies', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => PharmaciesScreen()));
+        _drawerItem('Prescriptions', Icons.description_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PrescriptionsScreen()));
         }),
-       
-        _drawerItem('Reports/Lab Results', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
+        _drawerItem('Reminders', Icons.alarm_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const ReminderList()));
         }),
-        _drawerItem('Help & Support', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+        _drawerItem('Wallet', Icons.account_balance_wallet_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const WalletScreen()));
+        }),
+        _drawerItem('Courses', Icons.school_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const Courses()));
+        }),
+        _drawerItem('Pharmacy Management', Icons.admin_panel_settings_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmacyManagementScreen()));
         }),
       ];
-    } else if(selectedRole == "student"){
+    } else if (selectedRole == "instructor") {
       drawerItems = [
-       
-        _drawerItem('Pharmacies', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => PharmaciesScreen()));
+        _drawerItem('Pharmacies', Icons.medication_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
         }),
-       
-        _drawerItem('Reports/Lab Results', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
+        _drawerItem('Reports/Lab Results', Icons.biotech_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
         }),
-        _drawerItem('Help & Support', () {
-          Navigator.of(
-            context,
-          ).push(MaterialPageRoute(builder: (ctx) => HelpAndSupport()));
+        _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
+        }),
+      ];
+    } else if (selectedRole == "student") {
+      drawerItems = [
+        _drawerItem('Pharmacies', Icons.medication_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
+        }),
+        _drawerItem('Reports/Lab Results', Icons.biotech_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
+        }),
+        _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
         }),
       ];
     }
@@ -317,18 +263,53 @@ class CustomDrawer extends ConsumerWidget {
                 child: ListView(
                   padding: EdgeInsets.zero,
                   children: [
-                    _drawerItem('Home', () {
+                    _drawerItem('Home', Icons.home_rounded, () {
                       Navigator.of(
                         context,
-                      ).push(MaterialPageRoute(builder: (ctx) => TabsScreen()));
-                    }),
+                      ).push(MaterialPageRoute(builder: (ctx) => const TabsScreen()));
+                    }, isActive: true),
+
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: CustomText(
+                        text: "QUICK ACTIONS",
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF94A3B8),
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                    
+                    _drawerActionItem(context, 'Book Appointment', const Color(0xFF6366F1)),
+                    _drawerActionItem(context, 'View Lab Reports', const Color(0xFF0EA5E9)),
+                    
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                      child: Divider(color: Color(0xFFF1F5F9), height: 1),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                      child: CustomText(
+                        text: "NAVIGATION",
+                        fontSize: 11,
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFF94A3B8),
+                        letterSpacing: 1.5,
+                      ),
+                    ),
 
                     // _drawerItem('Reports/Lab Results', () {}),
                     ...drawerItems,
 
-                    _drawerItem('Settings', () {
+                    _drawerItem('Settings', Icons.settings_rounded, () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (ctx) => SettingsScreen()),
+                        MaterialPageRoute(builder: (ctx) => const SettingsScreen()),
                       );
                     }),
                   ],
@@ -356,21 +337,64 @@ class CustomDrawer extends ConsumerWidget {
     );
   }
 
-  Widget _drawerItem(String title, VoidCallback onTap) {
-    return Column(
-      children: [
-        ListTile(
-          dense: true,
-          title: CustomText(
-            text: title,
-            fontFamily: "Gilroy-SemiBold",
-            fontSize: 14.78,
-            color: AppColors.primary500,
-          ),
-
-          onTap: onTap,
+  Widget _drawerItem(String title, IconData icon, VoidCallback onTap, {bool isActive = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        tileColor: isActive ? AppColors.primaryColor.withOpacity(0.08) : null,
+        dense: true,
+        leading: Icon(
+          icon,
+          size: 20,
+          color: isActive ? AppColors.primaryColor : const Color(0xFF64748B),
         ),
-      ],
+        title: CustomText(
+          text: title,
+          fontFamily: "Gilroy-Bold",
+          fontSize: 14,
+          fontWeight: isActive ? FontWeight.w900 : FontWeight.w600,
+          color: isActive ? AppColors.primaryColor : const Color(0xFF0F172A),
+        ),
+        onTap: onTap,
+      ),
+    );
+  }
+
+  Widget _drawerActionItem(BuildContext context, String title, Color color) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: InkWell(
+        onTap: () {},
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.06),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: color.withOpacity(0.1)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.flash_on_rounded, size: 12, color: color),
+              ),
+              const SizedBox(width: 12),
+              CustomText(
+                text: title,
+                fontSize: 13,
+                fontWeight: FontWeight.w800,
+                color: color,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -64,8 +64,122 @@ class _ReminderListState extends State<ReminderList> {
     },
   ];
 
+  Widget _buildWebLayout(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FB),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        leading: CustomBackButton(),
+        automaticallyImplyLeading: false,
+        title: CustomText(
+          text: "Patient Reminders",
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.31,
+          lineHeight: 1.0,
+          fontSize: 20,
+          fontFamily: "Gilroy-Bold",
+          color: AppColors.primaryColor,
+        ),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Upcoming Reminders",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF1E293B),
+                      fontFamily: "Gilroy-Bold",
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      _buildWebFilterBtn(
+                        context: context,
+                        icon: Icons.access_time_filled_rounded,
+                        label: _selectedTime.isNotEmpty ? _selectedTime : 'Select Time',
+                        onTap: () async {
+                          final time = await showTimePicker(context: context, initialTime: TimeOfDay.now());
+                          if (time != null) setState(() => _selectedTime = time.format(context));
+                        }
+                      ),
+                      const SizedBox(width: 12),
+                      _buildWebFilterBtn(
+                        context: context,
+                        icon: Icons.calendar_today_rounded,
+                        label: _selectedDate.isNotEmpty ? _selectedDate : "Select Date",
+                        onTap: () async {
+                          final date = await showDatePicker(context: context, firstDate: DateTime.now(), lastDate: DateTime(2030));
+                          if (date != null) setState(() => _selectedDate = DateFormat("yyyy/MM/dd").format(date));
+                        }
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.only(bottom: 40),
+                  itemCount: _remindersList.length,
+                  itemBuilder: (ctx, i) {
+                    final item = _remindersList[i];
+                    return WebReminderWidget(
+                      title: item["title"],
+                      patientName: item["patient"],
+                      date: item["date"],
+                      time: item["time"],
+                      description: item["description1"],
+                      description2: item["description2"],
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWebFilterBtn({required BuildContext context, required IconData icon, required String label, required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 16, color: AppColors.primaryColor),
+            const SizedBox(width: 8),
+            Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).size.width > 600) {
+      return _buildWebLayout(context);
+    }
+
     return Scaffold(
       appBar: AppBar(
         leading: CustomBackButton(),
@@ -165,6 +279,135 @@ class _ReminderListState extends State<ReminderList> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class WebReminderWidget extends StatelessWidget {
+  final String? title;
+  final String? patientName;
+  final String? date;
+  final String? time;
+  final String? description;
+  final String? description2;
+
+  const WebReminderWidget({
+    super.key,
+    this.title,
+    this.patientName,
+    this.date,
+    this.time,
+    this.description,
+    this.description2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFF1F4F9), width: 1.5),
+        boxShadow: const [BoxShadow(color: Color(0x0A000000), offset: Offset(0, 4), blurRadius: 12)],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Left content
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(8)),
+                        child: Icon(Icons.notifications_active_rounded, color: AppColors.primaryColor, size: 20),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(child: Text(title ?? "", style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: Color(0xFF1E293B), fontFamily: "Gilroy-Bold"))),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      const CircleAvatar(radius: 12, backgroundColor: Color(0xFFE2E8F0), backgroundImage: AssetImage(ImagePaths.user7)),
+                      const SizedBox(width: 8),
+                      Text(patientName ?? "", style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                      const SizedBox(width: 24),
+                      Icon(Icons.calendar_today_rounded, size: 14, color: Colors.grey.shade400),
+                      const SizedBox(width: 6),
+                      Text(date ?? "", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B))),
+                      const SizedBox(width: 24),
+                      Icon(Icons.access_time_filled_rounded, size: 14, color: Colors.grey.shade400),
+                      const SizedBox(width: 6),
+                      Text(time ?? "", style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: Color(0xFF64748B))),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(8)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (description != null) Text(description!, style: const TextStyle(fontSize: 13, color: Color(0xFF475569), height: 1.5)),
+                        if (description2 != null) Text(description2!, style: const TextStyle(fontSize: 13, color: Color(0xFF475569), height: 1.5)),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      width: 100, // Fixed reasonable size for desktop instead of screen percentage
+                      height: 100,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.asset(ImagePaths.attachment, fit: BoxFit.cover),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 24),
+            // Right actions
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                OutlinedButton.icon(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => CreateReminder(isEdit: true))),
+                  icon: const Icon(Icons.edit_rounded, size: 16),
+                  label: const Text("Edit"),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.primaryColor,
+                    side: BorderSide(color: AppColors.primaryColor),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextButton.icon(
+                  onPressed: () {},
+                  icon: const Icon(Icons.delete_outline_rounded, size: 16),
+                  label: const Text("Delete"),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFFEF4444),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

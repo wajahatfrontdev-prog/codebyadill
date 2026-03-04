@@ -34,72 +34,249 @@ class _ForgetPasswordState extends State<ForgetPassword> {
     );
   }
 
-Widget _buildDesktopLayout() {
-  return (
-    Row(
-      children: [
-  SizedBox(
-                width: Utils.windowWidth(context) * 0.5,
-                height: Utils.windowHeight(context),
-                child: Image.asset("assets/images/splash.jpg", fit: BoxFit.cover),
-              ),
-              Container(
-                width: Utils.windowWidth(context) * 0.5,
-                height: Utils.windowHeight(context),
-                child: SingleChildScrollView(
-                  child: Column(
-                    
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 100),
-                      CustomText(
-                        text: "Forget Password",
-                        fontWeight: FontWeight.bold,
-                        fontSize: 22,
-                        width: Utils.windowWidth(context) * 0.4,
-                        color: AppColors.primaryColor,
-                      ),                      SizedBox(height: 20),
-                      CustomInputField(
-                        width: Utils.windowWidth(context) * 0.4,
-                        hintText: "Email or Phone Number",
-                        leadingIcon: Icon(
-                          Icons.person_outline,
-                          color: AppColors.primary500,
-                        ),
-                        controller: emailController,
-                        bgColor: AppColors.white,
-                        borderRadius: 30,
-                        borderColor: AppColors.veryLightGrey,
-                        borderWidth: 2,
-                        validator: (val) {
-                          if (val == null || val.isEmpty) {
-                            return "Please enter your username";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 50),
-                      CustomButton(
-                        label: "Send",
-                        width: Utils.windowWidth(context) * 0.4,
-                        height: 60,
-                        borderRadius: ScallingConfig.scale(30),
-                          onPressed: () {
-               Navigator.of(context).push(MaterialPageRoute(builder:(ctx) => VerifyCode()));
+  Widget _buildDesktopLayout() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-                          },
-                     ),
-                    ],
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Row(
+        children: [
+          // ══════════════════════════════════════════════════════════════
+          // LEFT HERO PANEL — gradient + branding
+          // ══════════════════════════════════════════════════════════════
+          Expanded(
+            flex: 5,
+            child: SizedBox(
+              height: screenHeight,
+              child: Image.asset(
+                "assets/images/splash.jpg",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+
+          // ══════════════════════════════════════════════════════════════
+          // RIGHT FORM PANEL
+          // ══════════════════════════════════════════════════════════════
+          Expanded(
+            flex: 5,
+            child: Container(
+              color: const Color(0xFFF8FAFD),
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Container(
+                    width: 460,
+                    padding: const EdgeInsets.all(48),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0036BC).withOpacity(0.06),
+                          blurRadius: 40,
+                          offset: const Offset(0, 16),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Back Icon Button
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: InkWell(
+                            onTap: () => Navigator.pop(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                                color: Color(0xFF0B2D6E),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        // Header
+                        const Text(
+                          "Forgot Password?",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0B2D6E),
+                            fontFamily: "Gilroy-Bold",
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Enter your email or phone to receive a verification code",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[500],
+                            fontFamily: "Gilroy-Medium",
+                          ),
+                        ),
+                        const SizedBox(height: 36),
+
+                        // Form
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              CustomInputField(
+                                hintText: "Email or Phone Number",
+                                leadingIcon: const Icon(
+                                  Icons.mail_outline_rounded,
+                                  color: Color(0xFF94A3B8),
+                                  size: 22,
+                                ),
+                                controller: emailController,
+                                bgColor: const Color(0xFFF8FAFC),
+                                borderRadius: 14,
+                                borderColor: const Color(0xFFE2E8F0),
+                                borderWidth: 1.5,
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return "This field is required";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 40),
+                              // Send Button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 54,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) => const VerifyCode(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text(
+                                    "Send Verification Code",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: "Gilroy-Bold",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              // Back to Login link for those who don't see the top button
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text(
+                                  "Back to Login",
+                                  style: TextStyle(
+                                    color: Color(0xFF64748B),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                    fontFamily: "Gilroy-SemiBold",
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              )
-                // SizedBox(height: 20),
-              
-                
-            
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Helper widgets for desktop layout
+  Widget _buildDecorativeCircle({double? top, double? left, double? right, double? bottom, required double size, required double opacity}) {
+    return Positioned(
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(opacity),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureRow(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.white.withOpacity(0.9), size: 18),
+        ),
+        const SizedBox(width: 16),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            fontFamily: "Gilroy-Medium",
+          ),
+        ),
       ],
-      ));
-}
+    );
+  }
+
+  Widget _buildCopyright() {
+    return Positioned(
+      bottom: 30,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Text(
+          "© 2026 iCare Health Technologies",
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.35),
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+
 
 Widget _buildMobileLayout({bool isTablet = false}) {
   return Stack(
