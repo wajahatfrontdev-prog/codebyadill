@@ -18,7 +18,8 @@ class ResetPassword extends StatefulWidget {
 }
 
 class _ResetPasswordState extends State<ResetPassword> {
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
@@ -38,125 +39,255 @@ class _ResetPasswordState extends State<ResetPassword> {
 
 
 
- Widget _buildDesktopLayout() {
-    return SingleChildScrollView(
-    
-      child: Column(
+  Widget _buildDesktopLayout() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Row(
         children: [
-          Row(
-            children: [
-              SizedBox(
-                width: Utils.windowWidth(context) * 0.5,
-                height: Utils.windowHeight(context),
-                child: Image.asset("assets/images/splash.jpg", fit: BoxFit.cover),
+          // ══════════════════════════════════════════════════════════════
+          // LEFT HERO PANEL — gradient + branding
+          // ══════════════════════════════════════════════════════════════
+          Expanded(
+            flex: 5,
+            child: SizedBox(
+              height: screenHeight,
+              child: Image.asset(
+                "assets/images/splash.jpg",
+                fit: BoxFit.cover,
               ),
-                      Container(
-          color: AppColors.bgColor,
-          width: Utils.windowWidth(context) * 0.5,
-          height: Utils.windowHeight(context),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(30)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                    CustomText(
-                  text: "Reset Password",
-                  fontWeight: FontWeight.bold,
-                  maxLines: 2,
-                  textAlign:  TextAlign.center,                  // textAlign: TextAlign.center,
-                  width:  Utils.windowWidth(context) ,
-                  fontSize: 22,
-                  color: AppColors.primaryColor,
-                ),
-                // CustomText(
-                //   text: isLogin ? "Your Account" : "Your Account",
-                //   fontWeight: FontWeight.bold,
-                //   fontSize: 22,
-                //   color: AppColors.primaryColor,
-                // ),
-                
-                SizedBox(height: 20),
-                    Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      CustomInputField(
-                        hintText: "Password",
-                        leadingIcon: Icon(
-                          Icons.key,
-                          color: AppColors.primary500,
-                        ),
-                        isPassword: true,
-                        bgColor: AppColors.white,
-                        borderRadius: 30,
-                        borderColor: AppColors.veryLightGrey,
-                        borderWidth: 2,
-                        validator: (val) {
-                          if (val == null || val.isEmpty) {
-                            return "Please enter your username";
-                          }
-                          return null;
-                        },
-                      ),
+            ),
+          ),
 
-                      CustomInputField(
-                        hintText: "Confirm Password",
-                        leadingIcon: Icon(
-                          Icons.key,
-                          color: AppColors.primary500,
+          // ══════════════════════════════════════════════════════════════
+          // RIGHT FORM PANEL
+          // ══════════════════════════════════════════════════════════════
+          Expanded(
+            flex: 5,
+            child: Container(
+              color: const Color(0xFFF8FAFD),
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Container(
+                    width: 480,
+                    padding: const EdgeInsets.all(48),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0036BC).withOpacity(0.06),
+                          blurRadius: 40,
+                          offset: const Offset(0, 16),
                         ),
-                        isPassword: true,
-                        bgColor: AppColors.white,
-                        borderRadius: 30,
-                        borderColor: AppColors.veryLightGrey,
-                        borderWidth: 2,
-                        validator: (val) {
-                          if (val == null || val.isEmpty) {
-                            return "Please enter your username";
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 70),
-
-                      SizedBox(
-                        width: double.infinity,
-                        height: 60,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Back Icon Button
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: InkWell(
+                            onTap: () => Navigator.pop(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                                color: Color(0xFF0B2D6E),
+                              ),
                             ),
                           ),
-                          onPressed: () {
-                            // if (_formKey.currentState!.validate()) {
-                            //   _showSuccessModal(context);
-                            // }
-                              _showSuccessModal(context, isDesktop: true);
-                          },
-                          child: Text(
-                            "Confirm",
-                            style: TextStyle(color: Colors.white, fontSize: 16),
+                        ),
+                        const SizedBox(height: 24),
+                        // Header
+                        const Text(
+                          "Reset Password",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0B2D6E),
+                            fontFamily: "Gilroy-Bold",
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                    ],
+                        const SizedBox(height: 8),
+                        Text(
+                          "Set a new password to keep your account secure",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[500],
+                            fontFamily: "Gilroy-Medium",
+                          ),
+                        ),
+                        const SizedBox(height: 48),
+
+                        // Form
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              CustomInputField(
+                                hintText: "New Password",
+                                leadingIcon: const Icon(
+                                  Icons.lock_outline_rounded,
+                                  color: Color(0xFF94A3B8),
+                                  size: 22,
+                                ),
+                                isPassword: true,
+                                controller: passwordController,
+                                bgColor: const Color(0xFFF8FAFC),
+                                borderRadius: 14,
+                                borderColor: const Color(0xFFE2E8F0),
+                                borderWidth: 1.5,
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return "Please enter a new password";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              CustomInputField(
+                                hintText: "Confirm Password",
+                                leadingIcon: const Icon(
+                                  Icons.lock_reset_rounded,
+                                  color: Color(0xFF94A3B8),
+                                  size: 22,
+                                ),
+                                isPassword: true,
+                                controller: confirmPasswordController,
+                                bgColor: const Color(0xFFF8FAFC),
+                                borderRadius: 14,
+                                borderColor: const Color(0xFFE2E8F0),
+                                borderWidth: 1.5,
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return "Please confirm your password";
+                                  } else if (val != passwordController.text) {
+                                    return "Passwords do not match";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 48),
+                              // Reset Button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 54,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      _showSuccessModal(context, isDesktop: true);
+                                    }
+                                  },
+                                  child: const Text(
+                                    "Save Password",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: "Gilroy-Bold",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),         
-        )
-            ],
           ),
         ],
       ),
     );
   }
+
+  // Helper widgets for desktop layout
+  Widget _buildDecorativeCircle({double? top, double? left, double? right, double? bottom, required double size, required double opacity}) {
+    return Positioned(
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(opacity),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureRow(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.white.withOpacity(0.9), size: 18),
+        ),
+        const SizedBox(width: 16),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            fontFamily: "Gilroy-Medium",
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCopyright() {
+    return Positioned(
+      bottom: 30,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Text(
+          "© 2026 iCare Health Technologies",
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.35),
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+
 
   Widget _buildMobileLayout({bool isTablet = false}) {
     return Container(
@@ -317,81 +448,115 @@ class _ResetPasswordState extends State<ResetPassword> {
   }
 
 
-void _showSuccessModal(BuildContext context, {bool isDesktop = false}) {
-  showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (BuildContext ctx) {
-      return Dialog(
-        constraints: BoxConstraints(
-          maxWidth: isDesktop ? Utils.windowWidth(context) * 0.4 : double.infinity,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                height: 70,
-                width: 70,
-                decoration: const BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
+  void _showSuccessModal(BuildContext context, {bool isDesktop = false}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: isDesktop ? 420 : 340,
+            ),
+            padding: const EdgeInsets.all(32),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 24,
+                  offset: const Offset(0, 8),
                 ),
-                child: const Icon(Icons.check, color: Colors.white, size: 40),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                "Password Changed",
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "You've successfully changed your password",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: Colors.grey),
-              ),
-              const SizedBox(height: 25),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Success Icon with glow
+                Container(
+                  height: 90,
+                  width: 90,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE8F5E9),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.green.withOpacity(0.2),
+                        blurRadius: 16,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    // Navigator.pop(ctx);
-                    // // Go back to login screen
-                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LoginScreen()));
-
-                  },
-                  // onPressed: () {
-                  //   Navigator.pop(context); // Close modal
-                  // },
-                  child: const Text(
-                    "Go Back",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
+                  child: const Center(
+                    child: Icon(
+                      Icons.check_circle_rounded,
+                      color: Color(0xFF2E7D32),
+                      size: 54,
                     ),
                   ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 28),
+                const Text(
+                  "Password Changed!",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF0B2D6E),
+                    fontFamily: "Gilroy-Bold",
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Your password has been successfully updated. You can now log in with your new credentials.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF64748B),
+                    fontFamily: "Gilroy-Medium",
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 36),
+                // Done Button
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (ctx) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    },
+                    child: const Text(
+                      "Back to Login",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        fontFamily: "Gilroy-Bold",
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
+
 
 }

@@ -71,6 +71,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         },
       },
     ];
+    if (MediaQuery.of(context).size.width > 600) {
+      return _WebSettingsScreen(settingsList: _settingsList);
+    }
+
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -164,6 +168,184 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // SizedBox(height: ScallingConfig.scale(100),)
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// NEW STUNNING WEB VIEW
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _WebSettingsScreen extends StatelessWidget {
+  final List<Map<String, dynamic>> settingsList;
+
+  const _WebSettingsScreen({required this.settingsList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FB),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        leading: CustomBackButton(),
+        title: CustomText(
+          text: "Account Settings",
+          fontFamily: "Gilroy-Bold",
+          fontSize: 20,
+          color: AppColors.primaryColor,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.31,
+          lineHeight: 1.0,
+        ),
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Left Side: Profile Sidebar / Header ──
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Preferences & Security", style: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, fontFamily: "Gilroy-Bold", color: Color(0xFF1E293B))),
+                      const SizedBox(height: 12),
+                      const Text("Manage your account settings, view legal documents, and configure your notification preferences.", style: TextStyle(fontSize: 15, color: Color(0xFF64748B), height: 1.5)),
+                      
+                      const SizedBox(height: 48),
+                      
+                      // Delete Account Zone
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFEF2F2),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: const Color(0xFFFECACA)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text("Danger Zone", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, fontFamily: "Gilroy-Bold", color: Color(0xFFDC2626))),
+                            const SizedBox(height: 8),
+                            const Text("Permanently delete your account and all associated data.", style: TextStyle(fontSize: 13, color: Color(0xFF991B1B))),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: double.infinity,
+                              child: OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  foregroundColor: const Color(0xFFDC2626), 
+                                  side: const BorderSide(color: Color(0xFFDC2626)),
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                ),
+                                onPressed: () {
+                                  AppDialogs.showWarningDialog(
+                                    context,
+                                    "Are you sure you want to delete your account?",
+                                    null,
+                                    ["I don’t need it anymore", "I don’t find it useful", "Other"],
+                                    numOfActions: 2,
+                                    onPrimaryButtonPressed: () {
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LoginScreen()));
+                                    },
+                                  );
+                                },
+                                child: const Text("Delete Account", style: TextStyle(fontWeight: FontWeight.w600)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(width: 48),
+
+                // ── Right Side: Settings List ──
+                Expanded(
+                  flex: 5,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: const Color(0xFFF1F4F9), width: 1.5),
+                      boxShadow: const [BoxShadow(color: Color(0x05000000), offset: Offset(0, 4), blurRadius: 16)],
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: settingsList.length,
+                      separatorBuilder: (context, index) => const Divider(color: Color(0xFFF1F5F9), height: 1, thickness: 1.5, indent: 24, endIndent: 24),
+                      itemBuilder: (context, index) {
+                        final item = settingsList[index];
+                        final isLast = index == settingsList.length - 1;
+                        final isFirst = index == 0;
+                        
+                        // Map specific icons to settings
+                        IconData iconData = Icons.settings_rounded;
+                        Color iconColor = const Color(0xFF64748B);
+                        Color bgColor = const Color(0xFFF8FAFC);
+                        
+                        if (item['title'].toString().contains("Notification")) { iconData = Icons.notifications_active_rounded; iconColor = const Color(0xFF3B82F6); bgColor = const Color(0xFFEFF6FF); }
+                        else if (item['title'].toString().contains("Password")) { iconData = Icons.lock_rounded; iconColor = const Color(0xFF8B5CF6); bgColor = const Color(0xFFF5F3FF); }
+                        else if (item['title'].toString().contains("Privacy")) { iconData = Icons.shield_rounded; iconColor = const Color(0xFF10B981); bgColor = const Color(0xFFECFDF5); }
+                        else if (item['title'].toString().contains("About")) { iconData = Icons.info_rounded; iconColor = const Color(0xFFF59E0B); bgColor = const Color(0xFFFEF3C7); }
+                        else if (item['title'].toString().contains("Terms")) { iconData = Icons.gavel_rounded; iconColor = const Color(0xFF64748B); bgColor = const Color(0xFFF1F5F9); }
+
+                        return Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: item["onPress"],
+                            borderRadius: BorderRadius.vertical(
+                              top: isFirst ? const Radius.circular(20) : Radius.zero,
+                              bottom: isLast ? const Radius.circular(20) : Radius.zero,
+                            ),
+                            hoverColor: const Color(0xFFF8FAFC),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(12),
+                                    decoration: BoxDecoration(color: bgColor, borderRadius: BorderRadius.circular(12)),
+                                    child: Icon(iconData, color: iconColor, size: 22),
+                                  ),
+                                  const SizedBox(width: 20),
+                                  Expanded(
+                                    child: Text(
+                                      item["title"] as String,
+                                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B), fontFamily: "Gilroy-SemiBold"),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(color: Colors.white, border: Border.all(color: const Color(0xFFE2E8F0)), shape: BoxShape.circle),
+                                    child: const Icon(Icons.arrow_forward_ios_rounded, color: Color(0xFF94A3B8), size: 14),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
       ),
     );
   }

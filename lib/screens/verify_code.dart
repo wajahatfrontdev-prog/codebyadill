@@ -39,93 +39,270 @@ void dispose() {
   }
 
   Widget _buildDesktopLayout() {
-    return Row(
-      children: [
-        SizedBox(
-          width: Utils.windowWidth(context) * 0.5,
-          height: Utils.windowHeight(context),
-          child: Image.asset("assets/images/splash.jpg", fit: BoxFit.cover),
-        ),
-        Container(
-         padding: EdgeInsets.symmetric(horizontal: ScallingConfig.moderateScale(30)),
-          width: Utils.windowWidth(context) * 0.5,
-          child: Column(
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
-            children: [
-               SizedBox(height: ScallingConfig.moderateScale(30)),
-                CustomText(
-                  text: "Verification Code",
-                  fontWeight: FontWeight.w900,
-                  fontSize: 22,
-                  color: AppColors.primaryColor,
-                ),
-                SizedBox(height: ScallingConfig.scale(19)),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      PinCodeTextField(
-                        appContext: context,
-                        length: 5,
-                        controller: codeController,
-                        animationType: AnimationType.fade,
-                        keyboardType: TextInputType.number,
-                        pinTheme: PinTheme(
-                          shape: PinCodeFieldShape.circle,
-                          borderRadius: BorderRadius.circular(50),
-                          fieldHeight: 60,
-                          fieldWidth: 60,
-                          inactiveColor: Colors.grey.shade300,
-                          activeColor: Colors.blue,
-                          selectedColor: Colors.blueAccent,
-                          activeFillColor: Colors.white,
-                          inactiveFillColor: Colors.white,
-                          selectedFillColor: Colors.white,
+    return SizedBox(
+      width: screenWidth,
+      height: screenHeight,
+      child: Row(
+        children: [
+          // ══════════════════════════════════════════════════════════════
+          // LEFT HERO PANEL — gradient + branding
+          // ══════════════════════════════════════════════════════════════
+          Expanded(
+            flex: 5,
+            child: SizedBox(
+              height: screenHeight,
+              child: Image.asset(
+                "assets/images/splash.jpg",
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+
+          // ══════════════════════════════════════════════════════════════
+          // RIGHT FORM PANEL
+          // ══════════════════════════════════════════════════════════════
+          Expanded(
+            flex: 5,
+            child: Container(
+              color: const Color(0xFFF8FAFD),
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 40),
+                  child: Container(
+                    width: 480,
+                    padding: const EdgeInsets.all(48),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF0036BC).withOpacity(0.06),
+                          blurRadius: 40,
+                          offset: const Offset(0, 16),
                         ),
-                        cursorColor: Colors.blue,
-                        enableActiveFill: false,
-                        onChanged: (value) {
-                          print("OTP: $value");
-                        },
-                      ),
-                      Container(
-                        alignment: Alignment.topRight,
-                        child: TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text(
-                            "Resend Code",
-                            style: TextStyle(
-                              color: AppColors.themeBlack,
-                              fontWeight: FontWeight.w700,
+                      ],
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Back Icon Button
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: InkWell(
+                            onTap: () => Navigator.pop(context),
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF1F5F9),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                size: 18,
+                                color: Color(0xFF0B2D6E),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        const SizedBox(height: 24),
+                        // Header
+                        const Text(
+                          "Verification Code",
+                          style: TextStyle(
+                            fontSize: 26,
+                            fontWeight: FontWeight.w800,
+                            color: Color(0xFF0B2D6E),
+                            fontFamily: "Gilroy-Bold",
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "We've sent a 5-digit verification code to your registered account",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[500],
+                            fontFamily: "Gilroy-Medium",
+                          ),
+                        ),
+                        const SizedBox(height: 48),
 
-                      const SizedBox(height: 40),
-
-  CustomButton(
-    width: double.infinity,
-    height: ScallingConfig.scale(60),
-    borderRadius: ScallingConfig.scale(30),
-    label: "Confirm",
-    onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ResetPassword()));
-    },
-  ),
-                      const SizedBox(height: 10),
-                    ],
+                        // Form
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              PinCodeTextField(
+                                appContext: context,
+                                length: 5,
+                                controller: codeController,
+                                animationType: AnimationType.fade,
+                                keyboardType: TextInputType.number,
+                                textStyle: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF0B2D6E),
+                                ),
+                                pinTheme: PinTheme(
+                                  shape: PinCodeFieldShape.box,
+                                  borderRadius: BorderRadius.circular(12),
+                                  fieldHeight: 64,
+                                  fieldWidth: 54,
+                                  inactiveColor: const Color(0xFFE2E8F0),
+                                  activeColor: AppColors.primaryColor,
+                                  selectedColor: AppColors.primaryColor,
+                                  activeFillColor: const Color(0xFFF8FAFC),
+                                  inactiveFillColor: const Color(0xFFF8FAFC),
+                                  selectedFillColor: Colors.white,
+                                  borderWidth: 1.5,
+                                ),
+                                cursorColor: AppColors.primaryColor,
+                                enableActiveFill: true,
+                                onChanged: (value) {},
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Didn't receive the code?",
+                                    style: TextStyle(
+                                      color: Colors.grey[500],
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Resend logic
+                                    },
+                                    child: const Text(
+                                      "Resend",
+                                      style: TextStyle(
+                                        color: AppColors.primaryColor,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 40),
+                              // Confirm Button
+                              SizedBox(
+                                width: double.infinity,
+                                height: 54,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.primaryColor,
+                                    foregroundColor: Colors.white,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    elevation: 0,
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder: (ctx) => const ResetPassword(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: const Text(
+                                    "Confirm & Verify",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      fontFamily: "Gilroy-Bold",
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-
-            ],
+              ),
+            ),
           ),
-        )
+        ],
+      ),
+    );
+  }
+
+  // Helper widgets for desktop layout
+  Widget _buildDecorativeCircle({double? top, double? left, double? right, double? bottom, required double size, required double opacity}) {
+    return Positioned(
+      top: top,
+      left: left,
+      right: right,
+      bottom: bottom,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: Colors.white.withOpacity(opacity),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureRow(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(icon, color: Colors.white.withOpacity(0.9), size: 18),
+        ),
+        const SizedBox(width: 16),
+        Text(
+          text,
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.8),
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            fontFamily: "Gilroy-Medium",
+          ),
+        ),
       ],
     );
   }
+
+  Widget _buildCopyright() {
+    return Positioned(
+      bottom: 30,
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Text(
+          "© 2026 iCare Health Technologies",
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.35),
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildMobileLayout({bool isTablet = false}) {
     return
       Stack(

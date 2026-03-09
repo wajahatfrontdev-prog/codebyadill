@@ -40,68 +40,72 @@ class CustomDialog {
       barrierDismissible: isDismissible,
       builder: (context) {
         return Dialog(
-          
+          elevation: 24,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
           ),
           backgroundColor: backgroundColor ?? AppColors.white,
-          child: SizedBox(
-            // width: Utils.windowWidth(context) * 0.9,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500),
             child: Padding(
-              
-              padding: EdgeInsets.symmetric(horizontal: ScallingConfig.moderateScale(22), vertical: ScallingConfig.moderateScale(25)),
+              padding: EdgeInsets.symmetric(
+                horizontal: ScallingConfig.moderateScale(32),
+                vertical: ScallingConfig.moderateScale(36),
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Status Icon
                   if (status != null) ...[
-                    // Container(
-                    //   padding: const EdgeInsets.all(12),
-                    //   decoration: BoxDecoration(
-                    //     color: _statusColor.withOpacity(0.1),
-                    //     shape: BoxShape.circle,
-                    //   ),
-                    //   child: Icon(
-                    //     _statusIcon,
-                    //     color: _statusColor,
-                    //     size: 40,
-                    //   ),
-                    // ),
-                      SvgWrapper(assetPath: _statusIcon, 
-                      width: ScallingConfig.scale(50),
-                      height: ScallingConfig.scale(50),
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: _getStatusColor(status).withOpacity(0.1),
+                        shape: BoxShape.circle,
                       ),
-            
-                    const SizedBox(height: 15),
+                      child: SvgWrapper(
+                        assetPath: _statusIcon,
+                        width: ScallingConfig.scale(60),
+                        height: ScallingConfig.scale(60),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
                   ],
-            
+
                   // Custom widget OR title + description
                   if (customContent != null) ...[
                     customContent,
                   ] else ...[
                     if (title != null)
-                      CustomText(
-                        text:title,
-                        fontSize: titleSize ??  ScallingConfig.moderateScale(16.76),
-                        isBold: true,
-                        color: Colors.black,
+                      Text(
+                        title,
                         textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: titleSize ?? ScallingConfig.moderateScale(24),
+                          fontWeight: FontWeight.w900,
+                          color: const Color(0xFF0F172A),
+                          letterSpacing: -0.5,
+                        ),
                       ),
                     if (description != null) ...[
-                      const SizedBox(height: 8),
-                      CustomText(
-                       text:  description,
-                        fontSize: descriptionSize ?? ScallingConfig.moderateScale(10.59) ,
-                        color: Colors.black54,
+                      const SizedBox(height: 12),
+                      Text(
+                        description,
                         textAlign: TextAlign.center,
-                        isSemiBold: true,
+                        style: TextStyle(
+                          fontSize: descriptionSize ?? ScallingConfig.moderateScale(15),
+                          color: const Color(0xFF64748B),
+                          fontWeight: FontWeight.w500,
+                          height: 1.5,
+                        ),
                         maxLines: descriptionMaxLines,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ],
-            
-                  const SizedBox(height: 25),
-            
+
+                  const SizedBox(height: 36),
+
                   // Action buttons
                   if (showButtons) ...[
                     Row(
@@ -118,7 +122,7 @@ class CustomDialog {
                               outlined: true,
                             ),
                           ),
-                        if (showCancel) const SizedBox(width: 10),
+                        if (showCancel) const SizedBox(width: 16),
                         Expanded(
                           child: CustomButton(
                             label: showDone ? doneText : okText,
@@ -130,14 +134,9 @@ class CustomDialog {
                                 onOk();
                               }
                             },
-                            borderRadius: 30,
+                            borderRadius: 16,
                             bgColor: AppColors.primaryColor,
-                            // gradient: LinearGradient(
-                            //   colors: [
-                            //     _statusColor.withOpacity(0.9),
-                            //     _statusColor,
-                            //   ],
-                            // ),
+                            height: 54,
                           ),
                         ),
                       ],

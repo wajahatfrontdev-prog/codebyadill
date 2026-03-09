@@ -33,21 +33,34 @@ class _CreateProfileState extends State<CreateProfile> {
 
   @override
   Widget build(BuildContext context) {
+    if (MediaQuery.of(context).size.width > 900) {
+      return _WebCreateProfile(
+        isEdit: widget.isEdit,
+        formKey: _formKey,
+        nameController: nameController,
+        emailController: emailController,
+        phoneController: phoneController,
+        bioController: bioController,
+        qualificationController: qualificationController,
+        ageController: ageController,
+        onSuccess: () => _showSuccessModal(context),
+      );
+    }
     return Scaffold(
-   appBar: AppBar(
-    backgroundColor: AppColors.bgColor,
-    leading: CustomBackButton(),
-    automaticallyImplyLeading: false,
-    title: CustomText(
-      text: widget.isEdit ? "Edit Profile" : "Create Profile",
-          fontSize: 16.78, 
+      appBar: AppBar(
+        backgroundColor: AppColors.bgColor,
+        leading: CustomBackButton(),
+        automaticallyImplyLeading: false,
+        title: CustomText(
+          text: widget.isEdit ? "Edit Profile" : "Create Profile",
+          fontSize: 16.78,
           fontFamily: "Gilroy-Bold",
           fontWeight: FontWeight.w400,
           letterSpacing: -0.31,
           lineHeight: 1.0,
           color: AppColors.primary500,
-    ),
-   ),
+        ),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
@@ -57,13 +70,9 @@ class _CreateProfileState extends State<CreateProfile> {
             ),
             child: Column(
               children: [
-             
                 const SizedBox(height: 20),
-ProfilePicker(onPickImage: (pickedImage)=> {
-
-}),
+                ProfilePicker(onPickImage: (pickedImage) => {}),
                 const SizedBox(height: 30),
-
                 Form(
                   key: _formKey,
                   child: Column(
@@ -135,7 +144,6 @@ ProfilePicker(onPickImage: (pickedImage)=> {
                         controller: ageController,
                       ),
                       const SizedBox(height: 30),
-
                       SizedBox(
                         width: double.infinity,
                         height: 60,
@@ -151,9 +159,9 @@ ProfilePicker(onPickImage: (pickedImage)=> {
                               _showSuccessModal(context);
                             }
                           },
-                          child: const Text(
-                            "Create Profile",
-                            style: TextStyle(
+                          child: Text(
+                            widget.isEdit ? "Update Profile" : "Create Profile",
+                            style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w600,
                               fontSize: 16,
@@ -169,6 +177,293 @@ ProfilePicker(onPickImage: (pickedImage)=> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _WebCreateProfile extends StatelessWidget {
+  final bool isEdit;
+  final GlobalKey<FormState> formKey;
+  final TextEditingController nameController;
+  final TextEditingController emailController;
+  final TextEditingController phoneController;
+  final TextEditingController bioController;
+  final TextEditingController qualificationController;
+  final TextEditingController ageController;
+  final VoidCallback onSuccess;
+
+  const _WebCreateProfile({
+    required this.isEdit,
+    required this.formKey,
+    required this.nameController,
+    required this.emailController,
+    required this.phoneController,
+    required this.bioController,
+    required this.qualificationController,
+    required this.ageController,
+    required this.onSuccess,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFFF4F6FB),
+      body: Row(
+        children: [
+          // ── Left Side: Aesthetic Panel (Premium Visual) ──
+          Container(
+            width: 450,
+            color: AppColors.primaryColor,
+            child: Stack(
+              children: [
+                Positioned(
+                  top: -100,
+                  left: -100,
+                  child: Container(
+                    width: 300,
+                    height: 300,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: -50,
+                  right: -50,
+                  child: Container(
+                    width: 250,
+                    height: 250,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.05),
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(60),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const CustomBackButton(color: Colors.white),
+                      const Spacer(),
+                      const CustomText(
+                        text: "Complete Your\nProfessional Identity",
+                        fontSize: 38,
+                        fontFamily: "Gilroy-Bold",
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        "Your profile is your digital business card in the ICare platform. Fill out the details to get started with patients.",
+                        style: TextStyle(
+                          color: Colors.white.withOpacity(0.8),
+                          fontSize: 18,
+                          height: 1.6,
+                        ),
+                      ),
+                      const Spacer(flex: 2),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Right Side: Scrollable Form ──
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(80),
+              child: Center(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isEdit ? "Update Your Info" : "Profile Setup",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.primaryColor,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  "Personal Details",
+                                  style: TextStyle(
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.w800,
+                                    color: Color(0xFF1E293B),
+                                    fontFamily: "Gilroy-Bold",
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 20),
+                          ProfilePicker(onPickImage: (f) {}),
+                        ],
+                      ),
+                      const SizedBox(height: 60),
+                      Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildInput(
+                                    label: "Full Name",
+                                    controller: nameController,
+                                    icon: Icons.person_outline_rounded,
+                                    hint: "Enter your legal name",
+                                  ),
+                                ),
+                                const SizedBox(width: 32),
+                                Expanded(
+                                  child: _buildInput(
+                                    label: "Official Email",
+                                    controller: emailController,
+                                    icon: Icons.alternate_email_rounded,
+                                    hint: "example@icare.com",
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildInput(
+                                    label: "Phone Number",
+                                    controller: phoneController,
+                                    icon: Icons.phone_android_rounded,
+                                    hint: "+1 (555) 000-0000",
+                                  ),
+                                ),
+                                const SizedBox(width: 32),
+                                Expanded(
+                                  child: _buildInput(
+                                    label: "Age",
+                                    controller: ageController,
+                                    icon: Icons.calendar_today_rounded,
+                                    hint: "24",
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 32),
+                            _buildInput(
+                              label: "Bio & Description",
+                              controller: bioController,
+                              icon: Icons.description_outlined,
+                              hint: "Tell us about your professional background...",
+                              maxLines: 4,
+                            ),
+                            const SizedBox(height: 32),
+                            _buildInput(
+                              label: "Qualifications",
+                              controller: qualificationController,
+                              icon: Icons.school_outlined,
+                              hint: "MBBS, MD, etc.",
+                            ),
+                            const SizedBox(height: 60),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 64,
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                onPressed: () {
+                                  if (formKey.currentState!.validate()) {
+                                    onSuccess();
+                                  }
+                                },
+                                child: Text(
+                                  isEdit ? "Update Changes" : "Create My Profile",
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 18,
+                                    fontFamily: "Gilroy-Bold",
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInput({
+    required String label,
+    required TextEditingController controller,
+    required IconData icon,
+    required String hint,
+    int maxLines = 1,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF64748B),
+          ),
+        ),
+        const SizedBox(height: 8),
+        TextFormField(
+          controller: controller,
+          maxLines: maxLines,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+            prefixIcon: Icon(icon, color: AppColors.primaryColor, size: 20),
+            filled: true,
+            fillColor: Colors.white,
+            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.primaryColor, width: 2),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -240,12 +535,16 @@ class _ProfilePickerState extends State<ProfilePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final bool isDesktop = MediaQuery.of(context).size.width > 900;
+    final double size = isDesktop ? 120 : Utils.windowWidth(context) * 0.3;
+    final double height = isDesktop ? 120 : Utils.windowHeight(context) * 0.15;
+
     return Stack(
       clipBehavior: Clip.none,
       children: [
         Container(
-          width: Utils.windowWidth(context) * 0.3,
-          height: Utils.windowHeight(context) * 0.15,
+          width: size,
+          height: height,
           padding: const EdgeInsets.all(7),
           decoration: BoxDecoration(
             border: Border.all(
@@ -258,8 +557,8 @@ class _ProfilePickerState extends State<ProfilePicker> {
             borderRadius: BorderRadius.circular(30),
             child: Container(
               color: AppColors.primaryColor,
-              width: Utils.windowWidth(context) * 0.26,
-              height: Utils.windowHeight(context) * 0.1,
+              width: double.infinity,
+              height: double.infinity,
               child: _selectedImage != null
                   ? Image.file(
                       _selectedImage!,

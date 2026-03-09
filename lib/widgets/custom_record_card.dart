@@ -7,40 +7,65 @@ import 'package:icare/widgets/custom_text.dart';
 
 
 class CustomRecordCard extends StatelessWidget {
-  const CustomRecordCard({super.key, this.icon, this.label, this.number, this.color= AppColors.secondaryColor, this.onTap=null  });
+  const CustomRecordCard({super.key, this.icon, this.label, this.number, this.color= AppColors.secondaryColor, this.onTap=null, this.width  });
   
   final String? label;
   final Widget? icon;
   final String? number;
   final Color color;
   final VoidCallback? onTap; 
-
+  final double? width;
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap:onTap,
       child: Container(
-        padding: EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        width: Utils.windowWidth(context) * 0.42,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        width: width ?? Utils.windowWidth(context) * 0.43,
         decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(10),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              color,
+              color.withOpacity(0.85),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.3),
+              blurRadius: 10,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
         child: Column(
           children: [
-            if(icon !=null) ...[icon!],
-            SizedBox(height: ScallingConfig.scale(4)),
-            CustomText(text: number ?? "", 
-            fontSize: 27,
-            fontFamily: "Gilroy-Bold",
-            fontWeight: FontWeight.bold,
-            color: AppColors.white,
+            if (icon != null)
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: icon!,
+              ),
+            SizedBox(height: ScallingConfig.scale(10)),
+            CustomText(
+              text: number ?? "",
+              fontSize: 24,
+              fontFamily: "Gilroy-ExtraBold",
+              fontWeight: FontWeight.w900,
+              color: AppColors.white,
             ),
-            CustomText(text: label ?? "",
+            const SizedBox(height: 2),
+            CustomText(
+              text: label ?? "",
               fontSize: 12,
-            fontFamily: "Gilroy-Medium",
-            fontWeight: FontWeight.w400,
-            color: AppColors.white,
+              fontFamily: "Gilroy-SemiBold",
+              fontWeight: FontWeight.w600,
+              color: AppColors.white.withOpacity(0.9),
             ),
           ],
         ),
