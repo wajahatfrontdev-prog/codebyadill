@@ -29,9 +29,9 @@ class ApiService {
     return await _dio.post(endpoint, data: data);
   }
 
-  Future<Response> get(String endpoint) async {
+  Future<Response> get(String endpoint, {Map<String, dynamic>? queryParameters}) async {
     await _setAuthToken();
-    return await _dio.get(endpoint);
+    return await _dio.get(endpoint, queryParameters: queryParameters);
   }
 
   Future<Response> put(String endpoint, Map<String, dynamic> data) async {
@@ -42,5 +42,17 @@ class ApiService {
   Future<Response> delete(String endpoint) async {
     await _setAuthToken();
     return await _dio.delete(endpoint);
+  }
+
+  // Support for file uploads
+  Future<Response> postMultipart(String endpoint, FormData formData) async {
+    await _setAuthToken();
+    return await _dio.post(
+      endpoint,
+      data: formData,
+      options: Options(
+        headers: {'Content-Type': 'multipart/form-data'},
+      ),
+    );
   }
 }

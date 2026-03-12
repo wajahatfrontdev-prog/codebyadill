@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter_riverpod/legacy.dart';
 import 'package:icare/models/auth.dart';
 import 'package:icare/models/user.dart';
+import 'package:icare/utils/shared_pref.dart';
 
 class AuthNotifier extends StateNotifier<Auth> {
    AuthNotifier () : super(Auth(
@@ -25,6 +26,7 @@ class AuthNotifier extends StateNotifier<Auth> {
 
     void setUserRole(String role) {
       log(role);
+      SharedPref().setUserRole(role);
       state = state.copyWith(userRole: role);
     }
 
@@ -35,10 +37,15 @@ class AuthNotifier extends StateNotifier<Auth> {
    void setUser(User user) {
      // Convert role to lowercase to match frontend expectations
      final normalizedRole = user.role.toLowerCase();
+     SharedPref().setUserRole(normalizedRole);
+     SharedPref().setUserData(user);
      state = state.copyWith(user: user, userRole: normalizedRole);
    }
 
    void setUserLogout(){
+    SharedPref().remove("userRole");
+    SharedPref().remove("token");
+    SharedPref().remove("userData");
     state= Auth();
    }
 }

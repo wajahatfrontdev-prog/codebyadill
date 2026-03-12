@@ -6,6 +6,9 @@ import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/screens/forget_password.dart';
 import 'package:icare/screens/select_user_type.dart';
 import 'package:icare/screens/tabs.dart';
+import 'package:icare/screens/lab_profile_setup.dart';
+import 'package:icare/screens/pharmacy_profile_setup.dart';
+import 'package:icare/screens/student_profile_setup.dart';
 import 'package:icare/services/auth_service.dart';
 import 'package:icare/services/user_service.dart';
 import 'package:icare/models/user.dart' as app_user;
@@ -1006,9 +1009,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             ref.read(authProvider.notifier).setUser(user);
             ref.read(authProvider.notifier).setUserToken(result['data']['token']);
             
-            Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (ctx) => const TabsScreen()),
-            );
+            // Redirect based on user role
+            if (user.role == 'Laboratory') {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (ctx) => const LabProfileSetup()),
+              );
+            } else if (user.role == 'Pharmacy') {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (ctx) => const PharmacyProfileSetup()),
+              );
+            } else if (user.role == 'Student') {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (ctx) => const StudentProfileSetup()),
+              );
+            } else {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (ctx) => const TabsScreen()),
+              );
+            }
           } else {
             _showError('Failed to load user profile');
           }

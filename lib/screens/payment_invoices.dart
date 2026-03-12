@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
-import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_text.dart';
+import '../services/laboratory_service.dart';
+import 'package:intl/intl.dart';
 
 class PaymentInvoices extends StatefulWidget {
   const PaymentInvoices({super.key});
@@ -16,64 +17,10 @@ class PaymentInvoices extends StatefulWidget {
 class _PaymentInvoicesState extends State<PaymentInvoices>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  final LaboratoryService _labService = LaboratoryService();
   String _selectedFilter = "All";
-
-  final List<Map<String, dynamic>> _invoices = [
-    {
-      "id": "INV-2025-001",
-      "patient": "Alyana Khan",
-      "test": "Complete Blood Count",
-      "amount": 45.00,
-      "date": "01 Aug, 2025",
-      "status": "Paid",
-      "method": "Credit Card",
-    },
-    {
-      "id": "INV-2025-002",
-      "patient": "Hamza Ahmed",
-      "test": "Lipid Profile",
-      "amount": 85.00,
-      "date": "28 Jul, 2025",
-      "status": "Pending",
-      "method": "—",
-    },
-    {
-      "id": "INV-2025-003",
-      "patient": "Sara Malik",
-      "test": "X-Ray Chest PA",
-      "amount": 120.00,
-      "date": "25 Jul, 2025",
-      "status": "Paid",
-      "method": "Bank Transfer",
-    },
-    {
-      "id": "INV-2025-004",
-      "patient": "Ali Raza",
-      "test": "Urine Analysis",
-      "amount": 30.00,
-      "date": "22 Jul, 2025",
-      "status": "Overdue",
-      "method": "—",
-    },
-    {
-      "id": "INV-2025-005",
-      "patient": "Fatima Noor",
-      "test": "Thyroid Panel",
-      "amount": 95.00,
-      "date": "20 Jul, 2025",
-      "status": "Paid",
-      "method": "Cash",
-    },
-    {
-      "id": "INV-2025-006",
-      "patient": "Usman Tariq",
-      "test": "HbA1c Test",
-      "amount": 55.00,
-      "date": "18 Jul, 2025",
-      "status": "Pending",
-      "method": "—",
-    },
-  ];
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _invoices = [];
 
   @override
   void initState() {
@@ -97,6 +44,38 @@ class _PaymentInvoicesState extends State<PaymentInvoices>
         }
       });
     });
+    _fetchInvoices();
+  }
+
+  Future<void> _fetchInvoices() async {
+    setState(() => _isLoading = true);
+    try {
+      final profile = await _labService.getProfile();
+      final bookings = await _labService.getBookings(profile['_id']);
+      
+      setState(() {
+        _invoices = bookings.map((b) {
+          final status = b['status'] == 'completed' ? 'Paid' : (b['status'] == 'cancelled' ? 'Overdue' : 'Pending');
+          final dateStr = b['date'] ?? '';
+          DateTime? dateObj = DateTime.tryParse(dateStr);
+          final formattedDate = dateObj != null ? DateFormat('dd MMM, yyyy').format(dateObj) : '—';
+          
+          return {
+            "id": b['bookingNumber'] ?? "INV-${b['_id'].toString().substring(18)}",
+            "patient": b['patient']?['name'] ?? "Unknown Patient",
+            "test": b['testName'] ?? "Laboratory Test",
+            "amount": (b['price'] ?? 0).toDouble(),
+            "date": formattedDate,
+            "status": status,
+            "method": b['paymentMethod'] ?? "Cash",
+          };
+        }).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching invoices: $e');
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -141,9 +120,9 @@ class _PaymentInvoicesState extends State<PaymentInvoices>
                 Container(
                   margin: const EdgeInsets.only(right: 20),
                   child: ElevatedButton.icon(
-                    onPressed: () {},
-                    icon: const Icon(Icons.download_rounded, size: 18),
-                    label: const Text("Export"),
+                    onPressed: _fetchInvoices,
+                    icon: const Icon(Icons.refresh_rounded, size: 18),
+                    label: const Text("Refresh"),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
                       foregroundColor: Colors.white,
@@ -155,9 +134,16 @@ class _PaymentInvoicesState extends State<PaymentInvoices>
                   ),
                 ),
               ]
-            : null,
+            : [
+                IconButton(
+                  onPressed: _fetchInvoices,
+                  icon: const Icon(Icons.refresh_rounded),
+                )
+              ],
       ),
-      body: isDesktop ? _buildDesktopLayout() : _buildMobileLayout(),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : isDesktop ? _buildDesktopLayout() : _buildMobileLayout(),
     );
   }
 

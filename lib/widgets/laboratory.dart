@@ -10,12 +10,20 @@ import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
 class Laboratory extends StatelessWidget {
-  const Laboratory({super.key, this.margin});
+  const Laboratory({super.key, this.margin, this.labData});
   final EdgeInsets? margin;
+  final Map<String, dynamic>? labData;
+
   @override
   Widget build(BuildContext context) {
     final bool isWeb = kIsWeb && MediaQuery.of(context).size.width > 900;
     
+    final String name = labData?['name'] ?? "Quantum Spar Lab";
+    final String location = labData?['address'] ?? labData?['location'] ?? "4915 Muller Radial, 84904, USA";
+    final String open = labData?['open'] ?? "Open at 9:00am";
+    final String homeSample = labData?['homeSample'] ?? "Home Sample Available";
+    final String image = labData?['image'] ?? ImagePaths.lab3;
+
     return Container(
       width: isWeb ? 380 : Utils.windowWidth(context) * 0.85,
       height: isWeb ? 240 : Utils.windowHeight(context) * 0.25,
@@ -25,7 +33,7 @@ class Laboratory extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         image: DecorationImage(
           fit: BoxFit.cover,
-          image: AssetImage(ImagePaths.lab3) 
+          image: AssetImage(image) 
         )
       ),
       child: Stack(
@@ -35,7 +43,7 @@ class Laboratory extends StatelessWidget {
             height: isWeb ? 110 : Utils.windowHeight(context) * 0.1,
             padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(10)),
             clipBehavior: Clip.hardEdge,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: AppColors.white,
               borderRadius: BorderRadius.only(
                 topRight: Radius.circular(18),
@@ -53,7 +61,7 @@ class Laboratory extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       CustomText(
-                        text: "Quantum Spar Lab",
+                        text: name,
                         fontSize: isWeb ? 13 : 14,
                         fontFamily: "Gilroy-Bold",
                         fontWeight: FontWeight.bold,
@@ -71,7 +79,7 @@ class Laboratory extends StatelessWidget {
                           SizedBox(width: ScallingConfig.scale(4)),
                           Flexible(
                             child: CustomText(
-                              text: "4915 Muller Radial, 84904, USA",
+                              text: location,
                               fontFamily: "Gilroy-Medium",
                               fontSize: isWeb ? 9 : 10,
                               color: AppColors.grayColor,
@@ -91,7 +99,7 @@ class Laboratory extends StatelessWidget {
                           SizedBox(width: ScallingConfig.scale(4)),
                           Flexible(
                             child: CustomText(
-                              text: "Home Sample Available",
+                              text: homeSample,
                               fontFamily: "Gilroy-Medium",
                               fontSize: isWeb ? 9 : 10,
                               color: AppColors.grayColor,
@@ -125,7 +133,7 @@ class Laboratory extends StatelessWidget {
                           SizedBox(width: ScallingConfig.scale(4)),
                           Flexible(
                             child: CustomText(
-                              text: "Open at 9:00am",
+                              text: open,
                               fontFamily: "Gilroy-Regular",
                               fontSize: isWeb ? 9 : 10,
                               color: AppColors.themeDarkGrey,
@@ -143,7 +151,7 @@ class Laboratory extends StatelessWidget {
                         labelSize: isWeb ? 11 : 12,
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (ctx) => LabDetails())
+                            MaterialPageRoute(builder: (ctx) => LabDetails(labData: labData))
                           );
                         },
                       )

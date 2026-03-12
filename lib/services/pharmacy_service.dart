@@ -12,6 +12,19 @@ class PharmacyService {
     return pharmacy;
   }
 
+  // Update pharmacy profile
+  Future<Map<String, dynamic>> updatePharmacyProfile(
+      Map<String, dynamic> data) async {
+    try {
+      final response =
+          await _apiService.post('/pharmacy/add_pharmacy_details', data);
+      return response.data['pharmacy'] ?? response.data['existingProfile'];
+    } catch (e) {
+      print('Error updating pharmacy profile: $e');
+      rethrow;
+    }
+  }
+
   Future<String> _getPharmacyId() async {
     try {
       if (_cachedPharmacyId != null) {

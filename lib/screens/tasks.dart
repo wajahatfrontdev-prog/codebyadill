@@ -4,6 +4,8 @@ import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_text.dart';
+import '../services/task_service.dart';
+import 'package:intl/intl.dart';
 
 class TaskScreen extends StatefulWidget {
   const TaskScreen({super.key});
@@ -15,11 +17,35 @@ class TaskScreen extends StatefulWidget {
 class _TaskScreenState extends State<TaskScreen>
     with SingleTickerProviderStateMixin {
   late TabController controller;
+  final TaskService _taskService = TaskService();
+  bool _isLoading = true;
+  List<dynamic> _tasks = [];
 
   @override
   void initState() {
     super.initState();
     controller = TabController(length: 2, vsync: this);
+    _loadTasks();
+  }
+
+  Future<void> _loadTasks() async {
+    setState(() => _isLoading = true);
+    try {
+      final tasks = await _taskService.getMyTasks();
+      setState(() {
+        _tasks = tasks;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+      print('Error loading tasks: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -80,22 +106,27 @@ class _TaskScreenState extends State<TaskScreen>
             ),
           ),
         ),
-        body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: TabBarView(
-              controller: controller,
-              children: const [WebTasksList(isCompleted: false), WebTasksList(isCompleted: true)],
+        body: _isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: TabBarView(
+                controller: controller,
+                children: [
+                  WebTasksList(tasks: _tasks.where((t) => t['status'] != 'Completed').toList(), isCompleted: false, onRefresh: _loadTasks),
+                  WebTasksList(tasks: _tasks.where((t) => t['status'] == 'Completed').toList(), isCompleted: true, onRefresh: _loadTasks),
+                ],
+              ),
             ),
           ),
-        ),
       );
     } // end web layout
 
     // Original Mobile Layout
     return Scaffold(
       appBar: AppBar(
-        leading: CustomBackButton(),
+        leading: const CustomBackButton(),
         automaticallyImplyLeading: false,
         title: CustomText(
           text: "My Tasks",
@@ -106,16 +137,17 @@ class _TaskScreenState extends State<TaskScreen>
           fontFamily: "Gilroy-Bold",
           color: AppColors.primary500,
         ),
+        actions: [
+          IconButton(onPressed: _loadTasks, icon: const Icon(Icons.refresh_rounded))
+        ],
         bottom: TabBar(
           controller: controller,
           indicatorWeight: 6,
-
           indicatorColor: AppColors.themeBlack,
           tabs: [
             CustomText(
               text: "Assigned",
-
-              padding: EdgeInsets.only(bottom: 5),
+              padding: const EdgeInsets.only(bottom: 5),
               width: Utils.windowWidth(context) * 0.45,
               textAlign: TextAlign.center,
               fontFamily: "Gilroy-Bold",
@@ -125,17 +157,22 @@ class _TaskScreenState extends State<TaskScreen>
               text: "Completed",
               fontFamily: "Gilroy-Bold",
               fontSize: 13,
-              padding: EdgeInsets.only(bottom: 5),
+              padding: const EdgeInsets.only(bottom: 5),
               width: Utils.windowWidth(context) * 0.45,
               textAlign: TextAlign.center,
             ),
           ],
         ),
       ),
-      body: TabBarView(
-        controller: controller,
-        children: [TasksList(), TasksList()],
-      ),
+      body: _isLoading 
+          ? const Center(child: CircularProgressIndicator())
+          : TabBarView(
+              controller: controller,
+              children: [
+                TasksList(tasks: _tasks.where((t) => t['status'] != 'Completed').toList(), onRefresh: _loadTasks),
+                TasksList(tasks: _tasks.where((t) => t['status'] == 'Completed').toList(), onRefresh: _loadTasks),
+              ],
+            ),
     );
   }
 }
@@ -145,25 +182,36 @@ class _TaskScreenState extends State<TaskScreen>
 // ═══════════════════════════════════════════════════════════════════════════
 
 class TasksList extends StatelessWidget {
-  const TasksList({super.key});
+  final List<dynamic> tasks;
+  final VoidCallback onRefresh;
+  const TasksList({super.key, required this.tasks, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
+    if (tasks.isEmpty) {
+      return const Center(child: Text("No tasks found"));
+    }
     return ListView.builder(
       padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(14)),
-      itemCount: 5,
+      itemCount: tasks.length,
       itemBuilder: (ctx, i) {
-        return (Task());
+        return TaskCard(task: tasks[i], onRefresh: onRefresh);
       },
     );
   }
 }
 
-class Task extends StatelessWidget {
-  const Task({super.key});
+class TaskCard extends StatelessWidget {
+  final dynamic task;
+  final VoidCallback onRefresh;
+  const TaskCard({super.key, required this.task, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
+    final dateStr = task['dueDate'] ?? '';
+    DateTime? dateObj = DateTime.tryParse(dateStr);
+    final formattedDate = dateObj != null ? DateFormat('dd/MM/yyyy').format(dateObj) : '—';
+
     return Container(
       margin: EdgeInsets.only(top: ScallingConfig.verticalScale(10)),
       padding: EdgeInsets.symmetric(
@@ -177,31 +225,44 @@ class Task extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColors.lightGrey100,
-            offset: Offset(0, 4),
+            offset: const Offset(0, 4),
             blurRadius: 8,
           ),
         ],
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               CustomText(
-                text: "12/12/2023",
+                text: formattedDate,
                 color: AppColors.tertiaryColor,
                 fontSize: 10,
                 fontWeight: FontWeight.w400,
                 fontFamily: "Gilroy-Regular",
               ),
-              Icon(Icons.more_horiz, color: AppColors.tertiaryColor),
+              if (task['status'] != 'Completed')
+                IconButton(
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () async {
+                    await TaskService().updateTaskStatus(task['_id'], 'Completed');
+                    onRefresh();
+                  },
+                  icon: const Icon(Icons.check_circle_outline, color: Colors.green, size: 20)
+                ),
             ],
           ),
           SizedBox(height: ScallingConfig.scale(8)),
-
+          Text(
+            task['title'] ?? 'No Title',
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          ),
+          const SizedBox(height: 4),
           CustomText(
-            text:
-                "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever...",
+            text: task['description'] ?? "No Description",
             color: AppColors.primary500,
             fontSize: 12,
             maxLines: 8,
@@ -221,24 +282,27 @@ class Task extends StatelessWidget {
 
 
 class WebTasksList extends StatelessWidget {
+  final List<dynamic> tasks;
   final bool isCompleted;
-  const WebTasksList({super.key, required this.isCompleted});
+  final VoidCallback onRefresh;
+  const WebTasksList({super.key, required this.tasks, required this.isCompleted, required this.onRefresh});
 
   @override
   Widget build(BuildContext context) {
+    if (tasks.isEmpty) {
+      return const Center(child: Text("No tasks found"));
+    }
     return ListView.builder(
       padding: EdgeInsets.symmetric(
         horizontal: ScallingConfig.scale(20),
         vertical: ScallingConfig.verticalScale(20),
       ),
-      itemCount: 5,
+      itemCount: tasks.length,
       itemBuilder: (ctx, i) {
         return WebTaskItem(
+          task: tasks[i],
           isCompleted: isCompleted,
-          title: "Follow up with Patient",
-          description: "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s...",
-          date: "12 Dec, 2023",
-          index: i,
+          onRefresh: onRefresh,
         );
       },
     );
@@ -246,26 +310,43 @@ class WebTasksList extends StatelessWidget {
 }
 
 class WebTaskItem extends StatelessWidget {
+  final dynamic task;
   final bool isCompleted;
-  final String title;
-  final String description;
-  final String date;
-  final int index;
+  final VoidCallback onRefresh;
 
   const WebTaskItem({
     super.key,
+    required this.task,
     required this.isCompleted,
-    required this.title,
-    required this.description,
-    required this.date,
-    required this.index,
+    required this.onRefresh,
   });
 
   @override
   Widget build(BuildContext context) {
-    final statusColor = isCompleted ? const Color(0xFF10B981) : const Color(0xFFF59E0B);
-    final statusBg = isCompleted ? const Color(0xFFECFDF5) : const Color(0xFFFEF3C7);
-    final statusIcon = isCompleted ? Icons.check_circle_rounded : Icons.pending_actions_rounded;
+    final title = task['title'] ?? 'Task';
+    final description = task['description'] ?? 'No description';
+    final dateStr = task['dueDate'] ?? '';
+    DateTime? dateObj = DateTime.tryParse(dateStr);
+    final formattedDate = dateObj != null ? DateFormat('dd MMM, yyyy').format(dateObj) : '—';
+    final priority = task['priority'] ?? 'Medium';
+    final status = task['status'] ?? 'Assigned';
+    final assignedBy = task['assignedBy']?['name'] ?? 'Admin';
+
+    final statusColor = status == 'Completed'
+        ? const Color(0xFF10B981)
+        : status == 'In Progress'
+            ? const Color(0xFF3B82F6)
+            : const Color(0xFFF59E0B);
+    final statusBg = status == 'Completed'
+        ? const Color(0xFFECFDF5)
+        : status == 'In Progress'
+            ? const Color(0xFFEFF6FF)
+            : const Color(0xFFFEF3C7);
+    final statusIcon = status == 'Completed'
+        ? Icons.check_circle_rounded
+        : status == 'In Progress'
+            ? Icons.timelapse_rounded
+            : Icons.pending_actions_rounded;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -308,7 +389,7 @@ class WebTaskItem extends StatelessWidget {
                           Icon(statusIcon, color: statusColor, size: 14),
                           const SizedBox(width: 6),
                           Text(
-                            isCompleted ? "Completed" : "In Progress",
+                            status,
                             style: TextStyle(
                               color: statusColor,
                               fontSize: 11,
@@ -321,19 +402,27 @@ class WebTaskItem extends StatelessWidget {
                     ),
                     Row(
                       children: [
+                        if (!isCompleted)
+                          TextButton.icon(
+                            onPressed: () async {
+                              await TaskService().updateTaskStatus(task['_id'], 'Completed');
+                              onRefresh();
+                            },
+                            icon: const Icon(Icons.check_circle_rounded, color: Colors.green, size: 16),
+                            label: const Text('Complete', style: TextStyle(color: Colors.green, fontSize: 12)),
+                          ),
+                        const SizedBox(width: 8),
                         Icon(Icons.access_time_filled_rounded, 
                             color: Colors.grey.shade400, size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          date,
+                          formattedDate,
                           style: TextStyle(
                             color: Colors.grey.shade500,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Icon(Icons.more_vert_rounded, color: Colors.grey.shade400, size: 20),
                       ],
                     ),
                   ],
@@ -343,7 +432,7 @@ class WebTaskItem extends StatelessWidget {
                 
                 // ── Title ──
                 Text(
-                  "$title #${index + 1}",
+                  title,
                   style: const TextStyle(
                     color: Color(0xFF1E293B),
                     fontSize: 17,
@@ -383,7 +472,7 @@ class WebTaskItem extends StatelessWidget {
                         ),
                         const SizedBox(width: 10),
                         Text(
-                          "Assigned by Dr. Aron",
+                          "Assigned by $assignedBy",
                           style: TextStyle(
                             color: Colors.grey.shade600,
                             fontSize: 12,
@@ -396,14 +485,14 @@ class WebTaskItem extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFEFF6FF),
+                          color: priority == 'High' ? const Color(0xFFFEE2E2) : const Color(0xFFEFF6FF),
                           borderRadius: BorderRadius.circular(6),
-                          border: Border.all(color: const Color(0xFFDBEAFE)),
+                          border: Border.all(color: priority == 'High' ? const Color(0xFFFECACA) : const Color(0xFFDBEAFE)),
                         ),
-                        child: const Text(
-                          "High Priority",
+                        child: Text(
+                          "$priority Priority",
                           style: TextStyle(
-                            color: Color(0xFF2563EB),
+                            color: priority == 'High' ? Colors.red : const Color(0xFF2563EB),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),

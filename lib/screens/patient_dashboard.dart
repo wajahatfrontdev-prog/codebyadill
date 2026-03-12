@@ -10,6 +10,7 @@ import 'package:icare/screens/doctors_list.dart';
 import 'package:icare/screens/patient_medical_records.dart';
 import 'package:icare/screens/patient_prescriptions.dart';
 import 'package:icare/screens/health_tracker.dart';
+import 'package:icare/screens/lab_list.dart';
 import 'package:intl/intl.dart';
 
 class PatientDashboard extends ConsumerStatefulWidget {
@@ -435,6 +436,9 @@ class _PatientDashboardState extends ConsumerState<PatientDashboard> {
             }),
             _buildActionCard('Health Tracker', Icons.favorite_rounded, const Color(0xFFEF4444), () {
               Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HealthTracker()));
+            }),
+            _buildActionCard('Book Lab Test', Icons.biotech_rounded, const Color(0xFF8B5CF6), () {
+              Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
             }),
           ],
         ),

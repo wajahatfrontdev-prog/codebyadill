@@ -292,30 +292,24 @@ List<Widget> _studentTabs(
         ),
         CustomTabButton(
           onPressed: () {
-            // _selectPage(1);
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (ctx) => MyCartScreen()));
+            onSelect(1);
           },
           iconColor: currentIndex == 1
               ? AppColors.primaryColor
               : AppColors.grayColor,
-          image: ImagePaths.cart2,
-          title: "Cart",
+          image: ImagePaths.bookings,
+          title: "Bookings",
         ),
         SizedBox(width: 20),
         CustomTabButton(
           onPressed: () {
-            // _selectPage(2);
-            Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (ctx) => OrderTrackingScreen()));
+            onSelect(2);
           },
           iconColor: currentIndex == 2
               ? AppColors.primaryColor
               : AppColors.grayColor,
-          image: ImagePaths.track,
-          title: "track",
+          image: ImagePaths.chat,
+          title: "Chat",
         ),
         CustomTabButton(
           onPressed: () {

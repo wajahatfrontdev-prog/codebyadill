@@ -73,42 +73,56 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   Widget content = SplashScreen();
 
- @override
+  @override
   void initState() {
     super.initState();
-    loadData();
     splash();
-  
   }
 
-  void loadData() async{
-        final userWalkthrough = await SharedPref().getUserWalkthrough();
-        ref.watch(authProvider.notifier).setUserWalkthrough(userWalkthrough ?? false);
+  Future<void> loadData() async {
+    try {
+      final userWalkthrough = await SharedPref().getUserWalkthrough();
+      ref.read(authProvider.notifier).setUserWalkthrough(userWalkthrough ?? false);
 
-          print("$userWalkthrough" + ' ' + "===========>");
-        final token = await SharedPref().getToken();
-        ref.watch(authProvider.notifier).setUserToken(token!);
-
-        final userData = await SharedPref().getUserData();
-        ref.watch(commonProvider.notifier).setUserData(userData!);
-
+      print("$userWalkthrough" + ' ' + "===========>");
+      
+      final token = await SharedPref().getToken();
+      if (token != null && token.isNotEmpty) {
+        ref.read(authProvider.notifier).setUserToken(token);
+        
         final userRole = await SharedPref().getUserRole();
-        ref.watch(authProvider.notifier).setUserRole(userRole!);
+        if (userRole != null) {
+          ref.read(authProvider.notifier).setUserRole(userRole);
+        }
 
+        final userDataMap = await SharedPref().getUserData();
+        if (userDataMap != null) {
+          // It's a User object, but wait, getUserData() returns Future<User?>.
+          ref.read(authProvider.notifier).setUser(userDataMap);
+        }
+      }
+    } catch (e) {
+      print("Error loading data: $e");
+    }
   }
 
-  void splash () async{
-    await Future.delayed(const Duration(seconds: 6));
+  void splash() async {
+    // Wait for data loading and splash delay
+    await loadData();
+    await Future.delayed(const Duration(seconds: 3));
 
-    if(!mounted) return;
+    if (!mounted) return;
 
-    final bool userWalkthrough = ref.watch(authProvider).userWalkthrough;
-    final String userRole = ref.watch(authProvider).userRole;
-    final String? token = ref.watch(authProvider).token;
-    
+    final auth = ref.read(authProvider);
     
     setState(() {
-      content = Walkthrough(); 
+      if (auth.isLoggedIn && auth.token != null) {
+        content = const TabsScreen();
+      } else if (auth.userWalkthrough) {
+        content = LoginScreen();
+      } else {
+        content = const Walkthrough();
+      }
     });
   }  
 

@@ -16,6 +16,9 @@ import 'package:icare/widgets/courses_list.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/custom_text_input.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
+import 'package:icare/services/course_service.dart';
+import 'package:icare/screens/view_course.dart';
+import 'package:icare/screens/view_certificate.dart';
 
 class Courses extends ConsumerStatefulWidget {
   const Courses({super.key});
@@ -27,6 +30,8 @@ class Courses extends ConsumerStatefulWidget {
 class _CoursesState extends ConsumerState<Courses> with SingleTickerProviderStateMixin {
   
    late TabController controller;
+   final TextEditingController _searchController = TextEditingController();
+   String _searchQuery = "";
 int? _currentTabLength;
 
 // @override
@@ -57,7 +62,13 @@ int? _currentTabLength;
     log(role);
     log(controller.length.toString()); 
     if (MediaQuery.of(context).size.width > 800) {
-      return _WebCoursesScreen(controller: controller, role: role);
+      return _WebCoursesScreen(
+        controller: controller, 
+        role: role,
+        searchController: _searchController,
+        onSearchChanged: (val) => setState(() => _searchQuery = val),
+        searchQuery: _searchQuery,
+      );
     }
 
     return Scaffold(
@@ -80,7 +91,8 @@ int? _currentTabLength;
           children: [
                        CustomInputField(
               width: Utils.windowWidth(context) * 0.9,
-              
+              controller: _searchController,
+              onChanged: (val) => setState(() => _searchQuery = val),
              hintText: "Search", 
              trailingIcon: SvgWrapper(assetPath: ImagePaths.filters,onPress: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (ctx)=> FiltersScreen()));
@@ -125,10 +137,10 @@ int? _currentTabLength;
           Expanded(child: TabBarView(
         controller: controller,
         children: [
-          CoursesList(),
+          CoursesList(searchQuery: _searchQuery),
           if(role != "instructor")...[
 
-         CoursesList(mypurchased: true),
+         CoursesList(mypurchased: true, searchQuery: _searchQuery),
           CertificatesList(),
           ]
           
@@ -151,8 +163,17 @@ int? _currentTabLength;
 class _WebCoursesScreen extends StatelessWidget {
   final TabController controller;
   final String role;
+  final TextEditingController searchController;
+  final Function(String) onSearchChanged;
+  final String searchQuery;
 
-  const _WebCoursesScreen({required this.controller, required this.role});
+  const _WebCoursesScreen({
+    required this.controller, 
+    required this.role,
+    required this.searchController,
+    required this.onSearchChanged,
+    required this.searchQuery,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -205,6 +226,8 @@ class _WebCoursesScreen extends StatelessWidget {
                           boxShadow: const [BoxShadow(color: Color(0x05000000), blurRadius: 10, offset: Offset(0, 4))],
                         ),
                         child: TextField(
+                          controller: searchController,
+                          onChanged: onSearchChanged,
                           decoration: InputDecoration(
                             hintText: "Search courses...",
                             hintStyle: const TextStyle(color: Color(0xFF94A3B8)),
@@ -259,9 +282,9 @@ class _WebCoursesScreen extends StatelessWidget {
                 child: TabBarView(
                   controller: controller,
                   children: [
-                    const _WebCoursesList(),
+                    _WebCoursesList(searchQuery: searchQuery),
                     if (role != "instructor") ...[
-                      const _WebCoursesList(myPurchased: true),
+                      _WebCoursesList(myPurchased: true, searchQuery: searchQuery),
                       const _WebCertificatesList(),
                     ]
                   ],
@@ -275,38 +298,79 @@ class _WebCoursesScreen extends StatelessWidget {
   }
 }
 
-class _WebCoursesList extends StatelessWidget {
+class _WebCoursesList extends StatefulWidget {
   final bool myPurchased;
-  const _WebCoursesList({this.myPurchased = false});
+  final String searchQuery;
+  const _WebCoursesList({this.myPurchased = false, this.searchQuery = ""});
+
+  @override
+  State<_WebCoursesList> createState() => _WebCoursesListState();
+}
+
+class _WebCoursesListState extends State<_WebCoursesList> {
+  final CourseService _courseService = CourseService();
+  List<dynamic> _courses = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCourses();
+  }
+
+  Future<void> _fetchCourses() async {
+    try {
+      final data = widget.myPurchased ? await _courseService.myPurchases() : await _courseService.listPublicCourses();
+      if (mounted) {
+        setState(() {
+          _courses = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching web courses: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final courses = [
-      {"id": 1, "name": "Behavioral Therapist", "instructor": "Dr. Kewshun", "desc": "Master the fundamentals of behavioral therapy in this comprehensive course.", "image": ImagePaths.course1},
-      {"id": 2, "name": "Child Psychology", "instructor": "Dr. Smith", "desc": "Understand the developmental stages of children and effective therapy methods.", "image": ImagePaths.course2},
-      {"id": 3, "name": "Cognitive Therapy", "instructor": "Dr. James", "desc": "Learn cognitive restructuring techniques for adult patients.", "image": ImagePaths.course1},
-      {"id": 4, "name": "Family Counseling", "instructor": "Dr. Kewshun", "desc": "Strategies for resolving complex family dynamics and improving communication.", "image": ImagePaths.course2},
-      {"id": 5, "name": "Trauma Therapy", "instructor": "Dr. James", "desc": "Advanced methods in dealing with trauma and PTSD.", "image": ImagePaths.course1},
-      {"id": 6, "name": "Addiction Recovery", "instructor": "Dr. Kewshun", "desc": "Guiding patients through the difficult journey of addiction recovery.", "image": ImagePaths.course2},
-    ];
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-    final displayCourses = myPurchased ? [courses[0], courses[1]] : courses;
+    final filteredCourses = _courses.where((item) {
+      if (widget.searchQuery.isEmpty) return true;
+      final course = widget.myPurchased ? item['course'] : item;
+      final title = (course["title"] ?? course["name"] ?? "").toString().toLowerCase();
+      final desc = (course["caption"] ?? course["desc"] ?? "").toString().toLowerCase();
+      return title.contains(widget.searchQuery.toLowerCase()) || 
+             desc.contains(widget.searchQuery.toLowerCase());
+    }).toList();
+
+    if (filteredCourses.isEmpty) {
+      return const Center(child: Text("No courses found"));
+    }
 
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      itemCount: displayCourses.length,
+      itemCount: filteredCourses.length,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 400,
         crossAxisSpacing: 24,
         mainAxisSpacing: 24,
-        childAspectRatio: 0.85,
+        childAspectRatio: 0.82,
       ),
       itemBuilder: (ctx, i) {
-        final course = displayCourses[i];
+        final item = filteredCourses[i];
+        final course = widget.myPurchased ? item['course'] : item;
+
         return InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () {
-            // Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse()));
+            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse(courseData: course)));
           },
           child: Container(
             decoration: BoxDecoration(
@@ -320,12 +384,19 @@ class _WebCoursesList extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                  child: Image.asset(
-                    course["image"] as String,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: course["image"] != null
+                      ? Image.asset(
+                          course["image"] as String,
+                          height: 180,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          height: 180,
+                          width: double.infinity,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.book, size: 50, color: Colors.grey),
+                        ),
                 ),
                 Expanded(
                   child: Padding(
@@ -338,24 +409,30 @@ class _WebCoursesList extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                               decoration: BoxDecoration(color: const Color(0xFFEFF6FF), borderRadius: BorderRadius.circular(8)),
-                              child: const Text("Health", style: TextStyle(color: AppColors.primaryColor, fontSize: 12, fontWeight: FontWeight.w700)),
+                              child: Text(
+                                course["tag"] ?? "Health",
+                                style: const TextStyle(color: AppColors.primaryColor, fontSize: 12, fontWeight: FontWeight.w700),
+                              ),
                             ),
                             const Spacer(),
                             const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 18),
                             const SizedBox(width: 4),
-                            const Text("4.8", style: TextStyle(color: Color(0xFF475569), fontSize: 13, fontWeight: FontWeight.w600)),
+                            Text(
+                              "${course["rating"] ?? 4.5}",
+                              style: const TextStyle(color: Color(0xFF475569), fontSize: 13, fontWeight: FontWeight.w600),
+                            ),
                           ],
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          course["name"] as String,
+                          course["name"] ?? 'Untitled',
                           style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: Color(0xFF1E293B), fontFamily: "Gilroy-Bold", height: 1.2),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          course["desc"] as String,
+                          course["desc"] ?? 'No description',
                           style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), height: 1.4),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -365,10 +442,10 @@ class _WebCoursesList extends StatelessWidget {
                         const SizedBox(height: 12),
                         Row(
                           children: [
-                            SvgWrapper(assetPath: ImagePaths.instructor, color: const Color(0xFF64748B)),
+                            const Icon(Icons.person_outline_rounded, size: 16, color: Color(0xFF64748B)),
                             const SizedBox(width: 8),
                             Text(
-                              course["instructor"] as String,
+                              course["instructor"] ?? 'Instructor',
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569), fontFamily: "Gilroy-SemiBold"),
                             ),
                           ],
@@ -386,28 +463,64 @@ class _WebCoursesList extends StatelessWidget {
   }
 }
 
-class _WebCertificatesList extends StatelessWidget {
+class _WebCertificatesList extends StatefulWidget {
   const _WebCertificatesList();
 
   @override
+  State<_WebCertificatesList> createState() => _WebCertificatesListState();
+}
+
+class _WebCertificatesListState extends State<_WebCertificatesList> {
+  final CourseService _courseService = CourseService();
+  List<dynamic> _certificates = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCertificates();
+  }
+
+  Future<void> _fetchCertificates() async {
+    try {
+      final data = await _courseService.myCertificates();
+      if (mounted) {
+        setState(() {
+          _certificates = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching web certificates: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final certificates = [
-      {'title': 'Child Therapist Advanced Training', 'completed': 7, 'total': 7, 'percent': 100},
-      {'title': 'Behavioral Therapist Fundamentals', 'completed': 7, 'total': 7, 'percent': 100},
-      {'title': 'Cognitive Therapy Mastery', 'completed': 10, 'total': 10, 'percent': 100},
-    ];
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_certificates.isEmpty) {
+      return const Center(child: Text("No certificates available"));
+    }
 
     return GridView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-      itemCount: certificates.length,
+      itemCount: _certificates.length,
       gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
         maxCrossAxisExtent: 500,
         crossAxisSpacing: 24,
         mainAxisSpacing: 24,
-        childAspectRatio: 2.5,
+        childAspectRatio: 2.2,
       ),
       itemBuilder: (ctx, i) {
-        final item = certificates[i];
+        final item = _certificates[i];
+        final course = item['course'] ?? {};
+
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -423,9 +536,9 @@ class _WebCertificatesList extends StatelessWidget {
                 width: 60,
                 height: 60,
                 decoration: BoxDecoration(color: const Color(0xFFECFDF5), borderRadius: BorderRadius.circular(16)),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: SvgWrapper(assetPath: ImagePaths.success, color: const Color(0xFF10B981)),
+                child: const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Icon(Icons.workspace_premium_rounded, color: Color(0xFF10B981)),
                 ),
               ),
               const SizedBox(width: 20),
@@ -435,7 +548,7 @@ class _WebCertificatesList extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      item['title'].toString(),
+                      course['name'] ?? 'Untitled',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: Color(0xFF1E293B), fontFamily: "Gilroy-Bold"),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -445,7 +558,7 @@ class _WebCertificatesList extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(color: const Color(0xFFF1F5F9), borderRadius: BorderRadius.circular(6)),
                       child: Text(
-                        '${item["percent"]}% Completed (${item["completed"]}/${item["total"]})',
+                        '100% Completed (${item["completedUnits"]}/${course["totalUnits"]})',
                         style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF64748B)),
                       ),
                     ),
@@ -453,8 +566,10 @@ class _WebCertificatesList extends StatelessWidget {
                     Row(
                       children: [
                         TextButton.icon(
-                          onPressed: () {}, // Navigator.of(context).push...
-                          icon: const Icon(Icons.workspace_premium_rounded, size: 16),
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const ViewCertificate()));
+                          },
+                          icon: const Icon(Icons.visibility_rounded, size: 16),
                           label: const Text("View"),
                           style: TextButton.styleFrom(foregroundColor: AppColors.primaryColor, padding: EdgeInsets.zero, minimumSize: const Size(0, 0)),
                         ),

@@ -8,18 +8,19 @@ import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
 class CourseCard extends StatelessWidget {
-  const CourseCard({super.key, this.image , this.title, this.desc, this.instructor});
+  const CourseCard({super.key, this.image , this.title, this.desc, this.instructor, this.courseData});
   
   final String? image;
   final String? title;
   final String? desc;
   final String? instructor;
+  final Map<String, dynamic>? courseData;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse()));
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse(courseData: courseData)));
       },
       child: Container(
         width: Utils.windowWidth(context) * 0.4,
@@ -54,7 +55,7 @@ class CourseCard extends StatelessWidget {
               // textAlign: TextAlign.left,
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 12),
-              text: title ?? "",
+              text: title ?? courseData?['title'] ?? courseData?['name'] ?? "",
               fontWeight: FontWeight.bold,
               fontSize: ScallingConfig.moderateScale(14),
             ),

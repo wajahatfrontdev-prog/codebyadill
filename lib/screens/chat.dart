@@ -11,7 +11,8 @@ import 'package:icare/widgets/custom_text_input.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final String? title;
+  const ChatScreen({super.key, this.title});
 
   @override
   BasicState createState() => BasicState();
@@ -68,7 +69,7 @@ class BasicState extends State<ChatScreen> {
         leading: CustomBackButton(),
         automaticallyImplyLeading: false,
         title: CustomText(
-          text: "Chat",
+          text: widget.title ?? "Chat",
           fontSize: 16.78,
           fontFamily: "Gilroy-Bold",
           fontWeight: FontWeight.w400,

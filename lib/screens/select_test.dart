@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/models/lab_test.dart';
-import 'package:icare/screens/lab_appointment.dart';
+import 'package:icare/screens/confirm_booking.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -11,39 +11,67 @@ import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
+import 'package:icare/services/laboratory_service.dart';
 
 class SelectTest extends StatefulWidget {
-  const SelectTest({super.key});
+  final Map<String, dynamic> bookingData;
+  const SelectTest({super.key, required this.bookingData});
 
   @override
   State<SelectTest> createState() => _SelectTestState();
 }
 
 class _SelectTestState extends State<SelectTest> {
-  var _selectedTests = [];
+  final LaboratoryService _labService = LaboratoryService();
+  bool _isLoading = true;
+  List<LabTest> _tests = [];
+  final List<LabTest> _selectedTests = [];
 
-  void _onSelect(item) {
+  @override
+  void initState() {
+    super.initState();
+    _fetchLabTests();
+  }
+
+  Future<void> _fetchLabTests() async {
+    try {
+      final labId = widget.bookingData['labId'];
+      if (labId == null) throw 'Lab ID is missing';
+      
+      final lab = await _labService.getLabById(labId);
+      final List<dynamic> availableTests = lab['availableTests'] ?? [];
+      
+      setState(() {
+        _tests = availableTests.map((t) => LabTest(
+          id: t['_id'] ?? t['name'], 
+          name: t['name'], 
+          price: (t['price'] ?? 0).toDouble(),
+        )).toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      print('Error fetching tests: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _onSelect(LabTest item) {
     setState(() {
-      // _selectedTests.add(item.name);
-      if (_selectedTests.contains(item?.name)) {
-        log("if block");
-        _selectedTests.remove(item?.name);
+      if (_selectedTests.any((e) => e.id == item.id)) {
+        _selectedTests.removeWhere((e) => e.id == item.id);
       } else {
-        log("else block ${item.name}");
-        _selectedTests.add(item?.name);
+        _selectedTests.add(item);
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<LabTest> labTests = [
-      LabTest(id: '1', name: 'Blood Sugar Test', price: 20),
-      LabTest(id: '2', name: 'CBC', price: 20),
-      LabTest(id: '3', name: 'Thyroid Panel', price: 20),
-      LabTest(id: '4', name: 'Kidney Function Test', price: 20),
-      LabTest(id: '5', name: 'Urine Test', price: 20),
-    ];
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     log(jsonEncode(_selectedTests.map((e) => e).toList()));
 
@@ -75,35 +103,43 @@ class _SelectTestState extends State<SelectTest> {
                 color: AppColors.primary500,
               ),
 
-              ...labTests.map(
-                (labtest) => SelectableItem(
-                  selected: _selectedTests.contains(labtest.name),
-                  item: labtest,
-                  onSelect: () => _onSelect(labtest),
+              if (_tests.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 50),
+                  child: CustomText(
+                    text: "No tests available for this laboratory.",
+                    color: Colors.grey,
+                  ),
+                )
+              else
+                ..._tests.map(
+                  (labtest) => SelectableItem(
+                    selected: _selectedTests.any((e) => e.id == labtest.id),
+                    item: labtest,
+                    onSelect: () => _onSelect(labtest),
+                  ),
                 ),
-              ),
 
               SizedBox(height: ScallingConfig.scale(20)),
               CustomButton(
                 labelSize: 16.89,
-                label: "Submit Request",
+                label: "Confirm Booking Summary",
                 onPressed: () {
+                  if (_selectedTests.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Please select at least one test')),
+                    );
+                    return;
+                  }
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctx) => LabAppointments()),
+                    MaterialPageRoute(
+                      builder: (ctx) => ConfirmBookingScreen(
+                        bookingData: widget.bookingData,
+                        selectedTests: _selectedTests,
+                      ),
+                    ),
                   );
-                  // AppModals.showWarningModal(context,
-                  // "Successful",
-                  // "Your test request has been successfully sent.",
-                  // onPrimaryButtonPressed: () {
-                  //         // Navigator.pop(context);
-                  // },
-                  // null );
-                  // AppModals.showSuccessModal(context, "Successful", "Your test request has been successfully sent."
-
-                  // );
-                  // Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ConfirmDetails()));
                 },
-
                 borderRadius: 30,
                 width: Utils.windowWidth(context) * 0.9,
               ),

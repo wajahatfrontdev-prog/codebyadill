@@ -7,75 +7,68 @@ import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/laboratory.dart';
+import 'package:icare/services/laboratory_service.dart';
 
-class LaboratoriesScreen extends StatelessWidget {
+class LaboratoriesScreen extends StatefulWidget {
   const LaboratoriesScreen({super.key});
 
-  static const _labs = [
-    {
-      "name": "Quantum Spar Lab",
-      "location": "4915 Muller Radial, 84904, USA",
-      "open": "Open at 9:00 AM",
-      "tests": 48,
-      "rating": 4.9,
-      "image": ImagePaths.lab3,
-      "tag": "Premier",
-      "tagColor": Color(0xFF10B981),
-    },
-    {
-      "name": "MedTech Research Lab",
-      "location": "221B Baker Street, London, UK",
-      "open": "Open at 8:30 AM",
-      "tests": 62,
-      "rating": 4.7,
-      "image": ImagePaths.lab3,
-      "tag": "Certified",
-      "tagColor": Color(0xFF6366F1),
-    },
-    {
-      "name": "BioSci Diagnostics",
-      "location": "500 Innovation Drive, NY, USA",
-      "open": "Open at 10:00 AM",
-      "tests": 35,
-      "rating": 4.5,
-      "image": ImagePaths.lab3,
-      "tag": "New",
-      "tagColor": Color(0xFFF59E0B),
-    },
-    {
-      "name": "LifeLine Medical Centre",
-      "location": "88 Health Blvd, Chicago, USA",
-      "open": "Open at 9:30 AM",
-      "tests": 55,
-      "rating": 4.8,
-      "image": ImagePaths.lab3,
-      "tag": "Premier",
-      "tagColor": Color(0xFF10B981),
-    },
-    {
-      "name": "Apex Pathology",
-      "location": "47 Cure Lane, Toronto, Canada",
-      "open": "Open at 8:00 AM",
-      "tests": 41,
-      "rating": 4.6,
-      "image": ImagePaths.lab3,
-      "tag": "Certified",
-      "tagColor": Color(0xFF6366F1),
-    },
-    {
-      "name": "ProHealth Diagnostics",
-      "location": "13 Wellness Ave, Sydney, AU",
-      "open": "Open at 9:00 AM",
-      "tests": 29,
-      "rating": 4.4,
-      "image": ImagePaths.lab3,
-      "tag": "New",
-      "tagColor": Color(0xFFF59E0B),
-    },
-  ];
+  @override
+  State<LaboratoriesScreen> createState() => _LaboratoriesScreenState();
+}
+
+class _LaboratoriesScreenState extends State<LaboratoriesScreen> {
+  final LaboratoryService _labService = LaboratoryService();
+  final TextEditingController _searchController = TextEditingController();
+  List<dynamic> _labs = [];
+  List<dynamic> _filteredLabs = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchLabs();
+  }
+
+  Future<void> _fetchLabs() async {
+    try {
+      final labs = await _labService.getAllLaboratories();
+      if (mounted) {
+        setState(() {
+          _labs = labs;
+          _filteredLabs = labs;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching labs: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  void _filterLabs(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredLabs = _labs;
+      });
+      return;
+    }
+    setState(() {
+      _filteredLabs = _labs.where((lab) {
+        final name = (lab['labName'] ?? lab['name'] ?? "").toString().toLowerCase();
+        final address = (lab['address'] ?? lab['location'] ?? "").toString().toLowerCase();
+        return name.contains(query.toLowerCase()) || address.contains(query.toLowerCase());
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     final bool isDesktop = MediaQuery.of(context).size.width > 900;
 
     // ── MOBILE: original layout (untouched) ────────────────────────────────
@@ -93,13 +86,16 @@ class LaboratoriesScreen extends StatelessWidget {
           leading: const CustomBackButton(),
           centerTitle: true,
         ),
-        body: ListView.builder(
-          itemCount: 3,
-          padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(20)),
-          itemBuilder: (ctx, i) => Laboratory(
-            margin: EdgeInsets.only(top: ScallingConfig.scale(10)),
-          ),
-        ),
+        body: _filteredLabs.isEmpty 
+          ? const Center(child: Text("No laboratories found"))
+          : ListView.builder(
+              itemCount: _filteredLabs.length,
+              padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(20)),
+              itemBuilder: (ctx, i) => Laboratory(
+                labData: _filteredLabs[i],
+                margin: EdgeInsets.only(top: ScallingConfig.scale(10)),
+              ),
+            ),
       );
     }
 
@@ -196,8 +192,10 @@ class LaboratoriesScreen extends StatelessWidget {
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 12, offset: const Offset(0, 4))],
                     ),
-                    child: const TextField(
-                      decoration: InputDecoration(
+                    child: TextField(
+                      controller: _searchController,
+                      onChanged: _filterLabs,
+                      decoration: const InputDecoration(
                         hintText: "Search laboratory...",
                         prefixIcon: Icon(Icons.search_rounded, size: 20, color: Color(0xFF94A3B8)),
                         border: InputBorder.none,
@@ -212,21 +210,23 @@ class LaboratoriesScreen extends StatelessWidget {
           ),
 
           // Labs grid
-          SliverPadding(
-            padding: const EdgeInsets.fromLTRB(60, 0, 60, 60),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 480,
-                mainAxisExtent: 340,
-                crossAxisSpacing: 28,
-                mainAxisSpacing: 28,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (ctx, i) => _buildLabCard(context, _labs[i]),
-                childCount: _labs.length,
+          _labs.isEmpty 
+          ? const SliverToBoxAdapter(child: Center(child: Padding(padding: EdgeInsets.all(40), child: Text("No laboratories found"))))
+          : SliverPadding(
+              padding: const EdgeInsets.fromLTRB(60, 0, 60, 60),
+              sliver: SliverGrid(
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 480,
+                  mainAxisExtent: 340,
+                  crossAxisSpacing: 28,
+                  mainAxisSpacing: 28,
+                ),
+                delegate: SliverChildBuilderDelegate(
+                  (ctx, i) => _buildLabCard(context, _filteredLabs[i]),
+                  childCount: _filteredLabs.length,
+                ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -275,7 +275,7 @@ class LaboratoriesScreen extends StatelessWidget {
 
   Widget _buildLabCard(BuildContext context, Map<String, dynamic> lab) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabDetails())),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabDetails(labData: lab))),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -292,12 +292,32 @@ class LaboratoriesScreen extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: Image.asset(
-                    lab['image'] as String,
-                    height: 170,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: lab['image'] is String 
+                    ? (lab['image'].toString().startsWith('assets') 
+                        ? Image.asset(
+                            lab['image'] as String,
+                            height: 170,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : Image.network(
+                            lab['image'] as String,
+                            height: 170,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Container(
+                                height: 170,
+                                width: double.infinity,
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.science_rounded, size: 50, color: Colors.grey),
+                              ),
+                          ))
+                    : Container(
+                        height: 170,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.science_rounded, size: 50, color: Colors.grey),
+                      ),
                 ),
                 // Tag badge
                 Positioned(
@@ -306,12 +326,12 @@ class LaboratoriesScreen extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: (lab['tagColor'] as Color),
+                      color: lab['tagColor'] != null ? (lab['tagColor'] as Color) : Colors.blue,
                       borderRadius: BorderRadius.circular(20),
-                      boxShadow: [BoxShadow(color: (lab['tagColor'] as Color).withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))],
+                      boxShadow: [BoxShadow(color: (lab['tagColor'] != null ? (lab['tagColor'] as Color) : Colors.blue).withOpacity(0.4), blurRadius: 8, offset: const Offset(0, 3))],
                     ),
                     child: Text(
-                      lab['tag'] as String,
+                      lab['tag'] ?? "Premier",
                       style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -332,7 +352,7 @@ class LaboratoriesScreen extends StatelessWidget {
                         const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          "${lab['rating']}",
+                          "${lab['rating'] ?? 4.5}",
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800),
                         ),
                       ],
@@ -348,7 +368,7 @@ class LaboratoriesScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    lab['name'] as String,
+                    ((lab['labName'] is String) ? (lab['labName'] as String) : ((lab['name'] is String) ? (lab['name'] as String) : 'Laboratory')),
                     style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -360,7 +380,7 @@ class LaboratoriesScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          lab['location'] as String,
+                          (lab['address'] is String) ? (lab['address'] as String) : ((lab['location'] is String) ? (lab['location'] as String) : 'Location not available'),
                           style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -373,10 +393,13 @@ class LaboratoriesScreen extends StatelessWidget {
                     children: [
                       const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF94A3B8)),
                       const SizedBox(width: 4),
-                      Text(lab['open'] as String, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                      Text(
+                        (lab['open'] is String ? lab['open'] : 'Open 9:00 AM - 9:00 PM'),
+                        style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                      ),
                       const Spacer(),
                       Text(
-                        "${lab['tests']} Tests",
+                        "${lab['tests'] ?? 0} Tests",
                         style: TextStyle(fontSize: 12, color: AppColors.primaryColor, fontWeight: FontWeight.w700),
                       ),
                     ],
@@ -385,7 +408,7 @@ class LaboratoriesScreen extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabDetails())),
+                      onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabDetails(labData: lab))),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primaryColor,
                         foregroundColor: Colors.white,

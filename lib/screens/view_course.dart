@@ -11,18 +11,47 @@ import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 
 class ViewCourse extends ConsumerWidget {
-  const ViewCourse({super.key});
+  const ViewCourse({super.key, this.courseData});
+  final Map<String, dynamic>? courseData;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final role = ref.read(authProvider).userRole;
     final bool isWeb = MediaQuery.of(context).size.width > 900;
+    
+    // Safe data extraction
+    final dynamic titleVal = courseData?['title'] ?? courseData?['name'];
+    final String name = (titleVal is String) ? titleVal : "Untitled Course";
+
+    String instructor = "Instructor";
+    final dynamic instrVal = courseData?['instructor'];
+    if (instrVal is String) {
+      instructor = instrVal;
+    } else if (instrVal is Map) {
+      instructor = instrVal['user']?['name'] ?? instrVal['name'] ?? "Instructor";
+    }
+
+    final dynamic descVal = courseData?['caption'] ?? courseData?['desc'];
+    final String desc = (descVal is String) ? descVal : "No description available.";
+
+    final dynamic imageVal = courseData?['image'];
+    final String image = (imageVal is String && imageVal.isNotEmpty) ? imageVal : ImagePaths.course1;
+
+    final String courseId = courseData?['_id'] ?? courseData?['id'] ?? "";
+    final double price = (courseData?['price'] != null) ? (double.tryParse((courseData?['price'] ?? '').toString()) ?? 45.0) : 45.0;
+
+    final dynamic tagVal = courseData?['tag'] ?? courseData?['category'];
+    final String tag = (tagVal is String) ? tagVal : "Health";
+
+    final dynamic ratingVal = courseData?['rating'];
+    final double rating = double.tryParse(ratingVal?.toString() ?? '4.8') ?? 4.8;
+    final bool isPurchased = (courseData?['isPurchased'] == true);
 
     // ── MOBILE: original layout (untouched) ────────────────────────────────
     if (!isWeb) {
       return Scaffold(
         appBar: AppBar(
-          leading: CustomBackButton(),
+          leading: const CustomBackButton(),
           automaticallyImplyLeading: false,
           title: CustomText(
             text: "Course",
@@ -41,7 +70,7 @@ class ViewCourse extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (role == "student") ...[
+                  if (role == "student" && !isPurchased) ...[
                     CustomText(
                       maxLines: 4,
                       width: Utils.windowWidth(context) * 0.9,
@@ -59,9 +88,9 @@ class ViewCourse extends ConsumerWidget {
                   Stack(
                     children: [
                       ClipRRect(
-                        borderRadius: BorderRadiusGeometry.circular(20),
+                        borderRadius: BorderRadius.circular(20),
                         child: Image.asset(
-                          ImagePaths.course1,
+                          image,
                           width: Utils.windowWidth(context) * 0.9,
                           fit: BoxFit.cover,
                         ),
@@ -71,7 +100,7 @@ class ViewCourse extends ConsumerWidget {
                         top: Utils.windowHeight(context) * 0.12,
                         child: CircleAvatar(
                           backgroundColor: AppColors.primaryColor,
-                          child: Icon(Icons.pause, color: AppColors.white),
+                          child: const Icon(Icons.pause, color: AppColors.white),
                         ),
                       ),
                     ],
@@ -90,9 +119,9 @@ class ViewCourse extends ConsumerWidget {
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 5.0),
                             child: ClipRRect(
-                              borderRadius: BorderRadiusGeometry.circular(5),
+                              borderRadius: BorderRadius.circular(5),
                               child: Image.asset(
-                                ImagePaths.course1,
+                                image,
                                 width: Utils.windowWidth(context) * 0.28,
                                 fit: BoxFit.cover,
                               ),
@@ -104,7 +133,7 @@ class ViewCourse extends ConsumerWidget {
                   ),
                   SizedBox(height: ScallingConfig.scale(6)),
                   CustomText(
-                    text: "Behavioral Therapist",
+                    text: name,
                     color: AppColors.primary500,
                     fontFamily: "Gilroy-Bold",
                     textAlign: TextAlign.left,
@@ -115,27 +144,25 @@ class ViewCourse extends ConsumerWidget {
                   SizedBox(height: ScallingConfig.scale(7)),
                   CustomText(
                     width: Utils.windowWidth(context) * 0.85,
-                    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea lokj jkh commodo consequat. Duis aute irure dolor abore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in jolki fokmj reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                    text: desc,
                     maxLines: 100,
                     textAlign: TextAlign.justify,
                     color: AppColors.grayColor,
                     fontSize: 12,
                     fontFamily: "Gilroy-Regular",
                   ),
-                  SizedBox(height: ScallingConfig.scale(7)),
+                  const SizedBox(height: 10),
                   CustomText(
                     width: Utils.windowWidth(context) * 0.85,
-                    text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea lokj jkh commodo consequat. Duis aute irure dolor abore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in jolki fokmj reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                    maxLines: 100,
-                    textAlign: TextAlign.justify,
-                    color: AppColors.grayColor,
-                    fontSize: 12,
-                    fontFamily: "Gilroy-Regular",
+                    text: "Instructor: $instructor",
+                    color: AppColors.themeDarkGrey,
+                    fontSize: 13,
+                    fontFamily: "Gilroy-SemiBold",
                   ),
                   SizedBox(height: Utils.windowHeight(context) * 0.05),
                 ],
               ),
-              if (role != "instructor") ...[
+              if (role != "instructor" && !isPurchased) ...[
                 Positioned(
                   left: ScallingConfig.scale(30),
                   bottom: ScallingConfig.verticalScale(80),
@@ -144,7 +171,10 @@ class ViewCourse extends ConsumerWidget {
                     borderRadius: 30,
                     onPressed: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (ctx) => SelectPaymentMethod()),
+                        MaterialPageRoute(builder: (ctx) => SelectPaymentMethod(
+                          courseId: courseId,
+                          amount: price,
+                        )),
                       );
                     },
                   ),
@@ -172,7 +202,7 @@ class ViewCourse extends ConsumerWidget {
               background: Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.asset(ImagePaths.course1, fit: BoxFit.cover),
+                  Image.asset(image, fit: BoxFit.cover),
                   // Dark gradient overlay
                   Container(
                     decoration: const BoxDecoration(
@@ -197,7 +227,7 @@ class ViewCourse extends ConsumerWidget {
                     ),
                   ),
                   // Student trial banner
-                  if (role == "student")
+                  if (role == "student" && !isPurchased)
                     Positioned(
                       top: 0,
                       left: 0,
@@ -226,12 +256,12 @@ class ViewCourse extends ConsumerWidget {
                             color: AppColors.primaryColor,
                             borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Text("Health", style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
+                          child: Text(tag, style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800)),
                         ),
                         const SizedBox(height: 10),
-                        const Text(
-                          "Behavioral Therapist",
-                          style: TextStyle(
+                        Text(
+                          name,
+                          style: const TextStyle(
                             color: Colors.white,
                             fontSize: 36,
                             fontWeight: FontWeight.w900,
@@ -243,11 +273,11 @@ class ViewCourse extends ConsumerWidget {
                           children: [
                             const Icon(Icons.person_rounded, color: Colors.white70, size: 16),
                             const SizedBox(width: 6),
-                            const Text("Kewshun", style: TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
+                            Text(instructor, style: const TextStyle(color: Colors.white70, fontSize: 14, fontWeight: FontWeight.w500)),
                             const SizedBox(width: 20),
                             const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 16),
                             const SizedBox(width: 4),
-                            const Text("4.8", style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
+                            Text("$rating", style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w700)),
                             const SizedBox(width: 20),
                             const Icon(Icons.group_rounded, color: Colors.white70, size: 16),
                             const SizedBox(width: 6),
@@ -290,7 +320,7 @@ class ViewCourse extends ConsumerWidget {
                                 itemBuilder: (ctx, i) => ClipRRect(
                                   borderRadius: BorderRadius.circular(12),
                                   child: Image.asset(
-                                    ImagePaths.course1,
+                                    image,
                                     width: 160,
                                     height: 100,
                                     fit: BoxFit.cover,
@@ -304,13 +334,7 @@ class ViewCourse extends ConsumerWidget {
                             // Description
                             _sectionLabel("About This Course"),
                             const SizedBox(height: 16),
-                            _descriptionParagraph(
-                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                            ),
-                            const SizedBox(height: 16),
-                            _descriptionParagraph(
-                              "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                            ),
+                            _descriptionParagraph(desc),
                           ],
                         ),
                       ),
@@ -344,7 +368,7 @@ class ViewCourse extends ConsumerWidget {
                                 const SizedBox(height: 8),
                                 Text(
                                   "Get lifetime access to all modules and certificates.",
-                                  style: TextStyle(fontSize: 13, color: Colors.grey[500], height: 1.4),
+                                  style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8), height: 1.4),
                                 ),
                                 const SizedBox(height: 24),
                                 // Feature list
@@ -364,11 +388,15 @@ class ViewCourse extends ConsumerWidget {
                                   ),
                                 )),
                                 const SizedBox(height: 24),
+                                if (!isPurchased)
                                 SizedBox(
                                   width: double.infinity,
                                   child: ElevatedButton(
                                     onPressed: () => Navigator.of(context).push(
-                                      MaterialPageRoute(builder: (ctx) => SelectPaymentMethod()),
+                                      MaterialPageRoute(builder: (ctx) => SelectPaymentMethod(
+                                        courseId: courseId,
+                                        amount: price,
+                                      )),
                                     ),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: AppColors.primaryColor,

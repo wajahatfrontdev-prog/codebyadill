@@ -13,7 +13,9 @@ import 'package:icare/widgets/svg_wrapper.dart';
 import 'package:intl/intl.dart';
 
 class BookLabScreen extends StatefulWidget {
-  const BookLabScreen({super.key});
+  final String? labId;
+  final String? labTitle;
+  const BookLabScreen({super.key, this.labId, this.labTitle});
 
   @override
   State<BookLabScreen> createState() => _BookLabScreenState();
@@ -22,6 +24,9 @@ class BookLabScreen extends StatefulWidget {
 class _BookLabScreenState extends State<BookLabScreen> {
   var _selectedDate = '';
   var _selectedTime = "";
+  final TextEditingController _cityController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  bool _homeSample = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,6 +118,7 @@ class _BookLabScreenState extends State<BookLabScreen> {
             ),
 
             CustomInputField(
+              controller: _cityController,
               width: Utils.windowWidth(context) * 0.9,
               hintText: "City",
               hintStyle: TextStyle(
@@ -126,6 +132,7 @@ class _BookLabScreenState extends State<BookLabScreen> {
             ),
 
             CustomInputField(
+              controller: _addressController,
               width: Utils.windowWidth(context) * 0.9,
               hintText: "Address",
               hintStyle: TextStyle(
@@ -137,18 +144,10 @@ class _BookLabScreenState extends State<BookLabScreen> {
               // padding: EdgeInsets.only(left: ScallingConfig.scale(25), top: ScallingConfig.scale(10)),
               // height: Utils.windowHeight(context) * 0.15,
               // maxLines: 50,
-              borderRadius: 30,
+              borderRadius: 26,
               borderColor: AppColors.grayColor.withAlpha(70),
             ),
-            CustomText(
-              text:"Home Sample",
-              padding: EdgeInsets.only(top: ScallingConfig.verticalScale(15)),
-              fontFamily: "Gilroy-SemiBold",
-              fontSize: ScallingConfig.moderateScale(14.76),
-              color: AppColors.primary500,
-              width: Utils.windowWidth(context) * 0.9,
-              ),
-
+            const SizedBox(height: 15),
               Container(
                 width: Utils.windowWidth(context) * 0.9,
                 height: ScallingConfig.scale(50),
@@ -163,33 +162,62 @@ class _BookLabScreenState extends State<BookLabScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    CustomText(text: "Off",
-                    color: AppColors.lightGrey500,
+                    const SizedBox(width: 20),
+                    CustomText(
+                      text: "Home Sample",
+                      fontFamily: "Gilroy-Medium",
+                      fontSize: 14.78,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.grayColor,
                     ),
+                    const Spacer(),
                     FlutterSwitch(
-                                width: 50.0,
-                                height: 20.0,
-
-                                toggleSize: 15.0,
-                                value: true,
-                                borderRadius: 30.0,
-                                padding: 2.0,
-                                toggleColor: Color.fromRGBO(225, 225, 225, 1),
-                                activeColor: AppColors.themeBlack,
-                                inactiveColor: AppColors.darkGreyColor,
-                                onToggle: (val) {
-                                },
-                              ),
-
+                      width: 45.0,
+                      height: 25.0,
+                      toggleSize: 20.0,
+                      value: _homeSample,
+                      borderRadius: 30.0,
+                      padding: 2.0,
+                      activeColor: AppColors.primaryColor,
+                      onToggle: (val) {
+                        setState(() {
+                          _homeSample = val;
+                        });
+                      },
+                    ),
+                    const SizedBox(width: 20),
                   ],
                 ),
               ),
               SizedBox(height: ScallingConfig.scale(15),  ),
-              CustomButton(label: "Select Test", 
+              CustomButton(
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => SelectTest()));
+                if (_selectedDate.isEmpty || _selectedTime.isEmpty || _addressController.text.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Please fill all details')),
+                  );
+                  return;
+                }
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => SelectTest(
+                      bookingData: {
+                        'labId': widget.labId ?? '1',
+                        'labTitle': widget.labTitle ?? 'Green Lab',
+                        'date': _selectedDate,
+                        'time': _selectedTime,
+                        'city': _cityController.text,
+                        'address': _addressController.text,
+                        'homeSample': _homeSample,
+                      },
+                    ),
+                  ),
+                );
               },
-              borderRadius: 30, width: Utils.windowWidth(context) * 0.9,)
+              width: Utils.windowWidth(context) * 0.9,
+              label: "Select Test ",
+              borderRadius: 30,
+            ),
 
           ],
         ),
