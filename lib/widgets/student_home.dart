@@ -4,6 +4,7 @@ import 'package:icare/screens/courses.dart';
 import 'package:icare/screens/instructor_filters.dart';
 import 'package:icare/screens/laboratories.dart';
 import 'package:icare/screens/labb_details.dart';
+import 'package:icare/screens/my_learning.dart';
 import 'package:icare/screens/view_course.dart';
 import 'package:icare/services/course_service.dart';
 import 'package:icare/services/laboratory_service.dart';
@@ -191,57 +192,94 @@ class _StudentHomeState extends State<StudentHome> {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    // Search bar
-                    Container(
-                      height: 52,
-                      constraints: const BoxConstraints(maxWidth: 580),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.18),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          const Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 22),
-                          const SizedBox(width: 10),
-                          const Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: "Search courses, labs...",
-                                hintStyle: TextStyle(color: Color(0xFFADB5BD), fontSize: 14),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (ctx) => InstructorFiltersScreen()),
-                            ),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Text(
-                                "Filter",
-                                style: TextStyle(
-                                  color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13,
+                    // Quick Actions Row
+                    Row(
+                      children: [
+                        // Search bar
+                        Expanded(
+                          child: Container(
+                            height: 52,
+                            constraints: const BoxConstraints(maxWidth: 580),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.18),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8),
                                 ),
-                              ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 16),
+                                const Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 22),
+                                const SizedBox(width: 10),
+                                const Expanded(
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      hintText: "Search courses, labs...",
+                                      hintStyle: TextStyle(color: Color(0xFFADB5BD), fontSize: 14),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (ctx) => InstructorFiltersScreen()),
+                                  ),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Text(
+                                      "Filter",
+                                      style: TextStyle(
+                                        color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 16),
+                        // My Learning Button
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (ctx) => const MyLearningScreen()),
+                          ),
+                          child: Container(
+                            height: 52,
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.school_rounded, color: Colors.white, size: 20),
+                                SizedBox(width: 10),
+                                Text(
+                                  'My Learning',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
