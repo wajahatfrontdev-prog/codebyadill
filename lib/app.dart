@@ -84,25 +84,33 @@ class _AppState extends ConsumerState<App> {
       final userWalkthrough = await SharedPref().getUserWalkthrough();
       ref.read(authProvider.notifier).setUserWalkthrough(userWalkthrough ?? false);
 
-      print("$userWalkthrough" + ' ' + "===========>");
+      print("$userWalkthrough ===========>");
       
       final token = await SharedPref().getToken();
+      print("🔑 Loaded token from cache: ${token != null ? '${token.substring(0, 20)}...' : 'null'}");
+      
       if (token != null && token.isNotEmpty) {
         ref.read(authProvider.notifier).setUserToken(token);
         
         final userRole = await SharedPref().getUserRole();
+        print("👤 Loaded role from cache: $userRole");
+        
         if (userRole != null) {
           ref.read(authProvider.notifier).setUserRole(userRole);
         }
 
         final userDataMap = await SharedPref().getUserData();
         if (userDataMap != null) {
-          // It's a User object, but wait, getUserData() returns Future<User?>.
+          print("📋 Loaded user data from cache: ${userDataMap.email} - ${userDataMap.role}");
           ref.read(authProvider.notifier).setUser(userDataMap);
         }
+      } else {
+        print("⚠️ No token found in cache, user needs to login");
       }
     } catch (e) {
-      print("Error loading data: $e");
+      print("❌ Error loading data: $e");
+      // Clear any partial state on error
+      ref.read(authProvider.notifier).setUserLogout();
     }
   }
 

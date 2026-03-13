@@ -70,16 +70,40 @@ class _BookAppointmentScreenState extends State<BookAppointmentScreen> {
   }
 
   String _incrementTime(String time, int hours) {
-    final parts = time.split(' ');
-    final timeParts = parts[0].split(':');
-    int hour = int.parse(timeParts[0]);
-    final minute = timeParts[1];
-    final period = parts[1];
-    
-    hour += hours;
-    if (hour > 12) hour -= 12;
-    
-    return '$hour:$minute $period';
+    try {
+      // Handle 24-hour format (e.g., "08:00")
+      if (!time.contains('AM') && !time.contains('PM')) {
+        final timeParts = time.split(':');
+        int hour = int.parse(timeParts[0]);
+        final minute = timeParts.length > 1 ? timeParts[1] : '00';
+        
+        hour += hours;
+        if (hour >= 24) hour -= 24;
+        
+        // Convert to 12-hour format with AM/PM
+        final period = hour >= 12 ? 'PM' : 'AM';
+        final displayHour = hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
+        
+        return '$displayHour:$minute $period';
+      }
+      
+      // Handle 12-hour format (e.g., "09:00 AM")
+      final parts = time.split(' ');
+      if (parts.length < 2) return time;
+      
+      final timeParts = parts[0].split(':');
+      int hour = int.parse(timeParts[0]);
+      final minute = timeParts.length > 1 ? timeParts[1] : '00';
+      final period = parts[1];
+      
+      hour += hours;
+      if (hour > 12) hour -= 12;
+      
+      return '$hour:$minute $period';
+    } catch (e) {
+      print('Error parsing time: $time, error: $e');
+      return time;
+    }
   }
 
   bool _isDayAvailable(DateTime date) {

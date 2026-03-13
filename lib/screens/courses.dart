@@ -51,7 +51,7 @@ int? _currentTabLength;
   void initState() {
     super.initState();
    final role = ref.read(authProvider).userRole;
-    controller = TabController(length: role == "instructor" ? 1 : 3, vsync: this);
+    controller = TabController(length: role == "Instructor" ? 1 : 3, vsync: this);
   }
 
   
@@ -116,7 +116,7 @@ int? _currentTabLength;
                 width: Utils.windowWidth(context) * 0.33,
                 textAlign: TextAlign.center,
               ),
-           if(role == "instructor") ...[
+           if(role == "Instructor") ...[
              SizedBox(width: Utils.windowWidth(context) * 0.33,),
              SizedBox(width: Utils.windowWidth(context) * 0.33,),],
             if(role != "instructor") ...[CustomText(
@@ -318,6 +318,27 @@ class _WebCoursesListState extends State<_WebCoursesList> {
     _fetchCourses();
   }
 
+  String _extractInstructorName(dynamic instructor) {
+    if (instructor == null) return 'Instructor';
+    
+    if (instructor is String) return instructor;
+    
+    if (instructor is Map) {
+      // Try to get name from nested user object
+      final user = instructor['user'];
+      if (user is Map && user['name'] is String) {
+        return user['name'] as String;
+      }
+      
+      // Try to get name directly from instructor object
+      if (instructor['name'] is String) {
+        return instructor['name'] as String;
+      }
+    }
+    
+    return 'Instructor';
+  }
+
   Future<void> _fetchCourses() async {
     try {
       final data = widget.myPurchased ? await _courseService.myPurchases() : await _courseService.listPublicCourses();
@@ -445,7 +466,7 @@ class _WebCoursesListState extends State<_WebCoursesList> {
                             const Icon(Icons.person_outline_rounded, size: 16, color: Color(0xFF64748B)),
                             const SizedBox(width: 8),
                             Text(
-                              course["instructor"] ?? 'Instructor',
+                              _extractInstructorName(course["instructor"]),
                               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569), fontFamily: "Gilroy-SemiBold"),
                             ),
                           ],

@@ -53,7 +53,8 @@ class BottomTabBar extends ConsumerWidget {
                     child: IconButton(onPressed: (){
                       Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => UploadPrescriptionScreen() ));
                     }, icon: SvgWrapper(assetPath: 
-                    userRole == "instructor" ? ImagePaths.prescription :
+                    userRole == "Instructor" ?
+                    ImagePaths.prescription :
                     ImagePaths.centerIcon))) ,
                 ) 
                 ),

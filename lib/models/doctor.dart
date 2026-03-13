@@ -36,13 +36,19 @@ class Doctor {
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) {
+    // Handle consultationType - can be String or List
+    List<String> parseConsultationType(dynamic value) {
+      if (value == null) return [];
+      if (value is String) return [value];
+      if (value is List) return List<String>.from(value);
+      return [];
+    }
+
     return Doctor(
       id: json['_id'] ?? '',
       user: User.fromJson(json['user'] ?? {}),
       specialization: json['specialization'],
-      consultationType: json['consultationType'] != null 
-          ? List<String>.from(json['consultationType']) 
-          : [],
+      consultationType: parseConsultationType(json['consultationType']),
       languages: json['languages'] != null 
           ? List<String>.from(json['languages']) 
           : [],

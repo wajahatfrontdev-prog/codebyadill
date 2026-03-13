@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/screens/courses.dart';
 import 'package:icare/screens/instructor_filters.dart';
+import 'package:icare/screens/instructor_courses_management.dart';
+import 'package:icare/screens/instructor_create_course.dart';
+import 'package:icare/screens/instructor_dashboard.dart';
 import 'package:icare/screens/laboratories.dart';
 import 'package:icare/screens/labb_details.dart';
 import 'package:icare/screens/view_course.dart';
+import 'package:icare/services/instructor_service.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -14,9 +18,14 @@ import 'package:icare/widgets/laboratory.dart';
 import 'package:icare/widgets/section_header.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
-class InstructorHome extends StatelessWidget {
+class InstructorHome extends StatefulWidget {
   const InstructorHome({super.key});
 
+  @override
+  State<InstructorHome> createState() => _InstructorHomeState();
+}
+
+class _InstructorHomeState extends State<InstructorHome> {
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = Utils.windowWidth(context) > 900;
@@ -26,6 +35,26 @@ class InstructorHome extends StatelessWidget {
       return Center(
         child: Column(
           children: [
+            SizedBox(height: ScallingConfig.scale(10)),
+            // Dashboard Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (ctx) => const InstructorDashboardScreen()),
+                  );
+                },
+                icon: const Icon(Icons.dashboard_rounded, size: 20),
+                label: const Text('View Dashboard', style: TextStyle(fontWeight: FontWeight.w700)),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: Colors.white,
+                  minimumSize: Size(Utils.windowWidth(context) * 0.9, 50),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
             SizedBox(height: ScallingConfig.scale(20)),
             CustomInputField(
               width: Utils.windowWidth(context) * 0.9,
@@ -75,25 +104,60 @@ class InstructorHome extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 // WEB DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════
-class _InstructorWebDashboard extends StatelessWidget {
+class _InstructorWebDashboard extends StatefulWidget {
   const _InstructorWebDashboard();
 
-  static const _courses = [
-    {"name": "Behavioral Therapist", "instructor": "Kewshun", "students": 128, "rating": 4.8, "image": ImagePaths.course1},
-    {"name": "Child Therapist", "instructor": "Kewshun", "students": 94, "rating": 4.6, "image": ImagePaths.course2},
-    {"name": "Behavioral Therapist", "instructor": "James", "students": 210, "rating": 4.9, "image": ImagePaths.course1},
-    {"name": "Cognitive Behavioural", "instructor": "Emma", "students": 76, "rating": 4.5, "image": ImagePaths.course2},
-  ];
+  @override
+  State<_InstructorWebDashboard> createState() => _InstructorWebDashboardState();
+}
 
-  static const _stats = [
-    {"label": "Total Courses", "value": "12", "icon": Icons.menu_book_rounded, "color": Color(0xFF6366F1)},
-    {"label": "Active Students", "value": "508", "icon": Icons.group_rounded, "color": Color(0xFF10B981)},
-    {"label": "Avg. Rating", "value": "4.7★", "icon": Icons.star_rounded, "color": Color(0xFFF59E0B)},
-    {"label": "Revenue", "value": "Rs. 84K", "icon": Icons.account_balance_wallet_rounded, "color": Color(0xFF3B82F6)},
-  ];
+class _InstructorWebDashboardState extends State<_InstructorWebDashboard> {
+  final InstructorService _instructorService = InstructorService();
+  List<dynamic> _courses = [];
+  Map<String, dynamic> _stats = {};
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final results = await Future.wait([
+        _instructorService.getMyCourses(),
+        _instructorService.getStats(),
+      ]);
+      
+      if (mounted) {
+        setState(() {
+          _courses = results[0] as List;
+          _stats = results[1] as Map<String, dynamic>;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error loading instructor data: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    final statsData = [
+      {"label": "Total Courses", "value": "${_stats['totalCourses'] ?? 0}", "icon": Icons.menu_book_rounded, "color": const Color(0xFF6366F1)},
+      {"label": "Active Students", "value": "${_stats['totalStudents'] ?? 0}", "icon": Icons.group_rounded, "color": const Color(0xFF10B981)},
+      {"label": "Avg. Rating", "value": "${_stats['avgRating'] ?? 0}★", "icon": Icons.star_rounded, "color": const Color(0xFFF59E0B)},
+      {"label": "Health Tips", "value": "${_stats['totalPrecautions'] ?? 0}", "icon": Icons.health_and_safety_rounded, "color": const Color(0xFF3B82F6)},
+    ];
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(40),
       child: Column(
@@ -104,15 +168,17 @@ class _InstructorWebDashboard extends StatelessWidget {
           const SizedBox(height: 36),
 
           // ── Stats Row ───────────────────────────────────────────────────
-          _buildStatsRow(),
+          _buildStatsRow(statsData),
           const SizedBox(height: 40),
 
           // ── Courses Section ─────────────────────────────────────────────
           _buildSectionTitle(context, "My Courses", () {
-            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => Courses()));
+            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const InstructorCoursesManagementScreen()));
           }),
           const SizedBox(height: 20),
-          _buildCoursesGrid(context),
+          _courses.isEmpty 
+            ? _buildEmptyState()
+            : _buildCoursesGrid(context),
           const SizedBox(height: 40),
 
           // ── Laboratories Section ─────────────────────────────────────────
@@ -122,6 +188,34 @@ class _InstructorWebDashboard extends StatelessWidget {
           const SizedBox(height: 20),
           _buildLaboratoriesRow(context),
           const SizedBox(height: 60),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        children: [
+          Icon(Icons.school_outlined, size: 80, color: Colors.grey[300]),
+          const SizedBox(height: 16),
+          const Text('No courses yet', style: TextStyle(fontSize: 16, color: Color(0xFF64748B))),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            onPressed: () async {
+              await Navigator.of(context).push(
+                MaterialPageRoute(builder: (ctx) => const InstructorCreateCourseScreen()),
+              );
+              _loadData();
+            },
+            icon: const Icon(Icons.add),
+            label: const Text('Create Your First Course'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primaryColor,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            ),
+          ),
         ],
       ),
     );
@@ -175,7 +269,12 @@ class _InstructorWebDashboard extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         ElevatedButton.icon(
-          onPressed: () {},
+          onPressed: () async {
+            await Navigator.of(context).push(
+              MaterialPageRoute(builder: (ctx) => const InstructorCreateCourseScreen()),
+            );
+            _loadData();
+          },
           icon: const Icon(Icons.add_rounded, size: 18),
           label: const Text("New Course", style: TextStyle(fontWeight: FontWeight.w700)),
           style: ElevatedButton.styleFrom(
@@ -192,12 +291,12 @@ class _InstructorWebDashboard extends StatelessWidget {
   }
 
   // ── Stats row ────────────────────────────────────────────────────────────
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(List<Map<String, dynamic>> statsData) {
     return Row(
-      children: _stats.map((stat) {
+      children: statsData.map((stat) {
         return Expanded(
           child: Container(
-            margin: _stats.indexOf(stat) < _stats.length - 1 ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
+            margin: statsData.indexOf(stat) < statsData.length - 1 ? const EdgeInsets.only(right: 20) : EdgeInsets.zero,
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -281,11 +380,15 @@ class _InstructorWebDashboard extends StatelessWidget {
         crossAxisSpacing: 24,
         mainAxisSpacing: 24,
       ),
-      itemCount: _courses.length,
+      itemCount: _courses.length > 4 ? 4 : _courses.length,
       itemBuilder: (ctx, i) {
         final course = _courses[i];
+        final videoCount = (course['videos'] as List?)?.length ?? 0;
+        
         return GestureDetector(
-          onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse())),
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (ctx) => ViewCourse(courseData: course))
+          ),
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
@@ -295,14 +398,15 @@ class _InstructorWebDashboard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Course image
-                ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.asset(
-                    course['image'] as String,
-                    height: 160,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
+                // Course image placeholder
+                Container(
+                  height: 160,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withOpacity(0.1),
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: Center(
+                    child: Icon(Icons.school_rounded, size: 60, color: AppColors.primaryColor.withOpacity(0.5)),
                   ),
                 ),
                 Padding(
@@ -311,37 +415,46 @@ class _InstructorWebDashboard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        course['name'] as String,
+                        course['title'] ?? 'Untitled Course',
                         style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF0F172A)),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 8),
+                      Text(
+                        course['caption'] ?? 'No description',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 12),
                       Row(
                         children: [
-                          Icon(Icons.person_outline_rounded, size: 14, color: Colors.grey[400]),
+                          Icon(Icons.play_circle_outline, size: 14, color: Colors.grey[400]),
                           const SizedBox(width: 4),
                           Text(
-                            course['instructor'] as String,
+                            '$videoCount videos',
                             style: TextStyle(fontSize: 12, color: Colors.grey[500], fontWeight: FontWeight.w500),
                           ),
                           const Spacer(),
-                          Icon(Icons.star_rounded, size: 14, color: const Color(0xFFF59E0B)),
-                          const SizedBox(width: 2),
-                          Text(
-                            "${course['rating']}",
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: Color(0xFF0F172A)),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          Icon(Icons.group_rounded, size: 14, color: Colors.grey[400]),
-                          const SizedBox(width: 4),
-                          Text(
-                            "${course['students']} students",
-                            style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: course['visibility'] == 'public' 
+                                ? const Color(0xFFECFDF5) 
+                                : const Color(0xFFF1F5F9),
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              course['visibility'] ?? 'public',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: course['visibility'] == 'public' 
+                                  ? const Color(0xFF10B981) 
+                                  : const Color(0xFF64748B),
+                              ),
+                            ),
                           ),
                         ],
                       ),

@@ -153,10 +153,10 @@ class BookingCard extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Image.asset(
-                            selectedRole == "patient"
+                            selectedRole == "Patient"
                                 ? ImagePaths.walkthrough1
                                 : ImagePaths.user1,
-                            fit: selectedRole == "patient"
+                            fit: selectedRole == "Patient"
                                 ? BoxFit.contain
                                 : BoxFit.cover),
                       ),
@@ -167,7 +167,7 @@ class BookingCard extends ConsumerWidget {
                           children: [
                             CustomText(
                               width: double.infinity,
-                              text: selectedRole == "patient"
+                              text: selectedRole == "Patient"
                                   ? "Dr Aron Smith"
                                   : "Emily Jordan",
                               isSemiBold: true,
@@ -357,8 +357,8 @@ class _WebBookingCardState extends State<_WebBookingCard> {
                         borderRadius: BorderRadius.circular(16),
                         color: const Color(0xFFF1F5F9),
                         image: DecorationImage(
-                          image: AssetImage(widget.selectedRole == "patient" ? ImagePaths.walkthrough1 : ImagePaths.user1),
-                          fit: widget.selectedRole == "patient" ? BoxFit.contain : BoxFit.cover,
+                          image: AssetImage(widget.selectedRole == "Patient" ? ImagePaths.walkthrough1 : ImagePaths.user1),
+                          fit: widget.selectedRole == "Patient" ? BoxFit.contain : BoxFit.cover,
                         ),
                         border: Border.all(color: const Color(0xFFE2E8F0)),
                       ),
@@ -370,7 +370,7 @@ class _WebBookingCardState extends State<_WebBookingCard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.selectedRole == "patient" ? "Dr. Aron Smith" : "Emily Jordan",
+                            widget.selectedRole == "Patient" ? "Dr. Aron Smith" : "Emily Jordan",
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w800,

@@ -4,6 +4,12 @@ class PharmacyService {
   final ApiService _apiService = ApiService();
   String? _cachedPharmacyId;
 
+  // Get all pharmacies (public endpoint)
+  Future<List<dynamic>> getAllPharmacies() async {
+    final response = await _apiService.get('/pharmacy/get_all_pharmacy');
+    return response.data['pharmacies'] as List;
+  }
+
   // Get pharmacy profile for logged-in pharmacist
   Future<Map<String, dynamic>> getPharmacyProfile() async {
     final response = await _apiService.get('/pharmacy/profile');

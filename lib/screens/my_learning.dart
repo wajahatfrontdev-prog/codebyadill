@@ -112,7 +112,17 @@ class _MyLearningScreenState extends ConsumerState<MyLearningScreen> with Single
       itemBuilder: (context, index) {
         final enrollment = _enrolledCourses[index];
         final course = enrollment['course'];
-        final progress = enrollment['progress'] ?? 0;
+        
+        // Handle progress - it's a Map with percent field
+        int progress = 0;
+        final progressData = enrollment['progress'];
+        if (progressData is int) {
+          progress = progressData;
+        } else if (progressData is Map) {
+          // Backend returns progress as { completedVideos, totalVideos, percent }
+          progress = (progressData['percent'] ?? 0).toInt();
+        }
+        
         final status = enrollment['status'] ?? 'active';
 
         return _buildCourseCard(course, progress, status);

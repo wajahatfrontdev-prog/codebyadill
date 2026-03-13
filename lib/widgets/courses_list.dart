@@ -33,6 +33,27 @@ class _CoursesListState extends State<CoursesList> {
     _fetchCourses();
   }
 
+  String _extractInstructorName(dynamic instructor) {
+    if (instructor == null) return 'Instructor';
+    
+    if (instructor is String) return instructor;
+    
+    if (instructor is Map) {
+      // Try to get name from nested user object
+      final user = instructor['user'];
+      if (user is Map && user['name'] is String) {
+        return user['name'] as String;
+      }
+      
+      // Try to get name directly from instructor object
+      if (instructor['name'] is String) {
+        return instructor['name'] as String;
+      }
+    }
+    
+    return 'Instructor';
+  }
+
   Future<void> _fetchCourses() async {
     try {
       final List<dynamic> data;
@@ -112,10 +133,7 @@ class _CoursesListState extends State<CoursesList> {
             image: (courseData["image"] is String) ? (courseData["image"] as String) : ImagePaths.course1,
             title: (courseData["title"] is String) ? (courseData["title"] as String) : ((courseData["name"] is String) ? (courseData["name"] as String) : 'Untitled Course'),
             desc: (courseData["caption"] is String) ? (courseData["caption"] as String) : ((courseData["desc"] is String) ? (courseData["desc"] as String) : 'No description available'),
-            instructor: (courseData["instructor"] is String)
-                ? (courseData["instructor"] as String)
-                : (courseData["instructor"]?["user"]?["name"] ?? 
-                   courseData["instructor"]?["name"] ?? 'Instructor'),
+            instructor: _extractInstructorName(courseData["instructor"]),
             courseData: courseData,
           );
         },

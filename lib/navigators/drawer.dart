@@ -79,7 +79,7 @@ class CustomDrawer extends ConsumerWidget {
       }),
     ];
 
-    if (selectedRole == "lab_technician") {
+    if (selectedRole == "Laboratory") {
       drawerItems = [
         _drawerItem('Tasks', Icons.task_alt_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
@@ -100,7 +100,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
         }),
       ];
-    } else if (selectedRole == "patient") {
+    } else if (selectedRole == "Patient") {
       drawerItems = [
         _drawerItem('Dashboard', Icons.dashboard_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TabsScreen()));
@@ -130,7 +130,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const Courses()));
         }),
       ];
-    } else if (selectedRole == "doctor") {
+    } else if (selectedRole == "Doctor") {
       drawerItems = [
         _drawerItem('My Appointments', Icons.calendar_month_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const DoctorAppointmentsScreen()));
@@ -163,7 +163,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "pharmacy") {
+    } else if (selectedRole == "Pharmacy") {
       drawerItems = [
         _drawerItem('Dashboard', Icons.dashboard_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmacistDashboard()));
@@ -217,7 +217,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "laboratory") {
+    } else if (selectedRole == "Laboratory") {
       drawerItems = [
         _drawerItem('Dashboard', Icons.dashboard_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LaboratoryDashboard()));
@@ -253,7 +253,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "instructor") {
+    } else if (selectedRole == "Instructor") {
       drawerItems = [
         _drawerItem('Pharmacies', Icons.medication_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
@@ -268,7 +268,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "student") {
+    } else if (selectedRole == "Student") {
       drawerItems = [
         _drawerItem('Pharmacies', Icons.medication_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
@@ -327,15 +327,15 @@ class CustomDrawer extends ConsumerWidget {
                   InkWell(
                     onTap: () {
                       // Navigate to role-specific profile setup or view profile
-                      if (selectedRole == "laboratory") {
+                      if (selectedRole == "Laboratory") {
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (ctx) => const LabProfileSetup()),
                         );
-                      } else if (selectedRole == "pharmacy") {
+                      } else if (selectedRole == "Pharmacy") {
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (ctx) => const PharmacyProfileSetup()),
                         );
-                      } else if (selectedRole == "student") {
+                      } else if (selectedRole == "Student") {
                         Navigator.of(context).push(
                           MaterialPageRoute(builder: (ctx) => const StudentProfileSetup()),
                         );

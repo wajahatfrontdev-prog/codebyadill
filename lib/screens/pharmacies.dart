@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_size_matters/flutter_size_matters.dart';
+import 'package:icare/services/pharmacy_service.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -7,10 +7,41 @@ import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/custom_text_input.dart';
-import 'package:icare/widgets/svg_wrapper.dart';
 
-class PharmaciesScreen extends StatelessWidget {
+class PharmaciesScreen extends StatefulWidget {
   const PharmaciesScreen({super.key});
+
+  @override
+  State<PharmaciesScreen> createState() => _PharmaciesScreenState();
+}
+
+class _PharmaciesScreenState extends State<PharmaciesScreen> {
+  final PharmacyService _pharmacyService = PharmacyService();
+  List<dynamic> _pharmacies = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPharmacies();
+  }
+
+  Future<void> _fetchPharmacies() async {
+    try {
+      final data = await _pharmacyService.getAllPharmacies();
+      if (mounted) {
+        setState(() {
+          _pharmacies = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching pharmacies: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,48 +63,64 @@ class PharmaciesScreen extends StatelessWidget {
           color: const Color(0xFF0F172A),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: isDesktop ? 1200 : double.infinity),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: isDesktop ? 40 : 20,
-                vertical: 30,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Search and Filter Header
-                  _buildSearchHeader(context, isDesktop),
-                  const SizedBox(height: 32),
-                  
-                  // Categories Row
-                  _buildCategories(isDesktop),
-                  const SizedBox(height: 40),
-                  
-                  // Section title
-                  CustomText(
-                    text: "Top Rated Pharmacies",
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: const Color(0xFF0F172A),
-                    letterSpacing: -0.5,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _pharmacies.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.local_pharmacy_outlined, size: 80, color: Colors.grey[300]),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'No pharmacies found',
+                        style: TextStyle(fontSize: 16, color: Color(0xFF64748B)),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
+                )
+              : SingleChildScrollView(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: isDesktop ? 1200 : double.infinity),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isDesktop ? 40 : 20,
+                          vertical: 30,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Search and Filter Header
+                            _buildSearchHeader(context, isDesktop),
+                            const SizedBox(height: 32),
+                            
+                            // Categories Row
+                            _buildCategories(isDesktop),
+                            const SizedBox(height: 40),
+                            
+                            // Section title
+                            CustomText(
+                              text: "Available Pharmacies (${_pharmacies.length})",
+                              fontSize: 20,
+                              fontWeight: FontWeight.w900,
+                              color: const Color(0xFF0F172A),
+                              letterSpacing: -0.5,
+                            ),
+                            const SizedBox(height: 24),
 
-                  // Pharmacy Grid/List
-                  isDesktop 
-                    ? _buildPharmacyGrid() 
-                    : _buildPharmacyList(),
-                  
-                  const SizedBox(height: 60),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+                            // Pharmacy Grid/List
+                            isDesktop 
+                              ? _buildPharmacyGrid() 
+                              : _buildPharmacyList(),
+                            
+                            const SizedBox(height: 60),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
     );
   }
 
@@ -156,14 +203,14 @@ class PharmaciesScreen extends StatelessWidget {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 4,
+      itemCount: _pharmacies.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisExtent: 320,
         crossAxisSpacing: 24,
         mainAxisSpacing: 24,
       ),
-      itemBuilder: (ctx, i) => const PharmacyWidget(),
+      itemBuilder: (ctx, i) => PharmacyWidget(pharmacy: _pharmacies[i]),
     );
   }
 
@@ -171,14 +218,16 @@ class PharmaciesScreen extends StatelessWidget {
     return ListView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: 3,
-      itemBuilder: (ctx, i) => const PharmacyWidget(),
+      itemCount: _pharmacies.length,
+      itemBuilder: (ctx, i) => PharmacyWidget(pharmacy: _pharmacies[i]),
     );
   }
 }
 
 class PharmacyWidget extends StatelessWidget {
-  const PharmacyWidget({super.key});
+  final Map<String, dynamic> pharmacy;
+  
+  const PharmacyWidget({super.key, required this.pharmacy});
 
   @override
   Widget build(BuildContext context) {
@@ -280,7 +329,7 @@ class PharmacyWidget extends StatelessWidget {
                             children: [
                               Expanded(
                                 child: CustomText(
-                                  text: "Green Pharmacy",
+                                  text: pharmacy['user']?['name'] ?? 'Pharmacy',
                                   fontSize: 18,
                                   fontWeight: FontWeight.w900,
                                   fontFamily: "Gilroy-Bold",
@@ -288,26 +337,27 @@ class PharmacyWidget extends StatelessWidget {
                                   letterSpacing: -0.5,
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFFFFBEB),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: const Color(0xFFFEF3C7)),
+                              if (pharmacy['isApproved'] == true)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFFBEB),
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(color: const Color(0xFFFEF3C7)),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      const Icon(Icons.verified_rounded, size: 14, color: Color(0xFFD97706)),
+                                      const SizedBox(width: 4),
+                                      CustomText(
+                                        text: "Verified",
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w900,
+                                        color: const Color(0xFF92400E),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.star_rounded, size: 14, color: Color(0xFFD97706)),
-                                    const SizedBox(width: 4),
-                                    CustomText(
-                                      text: "4.8",
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w900,
-                                      color: const Color(0xFF92400E),
-                                    ),
-                                  ],
-                                ),
-                              ),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -317,7 +367,7 @@ class PharmacyWidget extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: CustomText(
-                                  text: "20 Cooper Square, USA",
+                                  text: pharmacy['address'] ?? 'Address not available',
                                   color: const Color(0xFF64748B),
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
@@ -328,9 +378,15 @@ class PharmacyWidget extends StatelessWidget {
                           const SizedBox(height: 10),
                           Row(
                             children: [
-                              _buildStatusTag("Free Delivery", const Color(0xFF0EA5E9)),
-                              const SizedBox(width: 8),
-                              _buildStatusTag("24/7", const Color(0xFF6366F1)),
+                              if (pharmacy['deliveryAvailable'] == true)
+                                _buildStatusTag("Free Delivery", const Color(0xFF0EA5E9)),
+                              if (pharmacy['deliveryAvailable'] == true)
+                                const SizedBox(width: 8),
+                              if (pharmacy['openHours'] != null)
+                                _buildStatusTag(
+                                  "${pharmacy['openHours']['from'] ?? ''}-${pharmacy['openHours']['to'] ?? ''}",
+                                  const Color(0xFF6366F1),
+                                ),
                             ],
                           ),
                         ],
@@ -348,7 +404,7 @@ class PharmacyWidget extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         CustomText(
-                          text: "Pickup Type",
+                          text: pharmacy['city'] != null ? "Location" : "Pickup Type",
                           color: const Color(0xFF94A3B8),
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
@@ -356,10 +412,14 @@ class PharmacyWidget extends StatelessWidget {
                         const SizedBox(height: 4),
                         Row(
                           children: [
-                            const Icon(Icons.access_time_filled_rounded, size: 12, color: Color(0xFFF59E0B)),
+                            Icon(
+                              pharmacy['city'] != null ? Icons.location_city_rounded : Icons.access_time_filled_rounded,
+                              size: 12,
+                              color: const Color(0xFFF59E0B),
+                            ),
                             const SizedBox(width: 4),
                             CustomText(
-                              text: "15-20 Mins",
+                              text: pharmacy['city'] ?? "15-20 Mins",
                               color: const Color(0xFF0F172A),
                               fontSize: 12,
                               fontWeight: FontWeight.w800,

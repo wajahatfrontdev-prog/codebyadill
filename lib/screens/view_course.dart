@@ -28,7 +28,13 @@ class ViewCourse extends ConsumerWidget {
     if (instrVal is String) {
       instructor = instrVal;
     } else if (instrVal is Map) {
-      instructor = instrVal['user']?['name'] ?? instrVal['name'] ?? "Instructor";
+      // Try to get name from nested user object first
+      final user = instrVal['user'];
+      if (user is Map && user['name'] is String) {
+        instructor = user['name'] as String;
+      } else if (instrVal['name'] is String) {
+        instructor = instrVal['name'] as String;
+      }
     }
 
     final dynamic descVal = courseData?['caption'] ?? courseData?['desc'];
@@ -70,7 +76,7 @@ class ViewCourse extends ConsumerWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  if (role == "student" && !isPurchased) ...[
+                  if (role == "Student" && !isPurchased) ...[
                     CustomText(
                       maxLines: 4,
                       width: Utils.windowWidth(context) * 0.9,
@@ -227,7 +233,7 @@ class ViewCourse extends ConsumerWidget {
                     ),
                   ),
                   // Student trial banner
-                  if (role == "student" && !isPurchased)
+                  if (role == "Student" && !isPurchased)
                     Positioned(
                       top: 0,
                       left: 0,

@@ -35,11 +35,21 @@ class AuthNotifier extends StateNotifier<Auth> {
    }
 
    void setUser(User user) {
-     // Convert role to lowercase to match frontend expectations
-     final normalizedRole = user.role.toLowerCase();
+     // Keep the original role case from backend and normalize it
+     final normalizedRole = _normalizeRole(user.role);
      SharedPref().setUserRole(normalizedRole);
      SharedPref().setUserData(user);
      state = state.copyWith(user: user, userRole: normalizedRole);
+   }
+
+   String _normalizeRole(String role) {
+     // Normalize role to match backend format (capitalize first letter)
+     if (role.isEmpty) return role;
+     final normalized = role[0].toUpperCase() + role.substring(1).toLowerCase();
+     // Handle special cases
+     if (normalized == 'Laboratory') return 'Laboratory';
+     if (normalized == 'Pharmacy') return 'Pharmacy';
+     return normalized;
    }
 
    void setUserLogout(){

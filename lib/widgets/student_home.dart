@@ -457,6 +457,27 @@ class _CoursePremiumCard extends StatelessWidget {
 
   const _CoursePremiumCard({required this.course});
 
+  static String _extractInstructorName(dynamic instructor) {
+    if (instructor == null) return 'Instructor';
+    
+    if (instructor is String) return instructor;
+    
+    if (instructor is Map) {
+      // Try to get name from nested user object
+      final user = instructor['user'];
+      if (user is Map && user['name'] is String) {
+        return user['name'] as String;
+      }
+      
+      // Try to get name directly from instructor object
+      if (instructor['name'] is String) {
+        return instructor['name'] as String;
+      }
+    }
+    
+    return 'Instructor';
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -579,10 +600,7 @@ class _CoursePremiumCard extends StatelessWidget {
                       const Icon(Icons.person_outline_rounded, size: 15, color: Color(0xFF94A3B8)),
                       const SizedBox(width: 6),
                       Text(
-                        (course['instructor'] is String 
-                          ? course['instructor'] 
-                          : (course['instructor']?['user']?['name'] ?? 
-                             course['instructor']?['name'] ?? 'Instructor')),
+                        _extractInstructorName(course['instructor']),
                         style: const TextStyle(fontSize: 13, color: Color(0xFF475569), fontWeight: FontWeight.w600),
                       ),
                       const Spacer(),

@@ -36,9 +36,9 @@ class ViewProfile extends ConsumerWidget {
     final String educationLevel = "";
     final List<String> preferences = [];
 
-    final label = role == "patient"
+    final label = role == "Patient"
         ? "Total Appointments"
-        : role == "lab_technician"
+        : role == "Laboratory"
             ? "Active Orders"
             : role == "pharmacist"
                 ? "Total Appointments"
@@ -77,7 +77,7 @@ class ViewProfile extends ConsumerWidget {
         actions: [
           GestureDetector(
             onTap: () {
-              if (role == "student") {
+              if (role == "Student") {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (ctx) => StudentProfileSetup(),
@@ -218,12 +218,12 @@ class ViewProfile extends ConsumerWidget {
                 iconPath: ImagePaths.marker2,
                 infoText: address,
               ),
-              if (role == "student" && qualification.isNotEmpty)
+              if (role == "Student" && qualification.isNotEmpty)
                 infoRowTile(
                   iconPath: ImagePaths.certificate,
                   infoText: qualification,
                 ),
-              if (role == "student" && educationLevel.isNotEmpty)
+              if (role == "Student" && educationLevel.isNotEmpty)
                 infoRowTile(
                   iconPath: ImagePaths.certificate,
                   infoText: educationLevel,
@@ -328,7 +328,7 @@ class _WebViewProfile extends StatelessWidget {
                   height: 56,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      if (role == "student") {
+                      if (role == "Student") {
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (ctx) => StudentProfileSetup(),
@@ -450,14 +450,14 @@ class _WebViewProfile extends StatelessWidget {
                               child: Divider(color: Color(0xFFF1F4F9)),
                             ),
                             _buildDetailItem("Location / Office", address, Icons.location_on_outlined),
-                            if (role == "student" && qualification.isNotEmpty) ...[
+                            if (role == "Student" && qualification.isNotEmpty) ...[
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 32),
                                 child: Divider(color: Color(0xFFF1F4F9)),
                               ),
                               _buildDetailItem("Qualification", qualification, Icons.school_outlined),
                             ],
-                            if (role == "student" && educationLevel.isNotEmpty) ...[
+                            if (role == "Student" && educationLevel.isNotEmpty) ...[
                               const Padding(
                                 padding: EdgeInsets.symmetric(vertical: 32),
                                 child: Divider(color: Color(0xFFF1F4F9)),
