@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/models/lab.dart';
+import 'package:icare/screens/book_lab.dart';
 import 'package:icare/screens/filters.dart';
+import 'package:icare/screens/lab_reports_screen.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -19,15 +21,13 @@ class LabsListScreen extends StatefulWidget {
   State<LabsListScreen> createState() => _LabsListScreenState();
 }
 
-class _LabsListScreenState extends State<LabsListScreen> 
-with SingleTickerProviderStateMixin {
+class _LabsListScreenState extends State<LabsListScreen> {
 
-  late TabController controller;
+
 
   @override
   void initState() {
     super.initState();
-    controller = TabController(length: 2, vsync: this);
   }
 
   @override
@@ -37,13 +37,13 @@ with SingleTickerProviderStateMixin {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        leading: CustomBackButton(),
+        leading: const CustomBackButton(),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         title: CustomText(
-          text: "Lab Reports",
+          text: "Book a Lab",
           fontFamily: "Gilroy-Bold", 
           fontSize: 18,
           fontWeight: FontWeight.w900,
@@ -79,48 +79,8 @@ with SingleTickerProviderStateMixin {
                 ),
               ),
 
-              Container(
-                margin: const EdgeInsets.only(top: 2),
-                height: 54,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  border: Border(bottom: BorderSide(color: Color(0xFFF1F5F9), width: 1.5)),
-                ),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: isDesktop ? 500 : double.infinity,
-                    child: TabBar(
-                      controller: controller,
-                      indicatorColor: AppColors.primaryColor,
-                      indicatorWeight: 3,
-                      indicatorSize: TabBarIndicatorSize.tab, // Equal underline sizes
-                      labelColor: AppColors.primaryColor,
-                      unselectedLabelColor: const Color(0xFF64748B),
-                      dividerColor: Colors.transparent,
-                      labelStyle: const TextStyle(
-                        fontFamily: "Gilroy-Bold",
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1,
-                      ),
-                      tabs: const [
-                        Tab(text: "HISTORY"),
-                        Tab(text: "PENDING TESTS"),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              Expanded(
-                child: TabBarView(
-                  controller: controller,
-                  children: const [
-                    LabsList(),
-                    LabsList(),
-                  ],
-                ),
+              const Expanded(
+                child: LabsList(tab: 'book'),
               ),
             ],
           ),
@@ -131,7 +91,8 @@ with SingleTickerProviderStateMixin {
 }
 
 class LabsList extends StatelessWidget {
-  const LabsList({super.key});
+  final String tab;
+  const LabsList({super.key, this.tab = 'book'});
    
   @override
   Widget build(BuildContext context) {
@@ -142,39 +103,41 @@ class LabsList extends StatelessWidget {
         id: "1",
         title: "Green Lab",
         photo: ImagePaths.lab1,
-        delivery: "Home Delievery: 25min",
+        delivery: "Home Delivery: 25min",
         address: "20 Cooper Square, USA",
         rating: "4.9",
         tests: [],
       ),
       Lab(
         id: "2",
-        title: "Green Lab",
-        photo: ImagePaths.lab2,
-        delivery: "Home Delievery: 25min",
-        address: "20 Cooper Square, USA",
-        rating: "4.9",
-        tests: [],
-      ),
-      Lab(
-        id: "3",
-        title: "Green Lab",
-        photo: ImagePaths.lab1,
-        delivery: "Home Delievery: 25min",
-        address: "20 Cooper Square, USA",
-        rating: "4.9",
-        tests: [],
-      ),
-      Lab(
-        id: "4",
         title: "City Diagnostics",
         photo: ImagePaths.lab2,
-        delivery: "Home Delievery: 40min",
+        delivery: "Home Delivery: 40min",
         address: "42 Broadway, USA",
         rating: "4.7",
         tests: [],
       ),
+      Lab(
+        id: "3",
+        title: "Sunrise Medical Lab",
+        photo: ImagePaths.lab1,
+        delivery: "Home Delivery: 30min",
+        address: "7 Park Avenue, USA",
+        rating: "4.8",
+        tests: [],
+      ),
+      Lab(
+        id: "4",
+        title: "HealthFirst Labs",
+        photo: ImagePaths.lab2,
+        delivery: "Home Delivery: 20min",
+        address: "15 Elm Street, USA",
+        rating: "4.6",
+        tests: [],
+      ),
     ];
+
+    final actionText = tab == 'book' ? 'Book a Lab' : 'View Reports';
 
     if (isDesktop) {
       return GridView.builder(
@@ -189,7 +152,16 @@ class LabsList extends StatelessWidget {
         itemBuilder: (ctx, i) {
           return LabWidget(
             lab: labs[i],
-            actionText: "View Reports",
+            actionText: actionText,
+            onActionBtnPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (ctx) => tab == 'book'
+                      ? BookLabScreen(labId: labs[i].id, labTitle: labs[i].title)
+                      : LabReportsScreen(),
+                ),
+              );
+            },
           );
         },
       );
@@ -204,7 +176,16 @@ class LabsList extends StatelessWidget {
       itemBuilder: (ctx, i) {
         return LabWidget(
           lab: labs[i],
-          actionText: "View Reports",
+          actionText: actionText,
+          onActionBtnPressed: () {
+            Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (ctx) => tab == 'book'
+                  ? BookLabScreen(labId: labs[i].id, labTitle: labs[i].title)
+                  : LabReportsScreen(),
+            ),
+            );
+          },
         );
       },
     );

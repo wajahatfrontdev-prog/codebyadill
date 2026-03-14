@@ -4,12 +4,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/screens/create_profile.dart';
+import 'package:icare/screens/student_profile_setup.dart';
 import 'package:icare/screens/rating_n_reviews.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/back_button.dart';
-import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_record_card.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
@@ -20,19 +20,45 @@ class ViewProfile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bool isDesktop = MediaQuery.of(context).size.width > 900;
-    final role = ref.read(authProvider).userRole;
+    final authState = ref.watch(authProvider);
+    final user = authState.user;
+    final role = authState.userRole;
     log('profile  role ===> $role');
 
-    final label = role == "patient"
+    final String name = user?.name ?? "Aaron Smith";
+    final String email = user?.email ?? "lisamarie@gmail.com";
+    final String phone = user?.phoneNumber ?? "+1 234 567 8963";
+    final String bio = "Master advanced techniques and specialized knowledge through our comprehensive professional course, designed to equip you with the essential skills and practical expertise.";
+    final String dob = "December 25, 1990";
+    final String gender = "Male";
+    final String address = "199 Water Street 24TH, New York";
+    final String qualification = "";
+    final String educationLevel = "";
+    final List<String> preferences = [];
+
+    final label = role == "Patient"
         ? "Total Appointments"
-        : role == "lab_technician"
+        : role == "Laboratory"
             ? "Active Orders"
             : role == "pharmacist"
                 ? "Total Appointments"
                 : "Total Consultations";
 
     if (isDesktop) {
-      return _WebViewProfile(role: role, label: label);
+      return _WebViewProfile(
+        role: role, 
+        label: label,
+        name: name,
+        email: email,
+        phone: phone,
+        bio: bio,
+        dob: dob,
+        gender: gender,
+        address: address,
+        qualification: qualification,
+        educationLevel: educationLevel,
+        preferences: preferences,
+      );
     }
 
     return Scaffold(
@@ -46,20 +72,26 @@ class ViewProfile extends ConsumerWidget {
           lineHeight: 1.0,
           fontFamily: "Gilroy-Bold",
         ),
-        leading: CustomBackButton(),
+        leading: const CustomBackButton(),
         automaticallyImplyLeading: false,
         actions: [
           GestureDetector(
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (ctx) => CreateProfile(isEdit: true),
-                ),
-              );
+              if (role == "Student") {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => StudentProfileSetup(),
+                  ),
+                );
+              } else {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (ctx) => CreateProfile(isEdit: true),
+                  ),
+                );
+              }
             },
-            child:
-                // fromViewProfile ? Icon(Icons.favorite, color: AppColors.darkGray400,) :
-                SvgWrapper(assetPath: ImagePaths.edit),
+            child: const SvgWrapper(assetPath: ImagePaths.edit),
           ),
           SizedBox(width: ScallingConfig.scale(20)),
         ],
@@ -72,7 +104,7 @@ class ViewProfile extends ConsumerWidget {
               const profilePicker(),
               SizedBox(height: ScallingConfig.scale(15)),
               CustomText(
-                text: "Aaron Smith",
+                text: name,
                 color: AppColors.primary500,
                 fontFamily: "Gilroy-Bold",
                 fontWeight: FontWeight.w400,
@@ -121,8 +153,8 @@ class ViewProfile extends ConsumerWidget {
                 width: Utils.windowWidth(context) * 0.9,
                 child: ListTile(
                   leading: const SvgWrapper(assetPath: ImagePaths.sms),
-                  title: const CustomText(
-                    text: "lisamarie@gmail.com",
+                  title: CustomText(
+                    text: email,
                     color: AppColors.grayColor,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -142,8 +174,8 @@ class ViewProfile extends ConsumerWidget {
                     assetPath: ImagePaths.calll,
                     color: AppColors.primaryColor,
                   ),
-                  title: const CustomText(
-                    text: "+1 234 567 8963",
+                  title: CustomText(
+                    text: phone,
                     color: AppColors.grayColor,
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -167,8 +199,7 @@ class ViewProfile extends ConsumerWidget {
               ),
               SizedBox(height: ScallingConfig.scale(5)),
               CustomText(
-                text:
-                    "Lorem ipsum dolor sit amet consectetur adipiscing elit  nascetur at leo accumsan, odio habitanLorem ipsum dolor.",
+                text: bio,
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
                 color: AppColors.grayColor,
@@ -177,17 +208,26 @@ class ViewProfile extends ConsumerWidget {
                 width: Utils.windowWidth(context) * 0.85,
               ),
               SizedBox(height: ScallingConfig.scale(10)),
-              const infoRowTile(
+              infoRowTile(
                 iconPath: ImagePaths.calendar,
-                infoText: "December 25, 1990",
+                infoText: dob,
               ),
-              // SizedBox(height: ScallingConfig.scale(10),),
-              const infoRowTile(iconPath: ImagePaths.gender, infoText: "Male"),
+              infoRowTile(iconPath: ImagePaths.gender, infoText: gender),
 
-              const infoRowTile(
+              infoRowTile(
                 iconPath: ImagePaths.marker2,
-                infoText: "199 Water Street 24TH, New York ",
+                infoText: address,
               ),
+              if (role == "Student" && qualification.isNotEmpty)
+                infoRowTile(
+                  iconPath: ImagePaths.certificate,
+                  infoText: qualification,
+                ),
+              if (role == "Student" && educationLevel.isNotEmpty)
+                infoRowTile(
+                  iconPath: ImagePaths.certificate,
+                  infoText: educationLevel,
+                ),
               const infoRowTile(iconPath: ImagePaths.card, infoText: "5678 1234-A"),
             ],
           ),
@@ -200,8 +240,31 @@ class ViewProfile extends ConsumerWidget {
 class _WebViewProfile extends StatelessWidget {
   final String role;
   final String label;
+  final String name;
+  final String email;
+  final String phone;
+  final String bio;
+  final String dob;
+  final String gender;
+  final String address;
+  final String qualification;
+  final String educationLevel;
+  final List<String> preferences;
 
-  const _WebViewProfile({required this.role, required this.label});
+  const _WebViewProfile({
+    required this.role, 
+    required this.label,
+    required this.name,
+    required this.email,
+    required this.phone,
+    required this.bio,
+    required this.dob,
+    required this.gender,
+    required this.address,
+    this.qualification = "",
+    this.educationLevel = "",
+    this.preferences = const [],
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -233,9 +296,9 @@ class _WebViewProfile extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  "Aaron Smith",
-                  style: TextStyle(
+                Text(
+                  name,
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF1E293B),
@@ -265,11 +328,19 @@ class _WebViewProfile extends StatelessWidget {
                   height: 56,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (ctx) => const CreateProfile(isEdit: true),
-                        ),
-                      );
+                      if (role == "Student") {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => StudentProfileSetup(),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (ctx) => CreateProfile(isEdit: true),
+                          ),
+                        );
+                      }
                     },
                     icon: const Icon(Icons.edit_rounded, size: 20, color: Colors.white),
                     label: const Text(
@@ -298,6 +369,7 @@ class _WebViewProfile extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Stats Row
+                      if (role != "instructor" && role != "student")
                       Row(
                         children: [
                           Expanded(
@@ -319,6 +391,7 @@ class _WebViewProfile extends StatelessWidget {
                           ),
                         ],
                       ),
+                      if (role != "instructor" && role != "student")
                       const SizedBox(height: 60),
 
                       // Details Section
@@ -349,8 +422,8 @@ class _WebViewProfile extends StatelessWidget {
                           children: [
                             Row(
                               children: [
-                                Expanded(child: _buildDetailItem("Email Address", "lisamarie@gmail.com", Icons.email_outlined)),
-                                Expanded(child: _buildDetailItem("Phone Number", "+1 234 567 8963", Icons.phone_android_rounded)),
+                                Expanded(child: _buildDetailItem("Email Address", email, Icons.email_outlined)),
+                                Expanded(child: _buildDetailItem("Phone Number", phone, Icons.phone_android_rounded)),
                               ],
                             ),
                             const Padding(
@@ -359,8 +432,8 @@ class _WebViewProfile extends StatelessWidget {
                             ),
                             Row(
                               children: [
-                                Expanded(child: _buildDetailItem("Date of Birth", "December 25, 1990", Icons.calendar_today_outlined)),
-                                Expanded(child: _buildDetailItem("Gender", "Male", Icons.person_outline_rounded)),
+                                Expanded(child: _buildDetailItem("Date of Birth", dob, Icons.calendar_today_outlined)),
+                                Expanded(child: _buildDetailItem("Gender", gender, Icons.person_outline_rounded)),
                               ],
                             ),
                             const Padding(
@@ -369,14 +442,28 @@ class _WebViewProfile extends StatelessWidget {
                             ),
                             _buildDetailItem(
                               "About / Bio",
-                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas porta fermentum diam, a scelerisque diam. Sed vitae tellus non elit lobortis efficitur.",
+                              bio,
                               Icons.description_outlined,
                             ),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 32),
                               child: Divider(color: Color(0xFFF1F4F9)),
                             ),
-                            _buildDetailItem("Location / Office", "199 Water Street 24TH, New York, USA", Icons.location_on_outlined),
+                            _buildDetailItem("Location / Office", address, Icons.location_on_outlined),
+                            if (role == "Student" && qualification.isNotEmpty) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 32),
+                                child: Divider(color: Color(0xFFF1F4F9)),
+                              ),
+                              _buildDetailItem("Qualification", qualification, Icons.school_outlined),
+                            ],
+                            if (role == "Student" && educationLevel.isNotEmpty) ...[
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 32),
+                                child: Divider(color: Color(0xFFF1F4F9)),
+                              ),
+                              _buildDetailItem("Education Level", educationLevel, Icons.history_edu_rounded),
+                            ],
                           ],
                         ),
                       ),

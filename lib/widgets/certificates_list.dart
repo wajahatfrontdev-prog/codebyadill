@@ -1,70 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_size_matters/flutter_size_matters.dart';
-import 'package:icare/screens/view_certificate.dart';
+import 'package:icare/services/course_service.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
-import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
+import 'package:icare/widgets/custom_text.dart';
+import 'package:icare/screens/view_certificate.dart';
 
-class CertificatesList extends StatelessWidget {
+class CertificatesList extends StatefulWidget {
   const CertificatesList({super.key});
 
   @override
+  State<CertificatesList> createState() => _CertificatesListState();
+}
+
+class _CertificatesListState extends State<CertificatesList> {
+  final CourseService _courseService = CourseService();
+  List<dynamic> _certificates = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchCertificates();
+  }
+
+  Future<void> _fetchCertificates() async {
+    try {
+      final data = await _courseService.myCertificates();
+      if (mounted) {
+        setState(() {
+          _certificates = data;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching certificates list: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-List<Map<String, dynamic>> certificatesData = [
-  {
-    'title': 'Child Therapist',
-    'completedCourses': 7,
-    'totalCourses': 7,
-    'completionPercentage': 100,
-    'isComplete': true,
-    'actions': ['View Certificate', 'Download Certificate'],
-  },
-  {
-    'title': 'Behavioral Therapist',
-    'completedCourses': 7,
-    'totalCourses': 7,
-    'completionPercentage': 100,
-    'isComplete': true,
-    'actions': ['View Certificate', 'Download Certificate'],
-  },
-  {
-    'title': 'Child Therapist',
-    'completedCourses': 7,
-    'totalCourses': 7,
-    'completionPercentage': 100,
-    'isComplete': true,
-    'actions': ['View Certificate', 'Download Certificate'],
-  },
-];
-    return ConstrainedBox(constraints: BoxConstraints(maxHeight: Utils.windowHeight(context) * 0.6),
-    child: ListView.builder(
-      shrinkWrap: false,
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      itemCount: certificatesData.length,
-      itemBuilder: (ctx,i) {
-        final item = certificatesData[i];
-      return CertifcateCard(
-        courseTitle: item['title'],
-        completedSections: item['completedCourses'].toString(),
-        totalSections: item['totalCourses'].toString(),
-        completionPercentage: item['completionPercentage'].toString(),
-      );
-    }),
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_certificates.isEmpty) {
+      return const Center(child: Text("No certificates found"));
+    }
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: Utils.windowHeight(context) * 0.6),
+      child: ListView.builder(
+        shrinkWrap: false,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        itemCount: _certificates.length,
+        itemBuilder: (ctx, i) {
+          final item = _certificates[i];
+          final course = item['course'] ?? {};
+          return CertifcateCard(
+            courseTitle: course['name'] ?? 'Untitled Certificate',
+            completedSections: item['completedUnits']?.toString() ?? '0',
+            totalSections: course['totalUnits']?.toString() ?? '0',
+            completionPercentage: '100', // Backend returns certificate only when 100% complete
+          );
+        },
+      ),
     );
   }
 }
 
-
-
 class CertifcateCard extends StatelessWidget {
-  const CertifcateCard({super.key, 
-  this.courseTitle,
-  this.totalSections,
-  this.completedSections,
-  this.completionPercentage
+  const CertifcateCard({
+    super.key,
+    this.courseTitle,
+    this.totalSections,
+    this.completedSections,
+    this.completionPercentage,
   });
+
   final String? courseTitle;
   final String? totalSections;
   final String? completedSections;
@@ -73,22 +90,19 @@ class CertifcateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-           width: Utils.windowWidth(context) * 0.8,
-           padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(20), vertical: ScallingConfig.verticalScale(10)),
-      margin: EdgeInsets.only(top: ScallingConfig.verticalScale(12)),
+      width: Utils.windowWidth(context) * 0.8,
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      margin: const EdgeInsets.only(top: 12),
       clipBehavior: Clip.hardEdge,
-
       decoration: BoxDecoration(
-        border: Border.all(
-          color: AppColors.lightGrey300
-        ),
+        border: Border.all(color: AppColors.lightGrey300),
         boxShadow: [
           BoxShadow(
             blurStyle: BlurStyle.inner,
             spreadRadius: 5,
             blurRadius: 7,
             color: AppColors.lightGrey200.withAlpha(90),
-            offset: Offset(1, 2),
+            offset: const Offset(1, 2),
           ),
         ],
         color: AppColors.white50,
@@ -99,51 +113,65 @@ class CertifcateCard extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-             SvgWrapper(assetPath: ImagePaths.success, width: ScallingConfig.scale(35),),
-             SizedBox(width: ScallingConfig.scale(10),),
-             Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-              CustomText(text:courseTitle ?? "", fontSize: 14, color: AppColors.themeDarkGrey, fontFamily: "Gilroy-Bold", fontWeight: FontWeight.bold,),
-                Row(
-                  children: [
-                    CustomText(text: '${completedSections ?? " "} / ${totalSections ?? " "} ', fontSize: 12, color: AppColors.grayColor, fontFamily: "Gilroy-SemiBold",),
-                    CustomText(text: '${completionPercentage ?? " "}% Completed', fontSize: 12, color: AppColors.grayColor, fontFamily: "Gilroy-SemiBold",),
-                  ],
-                )
-              ],
-             )
+              SvgWrapper(assetPath: ImagePaths.success, width: 35),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomText(
+                    text: courseTitle ?? "",
+                    fontSize: 14,
+                    color: AppColors.themeDarkGrey,
+                    fontFamily: "Gilroy-Bold",
+                    fontWeight: FontWeight.bold,
+                  ),
+                  Row(
+                    children: [
+                      CustomText(
+                        text: '${completedSections ?? "0"} / ${totalSections ?? "0"} ',
+                        fontSize: 12,
+                        color: AppColors.grayColor,
+                        fontFamily: "Gilroy-SemiBold",
+                      ),
+                      CustomText(
+                        text: '${completionPercentage ?? "100"}% Completed',
+                        fontSize: 12,
+                        color: AppColors.grayColor,
+                        fontFamily: "Gilroy-SemiBold",
+                      ),
+                    ],
+                  )
+                ],
+              )
             ],
           ),
-          SizedBox(height: ScallingConfig.scale(10),),
+          const SizedBox(height: 10),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(width: ScallingConfig.scale(5) ,),
+              const SizedBox(width: 5),
               CustomText(
-                text: "View Certicate",
+                text: "View Certificate",
                 underline: true,
                 fontSize: 12.99,
                 color: AppColors.primary500,
                 fontFamily: "Gilroy-Bold",
                 fontWeight: FontWeight.bold,
-                onTap: (){
-                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCertificate() ));
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const ViewCertificate()));
                 },
               ),
-              SizedBox(width: ScallingConfig.scale(10) ,),
+              const SizedBox(width: 10),
               CustomText(
-                text: "Download Certicate",
+                text: "Download Certificate",
                 underline: true,
                 fontSize: 12.99,
                 color: AppColors.primary500,
                 fontFamily: "Gilroy-Bold",
                 fontWeight: FontWeight.bold,
-                onTap: (){
-                  // Navigator.of(context).push
-                  //(MaterialPageRoute(builder: (ctx) => ))
+                onTap: () {
+                  // Download logic
                 },
-
               ),
             ],
           )

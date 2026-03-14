@@ -4,12 +4,31 @@ class PharmacyService {
   final ApiService _apiService = ApiService();
   String? _cachedPharmacyId;
 
+  // Get all pharmacies (public endpoint)
+  Future<List<dynamic>> getAllPharmacies() async {
+    final response = await _apiService.get('/pharmacy/get_all_pharmacy');
+    return response.data['pharmacies'] as List;
+  }
+
   // Get pharmacy profile for logged-in pharmacist
   Future<Map<String, dynamic>> getPharmacyProfile() async {
     final response = await _apiService.get('/pharmacy/profile');
     final pharmacy = response.data['pharmacy'];
     _cachedPharmacyId = pharmacy['_id'];
     return pharmacy;
+  }
+
+  // Update pharmacy profile
+  Future<Map<String, dynamic>> updatePharmacyProfile(
+      Map<String, dynamic> data) async {
+    try {
+      final response =
+          await _apiService.post('/pharmacy/add_pharmacy_details', data);
+      return response.data['pharmacy'] ?? response.data['existingProfile'];
+    } catch (e) {
+      print('Error updating pharmacy profile: $e');
+      rethrow;
+    }
   }
 
   Future<String> _getPharmacyId() async {

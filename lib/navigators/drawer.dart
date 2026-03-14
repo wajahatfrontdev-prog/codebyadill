@@ -5,6 +5,7 @@ import 'package:icare/providers/auth_provider.dart';
 import 'package:icare/screens/bookings.dart';
 import 'package:icare/screens/bookings_history.dart';
 import 'package:icare/screens/courses.dart';
+import 'package:icare/screens/notifications.dart';
 import 'package:icare/screens/doctor_appointments.dart';
 import 'package:icare/screens/doctor_schedule_calendar.dart';
 import 'package:icare/screens/doctor_analytics.dart';
@@ -14,7 +15,10 @@ import 'package:icare/screens/doctor_availability.dart';
 import 'package:icare/screens/doctor_profile_setup.dart';
 import 'package:icare/screens/help_and_support.dart';
 import 'package:icare/screens/patient_records_list.dart';
+import 'package:icare/screens/lab_bookings_management.dart';
+import 'package:icare/screens/lab_reports_screen.dart';
 import 'package:icare/screens/lab_list.dart';
+import 'package:icare/screens/lab_appointment.dart';
 import 'package:icare/screens/login.dart';
 import 'package:icare/screens/my_appointment.dart';
 import 'package:icare/screens/my_appointments_list.dart';
@@ -26,6 +30,12 @@ import 'package:icare/screens/pharmacist_dashboard.dart';
 import 'package:icare/screens/pharmacy_inventory.dart';
 import 'package:icare/screens/pharmacy_orders.dart';
 import 'package:icare/screens/pharmacy_analytics.dart';
+import 'package:icare/screens/pharmacy_profile_setup.dart';
+import 'package:icare/screens/laboratory_dashboard.dart';
+import 'package:icare/screens/lab_bookings_management.dart';
+import 'package:icare/screens/lab_tests_management.dart';
+import 'package:icare/screens/lab_analytics.dart';
+import 'package:icare/screens/lab_profile_setup.dart';
 import 'package:icare/screens/prescriptions.dart';
 import 'package:icare/screens/reminder_list.dart';
 import 'package:icare/screens/settings.dart';
@@ -33,6 +43,8 @@ import 'package:icare/screens/tabs.dart';
 import 'package:icare/screens/tasks.dart';
 import 'package:icare/screens/view_profile.dart';
 import 'package:icare/screens/wallet.dart';
+import 'package:icare/screens/lab_reports_screen.dart';
+import 'package:icare/screens/student_profile_setup.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -67,13 +79,13 @@ class CustomDrawer extends ConsumerWidget {
       }),
     ];
 
-    if (selectedRole == "lab_technician") {
+    if (selectedRole == "Laboratory") {
       drawerItems = [
         _drawerItem('Tasks', Icons.task_alt_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
         }),
         _drawerItem('Report Lab Results', Icons.biotech_rounded, () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabBookingsManagement()));
         }),
         _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyAppointmentsListScreen()));
@@ -81,11 +93,14 @@ class CustomDrawer extends ConsumerWidget {
         _drawerItem('Payment Invoices', Icons.receipt_long_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PaymentInvoices()));
         }),
+        _drawerItem('Notifications', Icons.notifications_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const NotificationScreen()));
+        }),
         _drawerItem('Help & Support', Icons.help_outline_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
         }),
       ];
-    } else if (selectedRole == "patient") {
+    } else if (selectedRole == "Patient") {
       drawerItems = [
         _drawerItem('Dashboard', Icons.dashboard_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TabsScreen()));
@@ -96,8 +111,11 @@ class CustomDrawer extends ConsumerWidget {
         _drawerItem('Tasks', Icons.task_alt_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
         }),
-        _drawerItem('Report Lab Results', Icons.biotech_rounded, () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
+        _drawerItem('Book A Lab', Icons.science_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
+        }),
+        _drawerItem('Lab Results/Reports', Icons.biotech_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabReportsScreen()));
         }),
         _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyAppointment()));
@@ -112,7 +130,7 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const Courses()));
         }),
       ];
-    } else if (selectedRole == "doctor") {
+    } else if (selectedRole == "Doctor") {
       drawerItems = [
         _drawerItem('My Appointments', Icons.calendar_month_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const DoctorAppointmentsScreen()));
@@ -145,10 +163,13 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "pharmacy") {
+    } else if (selectedRole == "Pharmacy") {
       drawerItems = [
         _drawerItem('Dashboard', Icons.dashboard_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmacistDashboard()));
+        }),
+        _drawerItem('Profile Setup', Icons.edit_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmacyProfileSetup()));
         }),
         _drawerItem('Inventory', Icons.inventory_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmacyInventory()));
@@ -170,6 +191,9 @@ class CustomDrawer extends ConsumerWidget {
         }),
         _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyAppointment()));
+        }),
+        _drawerItem('Notifications', Icons.notifications_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const NotificationScreen()));
         }),
         _drawerItem('Help & Support', Icons.help_outline_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
@@ -193,13 +217,34 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "instructor") {
+    } else if (selectedRole == "Laboratory") {
       drawerItems = [
-        _drawerItem('Pharmacies', Icons.medication_rounded, () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
+        _drawerItem('Dashboard', Icons.dashboard_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LaboratoryDashboard()));
         }),
-        _drawerItem('Reports/Lab Results', Icons.biotech_rounded, () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
+        _drawerItem('Profile Setup', Icons.edit_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabProfileSetup()));
+        }),
+        _drawerItem('Bookings', Icons.calendar_today_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabBookingsManagement()));
+        }),
+        _drawerItem('Tests Management', Icons.science_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabTestsManagement()));
+        }),
+        _drawerItem('Analytics', Icons.analytics_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabAnalytics()));
+        }),
+        _drawerItem('Payment Invoices', Icons.receipt_long_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PaymentInvoices()));
+        }),
+        _drawerItem('Tasks', Icons.task_alt_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const TaskScreen()));
+        }),
+        _drawerItem('My Appointment', Icons.calendar_month_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const MyAppointment()));
+        }),
+        _drawerItem('Notifications', Icons.notifications_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const NotificationScreen()));
         }),
         _drawerItem('Help & Support', Icons.help_outline_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
@@ -208,19 +253,37 @@ class CustomDrawer extends ConsumerWidget {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
         }),
       ];
-    } else if (selectedRole == "student") {
+    } else if (selectedRole == "Instructor") {
       drawerItems = [
         _drawerItem('Pharmacies', Icons.medication_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
         }),
         _drawerItem('Reports/Lab Results', Icons.biotech_rounded, () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const LabsListScreen()));
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
         }),
         _drawerItem('Help & Support', Icons.help_outline_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
         }),
         _drawerItem('Settings', Icons.settings_rounded, () {
           Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
+        }),
+      ];
+    } else if (selectedRole == "Student") {
+      drawerItems = [
+        _drawerItem('Pharmacies', Icons.medication_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const PharmaciesScreen()));
+        }),
+        _drawerItem('Reports/Lab Results', Icons.biotech_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabsListScreen()));
+        }),
+        _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
+        }),
+        _drawerItem('Settings', Icons.settings_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
+        }),
+        _drawerItem('Profile Setup', Icons.person_rounded, () {
+          Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const StudentProfileSetup()));
         }),
       ];
     }
@@ -263,14 +326,24 @@ class CustomDrawer extends ConsumerWidget {
                 children: [
                   InkWell(
                     onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (ctx) => ViewProfile()
-                          // selectedRole == "patient"
-                          //     ? PatientProfile()
-                          //     : DoctorProfile(),
-                        ),
-                      );
+                      // Navigate to role-specific profile setup or view profile
+                      if (selectedRole == "Laboratory") {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (ctx) => const LabProfileSetup()),
+                        );
+                      } else if (selectedRole == "Pharmacy") {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (ctx) => const PharmacyProfileSetup()),
+                        );
+                      } else if (selectedRole == "Student") {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (ctx) => const StudentProfileSetup()),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (ctx) => ViewProfile()),
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(3),
@@ -407,7 +480,7 @@ class CustomDrawer extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
       child: ListTile(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        tileColor: isActive ? AppColors.primaryColor.withOpacity(0.08) : null,
+        tileColor: isActive ? AppColors.primaryColor.withValues(alpha: 0.08) : null,
         dense: true,
         leading: Icon(
           icon,
@@ -435,16 +508,16 @@ class CustomDrawer extends ConsumerWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.06),
+            color: color.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.1)),
+            border: Border.all(color: color.withValues(alpha: 0.1)),
           ),
           child: Row(
             children: [
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.flash_on_rounded, size: 12, color: color),

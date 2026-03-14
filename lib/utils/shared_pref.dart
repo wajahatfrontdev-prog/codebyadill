@@ -20,7 +20,8 @@ class SharedPref {
     final SharedPreferencesWithCache pref = await _prefs;
     String? userJson = pref.getString('userData');
     if (userJson != null) {
-      return jsonDecode(userJson);
+      final map = jsonDecode(userJson);
+      return User.fromJson(map);
     }
     return null;
   }

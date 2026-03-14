@@ -99,7 +99,7 @@ class ProfileOrAppointmentViewScreen extends ConsumerWidget {
               duration: "30 Minutes",
             ),
 
-            if (selectedRole == "patient" || selectedRole == "doctor") ...[
+            if (selectedRole == "Patient" || selectedRole == "Doctor") ...[
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: ScallingConfig.scale(20),
@@ -134,7 +134,7 @@ class ProfileOrAppointmentViewScreen extends ConsumerWidget {
             ],
             SizedBox(height: ScallingConfig.scale(15)),
 
-            if (selectedRole == "doctor") ...[
+            if (selectedRole == "Doctor") ...[
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -671,7 +671,7 @@ class _WebPatientProfileView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      if (selectedRole == "patient" || selectedRole == "doctor") ...[
+                      if (selectedRole == "Patient" || selectedRole == "Doctor") ...[
                         const SizedBox(height: 24),
                         Row(
                           children: [
@@ -711,7 +711,7 @@ class _WebPatientProfileView extends StatelessWidget {
                           ],
                         ),
                       ],
-                      if (selectedRole == "doctor") ...[
+                      if (selectedRole == "Doctor") ...[
                         const SizedBox(height: 24),
                         SizedBox(
                           width: double.infinity,

@@ -1,10 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/shared_pref.dart';
 import 'api_service.dart';
 import 'api_config.dart';
 
 class AuthService {
   final ApiService _apiService = ApiService();
+  final SharedPref _sharedPref = SharedPref();
 
   Future<Map<String, dynamic>> register({
     required String name,
@@ -65,25 +66,21 @@ class AuthService {
   }
 
   Future<void> _saveToken(String token) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('auth_token', token);
+    await _sharedPref.setToken(token);
   }
 
   Future<void> _saveUserData(Map<String, dynamic> userData) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('user_id', userData['_id'] ?? '');
-    await prefs.setString('user_name', userData['name'] ?? '');
-    await prefs.setString('user_email', userData['email'] ?? '');
+    // User data is saved through auth provider, keeping this for compatibility
   }
 
   Future<String?> getToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('auth_token');
+    return await _sharedPref.getToken();
   }
 
   Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('auth_token');
+    await _sharedPref.remove('token');
+    await _sharedPref.remove('userData');
+    await _sharedPref.remove('userRole');
   }
 
   Future<Map<String, dynamic>> forgotPassword({

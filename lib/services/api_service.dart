@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/shared_pref.dart';
 import 'api_config.dart';
 
 class ApiService {
@@ -16,31 +16,55 @@ class ApiService {
     ),
   );
 
-  Future<void> _setAuthToken() async {
-    final prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('auth_token');
+  final SharedPref _sharedPref = SharedPref();
+
+  Future<void> _setAuthToken({String? providedToken}) async {
+    String? token = providedToken;
+    
+    if (token == null) {
+      token = await _sharedPref.getToken();
+      print("🔑 ApiService: Token from SharedPref: ${token != null ? '${token.substring(0, 20)}...' : 'null'}");
+    } else {
+      print("🔑 ApiService: Using provided token: ${token.substring(0, 20)}...");
+    }
+    
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
+      print("✅ ApiService: Authorization header set");
+    } else {
+      print("⚠️ ApiService: No token found, request will be unauthorized");
     }
   }
 
-  Future<Response> post(String endpoint, Map<String, dynamic> data) async {
-    await _setAuthToken();
+  Future<Response> post(String endpoint, Map<String, dynamic> data, {String? token}) async {
+    await _setAuthToken(providedToken: token);
     return await _dio.post(endpoint, data: data);
   }
 
-  Future<Response> get(String endpoint) async {
-    await _setAuthToken();
-    return await _dio.get(endpoint);
+  Future<Response> get(String endpoint, {Map<String, dynamic>? queryParameters, String? token}) async {
+    await _setAuthToken(providedToken: token);
+    return await _dio.get(endpoint, queryParameters: queryParameters);
   }
 
-  Future<Response> put(String endpoint, Map<String, dynamic> data) async {
-    await _setAuthToken();
+  Future<Response> put(String endpoint, Map<String, dynamic> data, {String? token}) async {
+    await _setAuthToken(providedToken: token);
     return await _dio.put(endpoint, data: data);
   }
 
-  Future<Response> delete(String endpoint) async {
-    await _setAuthToken();
+  Future<Response> delete(String endpoint, {String? token}) async {
+    await _setAuthToken(providedToken: token);
     return await _dio.delete(endpoint);
+  }
+
+  // Support for file uploads
+  Future<Response> postMultipart(String endpoint, FormData formData, {String? token}) async {
+    await _setAuthToken(providedToken: token);
+    return await _dio.post(
+      endpoint,
+      data: formData,
+      options: Options(
+        headers: {'Content-Type': 'multipart/form-data'},
+      ),
+    );
   }
 }

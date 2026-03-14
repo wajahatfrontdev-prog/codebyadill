@@ -4,7 +4,10 @@ import 'package:icare/screens/courses.dart';
 import 'package:icare/screens/instructor_filters.dart';
 import 'package:icare/screens/laboratories.dart';
 import 'package:icare/screens/labb_details.dart';
+import 'package:icare/screens/my_learning.dart';
 import 'package:icare/screens/view_course.dart';
+import 'package:icare/services/course_service.dart';
+import 'package:icare/services/laboratory_service.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
@@ -14,101 +17,100 @@ import 'package:icare/widgets/laboratory.dart';
 import 'package:icare/widgets/section_header.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 
-class StudentHome extends StatelessWidget {
+class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
 
-  // Same course data as CoursesList widget
-  static const _courses = [
-    {
-      "name": "Behavioral Therapist",
-      "instructor": "Kewshun",
-      "desc": "Master the fundamentals of behavioral therapy techniques for effective patient care.",
-      "image": ImagePaths.course1,
-      "tag": "Health",
-      "rating": 4.8,
-      "students": 128,
-    },
-    {
-      "name": "Child Therapist",
-      "instructor": "Kewshun",
-      "desc": "Understand developmental stages and apply therapeutic methods with young patients.",
-      "image": ImagePaths.course2,
-      "tag": "Psychology",
-      "rating": 4.6,
-      "students": 94,
-    },
-  ];
+  @override
+  State<StudentHome> createState() => _StudentHomeState();
+}
 
-  // Same lab data as Laboratory widget
-  static const _labs = [
-    {
-      "name": "Quantum Spar Lab",
-      "location": "4915 Muller Radial, 84904, USA",
-      "open": "Open at 9:00 AM",
-      "homeSample": "Home Sample Available",
-      "image": ImagePaths.lab3,
-    },
-    {
-      "name": "MedTech Diagnostics",
-      "location": "221B Baker Street, London, UK",
-      "open": "Open at 8:30 AM",
-      "homeSample": "Home Sample Available",
-      "image": ImagePaths.lab3,
-    },
-    {
-      "name": "BioSci Research Lab",
-      "location": "500 Innovation Drive, NY, USA",
-      "open": "Open at 10:00 AM",
-      "homeSample": "Home Sample Available",
-      "image": ImagePaths.lab3,
-    },
-  ];
+class _StudentHomeState extends State<StudentHome> {
+  final CourseService _courseService = CourseService();
+  final LaboratoryService _labService = LaboratoryService();
+
+  List<dynamic> _courses = [];
+  List<dynamic> _labs = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData();
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      final results = await Future.wait([
+        _courseService.listPublicCourses(),
+        _labService.getAllLaboratories(),
+      ]);
+
+      if (mounted) {
+        setState(() {
+          _courses = results[0];
+          _labs = results[1];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      print('Error fetching student home data: $e');
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = Utils.windowWidth(context) > 900;
 
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     // ── MOBILE: original layout (untouched) ────────────────────────────────
     if (!isDesktop) {
       return Center(
-        child: Column(
-          children: [
-            SizedBox(height: ScallingConfig.scale(20)),
-            CustomInputField(
-              width: Utils.windowWidth(context) * 0.9,
-              hintText: "Search",
-              trailingIcon: SvgWrapper(
-                assetPath: ImagePaths.filters,
-                onPress: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctx) => InstructorFiltersScreen()),
-                  );
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              SizedBox(height: ScallingConfig.scale(20)),
+              CustomInputField(
+                width: Utils.windowWidth(context) * 0.9,
+                hintText: "Search",
+                trailingIcon: SvgWrapper(
+                  assetPath: ImagePaths.filters,
+                  onPress: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (ctx) => InstructorFiltersScreen()),
+                    );
+                  },
+                ),
+                leadingIcon: SvgWrapper(assetPath: ImagePaths.search),
+              ),
+              SizedBox(height: ScallingConfig.scale(20)),
+              SectionHeader(
+                title: "Courses",
+                width: Utils.windowWidth(context) * 0.9,
+                onActionTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const Courses()));
                 },
               ),
-              leadingIcon: SvgWrapper(assetPath: ImagePaths.search),
-            ),
-            SizedBox(height: ScallingConfig.scale(20)),
-            SectionHeader(
-              title: "Courses",
-              width: Utils.windowWidth(context) * 0.9,
-              onActionTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => Courses()));
-              },
-            ),
-            CoursesList(
-              numOfCourses: 2,
-              constraintHeight: Utils.windowHeight(context) * 0.35,
-            ),
-            SectionHeader(
-              title: "Laboratories",
-              width: Utils.windowWidth(context) * 0.9,
-              onActionTap: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LaboratoriesScreen()));
-              },
-            ),
-            SizedBox(height: ScallingConfig.scale(20)),
-            Laboratory(),
-          ],
+              CoursesList(
+                numOfCourses: _courses.length > 2 ? 2 : _courses.length,
+                constraintHeight: Utils.windowHeight(context) * 0.35,
+              ),
+              SectionHeader(
+                title: "Laboratories",
+                width: Utils.windowWidth(context) * 0.9,
+                onActionTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LaboratoriesScreen()));
+                },
+              ),
+              SizedBox(height: ScallingConfig.scale(20)),
+              Laboratory(labData: _labs.isNotEmpty ? _labs.first : null),
+            ],
+          ),
         ),
       );
     }
@@ -124,9 +126,9 @@ class StudentHome extends StatelessWidget {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(56, 44, 56, 50),
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [AppColors.primaryColor, const Color(0xFF1E3A8A)],
+                colors: [AppColors.primaryColor, Color(0xFF1E3A8A)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -190,57 +192,94 @@ class StudentHome extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 30),
-                    // Search bar
-                    Container(
-                      height: 52,
-                      constraints: const BoxConstraints(maxWidth: 580),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.18),
-                            blurRadius: 24,
-                            offset: const Offset(0, 8),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          const SizedBox(width: 16),
-                          const Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 22),
-                          const SizedBox(width: 10),
-                          const Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: "Search courses, labs...",
-                                hintStyle: TextStyle(color: Color(0xFFADB5BD), fontSize: 14),
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.symmetric(vertical: 16),
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (ctx) => InstructorFiltersScreen()),
-                            ),
-                            child: Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: AppColors.primaryColor,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: const Text(
-                                "Filter",
-                                style: TextStyle(
-                                  color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13,
+                    // Quick Actions Row
+                    Row(
+                      children: [
+                        // Search bar
+                        Expanded(
+                          child: Container(
+                            height: 52,
+                            constraints: const BoxConstraints(maxWidth: 580),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.18),
+                                  blurRadius: 24,
+                                  offset: const Offset(0, 8),
                                 ),
-                              ),
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const SizedBox(width: 16),
+                                const Icon(Icons.search_rounded, color: Color(0xFF94A3B8), size: 22),
+                                const SizedBox(width: 10),
+                                const Expanded(
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      hintText: "Search courses, labs...",
+                                      hintStyle: TextStyle(color: Color(0xFFADB5BD), fontSize: 14),
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(builder: (ctx) => InstructorFiltersScreen()),
+                                  ),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(right: 8),
+                                    padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.primaryColor,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    child: const Text(
+                                      "Filter",
+                                      style: TextStyle(
+                                        color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 16),
+                        // My Learning Button
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).push(
+                            MaterialPageRoute(builder: (ctx) => const MyLearningScreen()),
+                          ),
+                          child: Container(
+                            height: 52,
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(color: Colors.white.withOpacity(0.3), width: 1.5),
+                            ),
+                            child: const Row(
+                              children: [
+                                Icon(Icons.school_rounded, color: Colors.white, size: 20),
+                                SizedBox(width: 10),
+                                Text(
+                                  'My Learning',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
@@ -262,27 +301,29 @@ class StudentHome extends StatelessWidget {
                   subtitle: "Browse available courses",
                   accentColor: AppColors.primaryColor,
                   onViewAll: () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (ctx) => Courses()),
+                    MaterialPageRoute(builder: (ctx) => const Courses()),
                   ),
                 ),
                 const SizedBox(height: 28),
 
                 // Premium course cards grid
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: _courses.length,
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 520,
-                    mainAxisExtent: 340,
-                    crossAxisSpacing: 28,
-                    mainAxisSpacing: 28,
-                  ),
-                  itemBuilder: (ctx, i) {
-                    final c = _courses[i];
-                    return _CoursePremiumCard(course: c);
-                  },
-                ),
+                _courses.isEmpty 
+                  ? const Center(child: Text("No courses available"))
+                  : GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _courses.length > 4 ? 4 : _courses.length,
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 520,
+                        mainAxisExtent: 380,
+                        crossAxisSpacing: 28,
+                        mainAxisSpacing: 28,
+                      ),
+                      itemBuilder: (ctx, i) {
+                        final c = _courses[i];
+                        return _CoursePremiumCard(course: c);
+                      },
+                    ),
               ],
             ),
           ),
@@ -300,7 +341,7 @@ class StudentHome extends StatelessWidget {
                   title: "Laboratories",
                   subtitle: "Nearby diagnostic centers",
                   accentColor: const Color(0xFF6366F1),
-                  accentGradient: [const Color(0xFF6366F1), const Color(0xFF4F46E5)],
+                  accentGradient: const [Color(0xFF6366F1), Color(0xFF4F46E5)],
                   onViewAll: () => Navigator.of(context).push(
                     MaterialPageRoute(builder: (ctx) => LaboratoriesScreen()),
                   ),
@@ -308,18 +349,18 @@ class StudentHome extends StatelessWidget {
                 const SizedBox(height: 28),
 
                 // Premium lab cards row
-                Row(
-                  children: _labs.asMap().entries.map((entry) {
-                    final i = entry.key;
-                    final lab = entry.value;
-                    return Expanded(
-                      child: Container(
-                        margin: i < _labs.length - 1 ? const EdgeInsets.only(right: 24) : null,
+                _labs.isEmpty
+                ? const Center(child: Text("No laboratories found"))
+                : Wrap(
+                    spacing: 24,
+                    runSpacing: 24,
+                    children: _labs.take(3).map((lab) {
+                      return SizedBox(
+                        width: (Utils.windowWidth(context) - 112 - 48) / 3, // Roughly 1/3 of available width
                         child: _LabPremiumCard(lab: lab),
-                      ),
-                    );
-                  }).toList(),
-                ),
+                      );
+                    }).toList(),
+                  ),
               ],
             ),
           ),
@@ -416,10 +457,31 @@ class _CoursePremiumCard extends StatelessWidget {
 
   const _CoursePremiumCard({required this.course});
 
+  static String _extractInstructorName(dynamic instructor) {
+    if (instructor == null) return 'Instructor';
+    
+    if (instructor is String) return instructor;
+    
+    if (instructor is Map) {
+      // Try to get name from nested user object
+      final user = instructor['user'];
+      if (user is Map && user['name'] is String) {
+        return user['name'] as String;
+      }
+      
+      // Try to get name directly from instructor object
+      if (instructor['name'] is String) {
+        return instructor['name'] as String;
+      }
+    }
+    
+    return 'Instructor';
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse())),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => ViewCourse(courseData: course))),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -440,12 +502,19 @@ class _CoursePremiumCard extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                  child: Image.asset(
-                    course['image'] as String,
-                    height: 180,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+                  child: course['image'] is String 
+                    ? Image.asset(
+                        course['image'] as String,
+                        height: 180,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        height: 180,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.book, size: 50, color: Colors.grey),
+                      ),
                 ),
                 // Bottom gradient overlay on image
                 Positioned.fill(
@@ -471,7 +540,7 @@ class _CoursePremiumCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      course['tag'] as String,
+                      course['tag'] ?? 'Health',
                       style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -492,7 +561,7 @@ class _CoursePremiumCard extends StatelessWidget {
                         const Icon(Icons.star_rounded, color: Color(0xFFF59E0B), size: 14),
                         const SizedBox(width: 4),
                         Text(
-                          "${course['rating']}",
+                          "${course['rating'] ?? 4.5}",
                           style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800),
                         ),
                       ],
@@ -508,7 +577,7 @@ class _CoursePremiumCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    course['name'] as String,
+                    (course['title'] is String ? course['title'] : (course['name'] is String ? course['name'] : 'Untitled Course')),
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w900,
@@ -520,7 +589,7 @@ class _CoursePremiumCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    course['desc'] as String,
+                    (course['caption'] is String ? course['caption'] : (course['desc'] is String ? course['desc'] : 'No description available')),
                     style: const TextStyle(fontSize: 13, color: Color(0xFF64748B), height: 1.4),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -531,14 +600,14 @@ class _CoursePremiumCard extends StatelessWidget {
                       const Icon(Icons.person_outline_rounded, size: 15, color: Color(0xFF94A3B8)),
                       const SizedBox(width: 6),
                       Text(
-                        course['instructor'] as String,
+                        _extractInstructorName(course['instructor']),
                         style: const TextStyle(fontSize: 13, color: Color(0xFF475569), fontWeight: FontWeight.w600),
                       ),
                       const Spacer(),
                       const Icon(Icons.group_outlined, size: 15, color: Color(0xFF94A3B8)),
                       const SizedBox(width: 6),
                       Text(
-                        "${course['students']} students",
+                        "${course['students'] ?? 0} students",
                         style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                       ),
                     ],
@@ -562,7 +631,7 @@ class _LabPremiumCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabDetails())),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => LabDetails(labData: lab))),
       child: Container(
         height: 280,
         decoration: BoxDecoration(
@@ -574,10 +643,13 @@ class _LabPremiumCard extends StatelessWidget {
               offset: const Offset(0, 10),
             ),
           ],
-          image: DecorationImage(
-            image: AssetImage(lab['image'] as String),
-            fit: BoxFit.cover,
-          ),
+          image: lab['image'] is String 
+            ? DecorationImage(
+                image: AssetImage(lab['image'] as String),
+                fit: BoxFit.cover,
+              )
+            : null,
+          color: (lab['image'] is! String) ? Colors.blueGrey[100] : null,
         ),
         child: Stack(
           children: [
@@ -601,7 +673,7 @@ class _LabPremiumCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    lab['name'] as String,
+                    ((lab['labName'] is String) ? (lab['labName'] as String) : ((lab['name'] is String) ? (lab['name'] as String) : 'Laboratory')),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -615,7 +687,11 @@ class _LabPremiumCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          lab['location'] as String,
+                          (lab['address'] is String)
+                              ? (lab['address'] as String)
+                              : ((lab['location'] is String)
+                                  ? (lab['location'] as String)
+                                  : 'Location not available'),
                           style: const TextStyle(color: Colors.white70, fontSize: 11),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -628,7 +704,10 @@ class _LabPremiumCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.access_time_rounded, color: Colors.white70, size: 13),
                       const SizedBox(width: 4),
-                      Text(lab['open'] as String, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                      Text(
+                        (lab['open'] is String ? lab['open'] : 'Open 9:00 AM - 9:00 PM'),
+                        style: const TextStyle(color: Colors.white70, fontSize: 11),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -636,7 +715,7 @@ class _LabPremiumCard extends StatelessWidget {
                     children: [
                       const Icon(Icons.home_rounded, color: Colors.white70, size: 13),
                       const SizedBox(width: 4),
-                      Text(lab['homeSample'] as String, style: const TextStyle(color: Colors.white70, fontSize: 11)),
+                      Text((lab['homeSample'] == true) ? 'Home Sample Available' : (lab['homeSample'] == false ? 'No Home Sample' : (lab['homeSample']?.toString() ?? 'Home Sample Available')), style: const TextStyle(color: Colors.white70, fontSize: 11)),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -644,7 +723,7 @@ class _LabPremiumCard extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(context).push(
-                        MaterialPageRoute(builder: (ctx) => LabDetails()),
+                        MaterialPageRoute(builder: (ctx) => LabDetails(labData: lab)),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,

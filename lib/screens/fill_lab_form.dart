@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_size_matters/flutter_size_matters.dart';
 import 'package:icare/screens/receipt.dart';
+import 'package:icare/services/laboratory_service.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/back_button.dart';
@@ -8,9 +11,101 @@ import 'package:icare/widgets/custom_button.dart';
 import 'package:icare/widgets/custom_check_box.dart';
 import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/custom_text_input.dart';
+import 'package:intl/intl.dart';
 
-class FillLabForm extends StatelessWidget {
-  const FillLabForm({super.key});
+class FillLabForm extends StatefulWidget {
+  final Map<String, dynamic>? labData;
+  final List<String>? selectedTests;
+
+  const FillLabForm({super.key, this.labData, this.selectedTests});
+
+  @override
+  State<FillLabForm> createState() => _FillLabFormState();
+}
+
+class _FillLabFormState extends State<FillLabForm> {
+  final _labService = LaboratoryService();
+  
+  final _nameController = TextEditingController();
+  final _patientNameController = TextEditingController();
+  final _locationController = TextEditingController();
+  final _ageController = TextEditingController();
+  final _dateController = TextEditingController();
+  final _timeController = TextEditingController();
+  final _phoneController = TextEditingController();
+  
+  bool _homeSample = false;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    _timeController.text = "10:00 AM";
+    if (widget.labData?['address'] != null) {
+      _locationController.text = widget.labData?['address'];
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _patientNameController.dispose();
+    _locationController.dispose();
+    _ageController.dispose();
+    _dateController.dispose();
+    _timeController.dispose();
+    _phoneController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _bookNow() async {
+    if (_nameController.text.isEmpty || _phoneController.text.isEmpty || _patientNameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill all required fields")),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final labId = widget.labData?['_id'] ?? widget.labData?['id'];
+      if (labId == null) {
+        throw Exception("Laboratory ID missing");
+      }
+
+      final bookingData = {
+        'patientName': _patientNameController.text,
+        'age': int.tryParse(_ageController.text) ?? 25,
+        'phoneNumber': _phoneController.text,
+        'location': _locationController.text,
+        'date': _dateController.text,
+        'time': _timeController.text,
+        'tests': widget.selectedTests ?? ["Complete Blood Count (CBC)"],
+        'homeSampleAvailable': _homeSample,
+        'totalPrice': (widget.selectedTests?.length ?? 1) * 3000,
+      };
+
+      final booking = await _labService.createBooking(labId, bookingData);
+      
+      if (mounted) {
+        Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => REceiptScreen(
+          bookingData: booking,
+          labName: widget.labData?['labName'] ?? widget.labData?['name'] ?? "Lab",
+        )));
+      }
+    } catch (e) {
+      log("Booking error: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Error: ${e.toString()}")),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +119,9 @@ class FillLabForm extends StatelessWidget {
               automaticallyImplyLeading: false,
               title: const CustomText(text: "Fill this form"),
             ),
-      body: isDesktop ? _buildWebLayout(context) : _buildMobileLayout(context),
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : (isDesktop ? _buildWebLayout(context) : _buildMobileLayout(context)),
     );
   }
 
@@ -33,43 +130,32 @@ class FillLabForm extends StatelessWidget {
       child: Column(
         children: [
           CustomText(
-            text: "Test Names",
+            text: "Selected Tests",
             width: Utils.windowWidth(context) * 0.9,
             color: AppColors.themeDarkGrey,
             fontSize: 14,
             fontFamily: "Gilroy-Bold",
           ),
           SizedBox(height: ScallingConfig.scale(10)),
-          SizedBox(
-            width: Utils.windowWidth(context) * 0.9,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const ScheduledTest(),
-                const CustomText(
-                  text: "Rs. 3000",
-                  fontSize: 12,
-                  fontFamily: "vGilroy-SemiBold",
-                  color: AppColors.primary500,
+          ... (widget.selectedTests ?? ["Complete Blood Count (CBC)"]).map((test) => 
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: SizedBox(
+                width: Utils.windowWidth(context) * 0.9,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ScheduledTest(name: test),
+                    const CustomText(
+                      text: "Rs. 3000",
+                      fontSize: 12,
+                      fontFamily: "vGilroy-SemiBold",
+                      color: AppColors.primary500,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-          SizedBox(height: ScallingConfig.scale(10)),
-          SizedBox(
-            width: Utils.windowWidth(context) * 0.9,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const ScheduledTest(),
-                const CustomText(
-                  text: "Rs. 3000",
-                  fontSize: 12,
-                  fontFamily: "vGilroy-SemiBold",
-                  color: AppColors.primary500,
-                ),
-              ],
-            ),
+              ),
+            )
           ),
           SizedBox(height: ScallingConfig.scale(15)),
           CustomText(
@@ -83,7 +169,8 @@ class FillLabForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomInputField(
-                hintText: "Name",
+                controller: _nameController,
+                hintText: "Your Name",
                 borderRadius: 0,
                 hintStyle: TextStyle(
                   color: AppColors.grayColor.withAlpha(70),
@@ -100,6 +187,7 @@ class FillLabForm extends StatelessWidget {
               ),
               SizedBox(width: ScallingConfig.scale(20)),
               CustomInputField(
+                controller: _patientNameController,
                 hintText: "Patient Name",
                 borderRadius: 0,
                 hintStyle: TextStyle(
@@ -122,6 +210,7 @@ class FillLabForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomInputField(
+                controller: _locationController,
                 hintText: "Location",
                 borderRadius: 0,
                 hintStyle: TextStyle(
@@ -139,6 +228,7 @@ class FillLabForm extends StatelessWidget {
               ),
               SizedBox(width: ScallingConfig.scale(20)),
               CustomInputField(
+                controller: _ageController,
                 hintText: "Age",
                 borderRadius: 0,
                 hintStyle: TextStyle(
@@ -153,6 +243,7 @@ class FillLabForm extends StatelessWidget {
                     width: 1.5,
                   ),
                 ),
+                keyboardType: TextInputType.number,
               ),
             ],
           ),
@@ -161,6 +252,7 @@ class FillLabForm extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               CustomInputField(
+                controller: _dateController,
                 hintText: "Date",
                 borderRadius: 0,
                 hintStyle: TextStyle(
@@ -178,6 +270,7 @@ class FillLabForm extends StatelessWidget {
               ),
               SizedBox(width: ScallingConfig.scale(20)),
               CustomInputField(
+                controller: _timeController,
                 hintText: "Time",
                 borderRadius: 0,
                 hintStyle: TextStyle(
@@ -197,6 +290,7 @@ class FillLabForm extends StatelessWidget {
           ),
           SizedBox(height: ScallingConfig.scale(15)),
           CustomInputField(
+            controller: _phoneController,
             hintText: "Phone Number",
             borderRadius: 0,
             hintStyle: TextStyle(
@@ -211,19 +305,28 @@ class FillLabForm extends StatelessWidget {
                 width: 1.5,
               ),
             ),
+            keyboardType: TextInputType.phone,
           ),
-          CustomCheckBox(
-            text: "Home Sample Available",
-            width: Utils.windowWidth(context) * 0.9,
+          InkWell(
+            onTap: () => setState(() => _homeSample = !_homeSample),
+            child: Row(
+              children: [
+                SizedBox(width: Utils.windowWidth(context) * 0.05),
+                Checkbox(
+                  value: _homeSample, 
+                  onChanged: (v) => setState(() => _homeSample = v ?? false),
+                  activeColor: AppColors.primaryColor,
+                ),
+                const CustomText(text: "Home Sample Available", fontSize: 13),
+              ],
+            ),
           ),
           SizedBox(height: ScallingConfig.scale(20)),
           CustomButton(
             label: "Book Now",
             width: Utils.windowWidth(context) * 0.9,
             borderRadius: 35,
-            onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const REceiptScreen()));
-            },
+            onPressed: _bookNow,
           )
         ],
       ),
@@ -257,7 +360,7 @@ class FillLabForm extends StatelessWidget {
                   children: [
                     Icon(Icons.security_rounded, color: Colors.green, size: 18),
                     SizedBox(width: 8),
-                    const CustomText(text: "Secure Checkout", fontSize: 13, color: Colors.grey),
+                    CustomText(text: "Secure Checkout", fontSize: 13, color: Colors.grey),
                   ],
                 ),
               ],
@@ -287,35 +390,27 @@ class FillLabForm extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const CustomText(
-                        text: "Test Names",
+                        text: "Selected Tests",
                         fontSize: 22,
                         fontWeight: FontWeight.w900,
                       ),
                       const SizedBox(height: 20),
-                      Row(
-                        children: [
-                          const Expanded(child: ScheduledTest()),
-                          const SizedBox(width: 20),
-                          CustomText(
-                            text: "Rs. 3000",
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryColor,
+                      ... (widget.selectedTests ?? ["Complete Blood Count (CBC)"]).map((test) => 
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Row(
+                            children: [
+                              Expanded(child: ScheduledTest(name: test)),
+                              const SizedBox(width: 20),
+                              CustomText(
+                                text: "Rs. 3000",
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primaryColor,
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          const Expanded(child: ScheduledTest()),
-                          const SizedBox(width: 20),
-                          CustomText(
-                            text: "Rs. 3000",
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.primaryColor,
-                          ),
-                        ],
+                        )
                       ),
                       const SizedBox(height: 48),
                       const Divider(height: 1, color: Color(0xFFF1F5F9)),
@@ -335,31 +430,43 @@ class FillLabForm extends StatelessWidget {
                       const SizedBox(height: 40),
                       Row(
                         children: [
-                          Expanded(child: _buildWebInputField("Name", "Enter your name", Icons.person_outline_rounded)),
+                          Expanded(child: _buildWebInputField("Your Name", "Enter your name", Icons.person_outline_rounded, _nameController)),
                           const SizedBox(width: 24),
-                          Expanded(child: _buildWebInputField("Patient Name", "Enter patient name", Icons.people_outline_rounded)),
+                          Expanded(child: _buildWebInputField("Patient Name", "Enter patient name", Icons.people_outline_rounded, _patientNameController)),
                         ],
                       ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(child: _buildWebInputField("Location", "Enter sample location", Icons.location_on_outlined)),
+                          Expanded(child: _buildWebInputField("Location", "Enter sample location", Icons.location_on_outlined, _locationController)),
                           const SizedBox(width: 24),
-                          Expanded(child: _buildWebInputField("Age", "Enter patient age", Icons.calendar_today_rounded)),
+                          Expanded(child: _buildWebInputField("Age", "Enter patient age", Icons.calendar_today_rounded, _ageController)),
                         ],
                       ),
                       const SizedBox(height: 24),
                       Row(
                         children: [
-                          Expanded(child: _buildWebInputField("Date", "Select Date", Icons.calendar_month_rounded)),
+                          Expanded(child: _buildWebInputField("Date", "Select Date", Icons.calendar_month_rounded, _dateController)),
                           const SizedBox(width: 24),
-                          Expanded(child: _buildWebInputField("Time", "Select Time", Icons.access_time_rounded)),
+                          Expanded(child: _buildWebInputField("Time", "Select Time", Icons.access_time_rounded, _timeController)),
                         ],
                       ),
                       const SizedBox(height: 24),
-                      _buildWebInputField("Phone Number", "Enter phone number", Icons.phone_outlined),
+                      _buildWebInputField("Phone Number", "Enter phone number", Icons.phone_outlined, _phoneController),
                       const SizedBox(height: 40),
-                      const CustomCheckBox(text: "Home Sample Available", width: double.infinity),
+                      InkWell(
+                        onTap: () => setState(() => _homeSample = !_homeSample),
+                        child: Row(
+                          children: [
+                            Checkbox(
+                              value: _homeSample, 
+                              onChanged: (v) => setState(() => _homeSample = v ?? false),
+                              activeColor: AppColors.primaryColor,
+                            ),
+                            const CustomText(text: "Home Sample Available", fontSize: 15),
+                          ],
+                        ),
+                      ),
                       const SizedBox(height: 60),
                       
                       SizedBox(
@@ -368,9 +475,7 @@ class FillLabForm extends StatelessWidget {
                           height: 60,
                           borderRadius: 16,
                           label: "Book Now",
-                          onPressed: () {
-                            Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const REceiptScreen()));
-                          },
+                          onPressed: _bookNow,
                         ),
                       ),
                     ],
@@ -384,7 +489,7 @@ class FillLabForm extends StatelessWidget {
     );
   }
 
-  Widget _buildWebInputField(String label, String hint, IconData icon) {
+  Widget _buildWebInputField(String label, String hint, IconData icon, TextEditingController controller) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,6 +509,7 @@ class FillLabForm extends StatelessWidget {
             border: Border.all(color: const Color(0xFFE2E8F0)),
           ),
           child: TextField(
+            controller: controller,
             decoration: InputDecoration(
               icon: Icon(icon, size: 20, color: const Color(0xFF94A3B8)),
               hintText: hint,
@@ -417,9 +523,9 @@ class FillLabForm extends StatelessWidget {
   }
 }
 
-
 class ScheduledTest extends StatelessWidget {
-  const ScheduledTest({super.key});
+  final String name;
+  const ScheduledTest({super.key, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -433,7 +539,7 @@ class ScheduledTest extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
       ),
       child: CustomText(
-        text: "Complete Blood Count (CBC)",
+        text: name,
         color: AppColors.white,
         fontFamily: "Gilroy-SemiBold",
         fontSize: 12,

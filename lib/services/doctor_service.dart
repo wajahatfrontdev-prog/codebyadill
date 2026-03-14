@@ -6,16 +6,31 @@ class DoctorService {
 
   Future<Map<String, dynamic>> getAllDoctors() async {
     try {
+      print('🔍 Fetching doctors from API...');
       final response = await _apiService.get('/doctors/get_all_doctors');
+      
+      print('📡 Response status: ${response.statusCode}');
+      print('📡 Response data type: ${response.data.runtimeType}');
+      print('📡 Response data: ${response.data}');
 
       if (response.statusCode == 200) {
-        return {'success': true, 'doctors': response.data['doctors']};
+        final doctors = response.data['doctors'];
+        print('✅ Doctors data: $doctors');
+        return {'success': true, 'doctors': doctors};
       }
       return {'success': false, 'message': 'Failed to fetch doctors'};
     } on DioException catch (e) {
+      print('❌ DioException: ${e.message}');
+      print('❌ Response: ${e.response?.data}');
       return {
         'success': false,
         'message': e.response?.data['message'] ?? 'Network error'
+      };
+    } catch (e) {
+      print('❌ Unexpected error: $e');
+      return {
+        'success': false,
+        'message': 'Unexpected error: $e'
       };
     }
   }

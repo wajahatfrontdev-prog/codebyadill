@@ -10,12 +10,32 @@ import 'package:icare/widgets/custom_text.dart';
 import 'package:icare/widgets/svg_wrapper.dart';
 import 'package:icare/widgets/custom_check_box.dart';
 
-class LabDetails extends StatelessWidget {
-  const LabDetails({super.key});
+class LabDetails extends StatefulWidget {
+  const LabDetails({super.key, this.labData});
+  final Map<String, dynamic>? labData;
+
+  @override
+  State<LabDetails> createState() => _LabDetailsState();
+}
+
+class _LabDetailsState extends State<LabDetails> {
+  final List<String> _selectedTests = [];
 
   @override
   Widget build(BuildContext context) {
     final bool isDesktop = ResponsiveHelper.isDesktop(context);
+    final labData = widget.labData;
+    
+    final String name = (labData?['labName'] is String) ? (labData?['labName'] as String) : ((labData?['name'] is String) ? (labData?['name'] as String) : "Quantum Spar Lab");
+    final String address = (labData?['address'] is String) ? (labData?['address'] as String) : ((labData?['location'] is String) ? (labData?['location'] as String) : "4915 Muller Radial, 84904, USA");
+    final String open = (labData?['open'] is String) ? (labData?['open'] as String) : "Open at 9:00am";
+    final String desc = (labData?['description'] is String) ? (labData?['description'] as String) : ((labData?['desc'] is String) ? (labData?['desc'] as String) : "Our laboratory combines advanced diagnostic technology with the expertise of highly qualified professionals, ensuring every test is conducted with precision, accuracy, and reliability to support better healthcare outcomes.");
+    final String image = (labData?['image'] is String) ? (labData?['image'] as String) : ImagePaths.lab3;
+
+    // Get dynamic tests if available, otherwise use defaults
+    final List<String> availableTests = (labData?['tests'] is List) 
+        ? (labData?['tests'] as List).cast<String>() 
+        : ["Complete Blood Count (CBC)", "Blood Sugar (Fasting / Random)", "Liver Function Test (LFT)", "Kidney Profile (KFT)"];
 
     return Scaffold(
       appBar: isDesktop
@@ -25,11 +45,13 @@ class LabDetails extends StatelessWidget {
               leading: const CustomBackButton(),
               title: const CustomText(text: "Lab Details"),
             ),
-      body: isDesktop ? _buildWebLayout(context) : _buildMobileLayout(context),
+      body: isDesktop 
+          ? _buildWebLayout(context, name, address, open, desc, image, availableTests) 
+          : _buildMobileLayout(context, name, address, open, desc, image, availableTests),
     );
   }
 
-  Widget _buildMobileLayout(BuildContext context) {
+  Widget _buildMobileLayout(BuildContext context, String name, String address, String open, String desc, String image, List<String> availableTests) {
     return SingleChildScrollView(
       child: Center(
         child: Column(
@@ -37,17 +59,25 @@ class LabDetails extends StatelessWidget {
             ClipRRect(
               clipBehavior: Clip.hardEdge,
               borderRadius: BorderRadius.circular(20),
-              child: Image.asset(
-                ImagePaths.lab3,
-                fit: BoxFit.cover,
-                width: Utils.windowWidth(context) * 0.9,
-                height: Utils.windowWidth(context) * 0.5,
-              ),
+              child: image.startsWith('assets') 
+                ? Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  width: Utils.windowWidth(context) * 0.9,
+                  height: Utils.windowWidth(context) * 0.5,
+                )
+                : Image.network(
+                  image,
+                  fit: BoxFit.cover,
+                  width: Utils.windowWidth(context) * 0.9,
+                  height: Utils.windowWidth(context) * 0.5,
+                  errorBuilder: (context, error, stackTrace) => Image.asset(ImagePaths.lab3, fit: BoxFit.cover),
+                ),
             ),
             SizedBox(height: ScallingConfig.scale(20)),
             CustomText(
               width: Utils.windowWidth(context) * 0.9,
-              text: "Quantum Spar Lab",
+              text: name,
               fontFamily: 'Gilroy-Bold',
               fontSize: 14.78,
               color: AppColors.themeDarkGrey,
@@ -55,7 +85,7 @@ class LabDetails extends StatelessWidget {
             SizedBox(height: ScallingConfig.scale(10)),
             CustomText(
               width: Utils.windowWidth(context) * 0.9,
-              text: "Our laboratory combines advanced diagnostic technology with the expertise of highly qualified professionals, ensuring every test is conducted with precision, accuracy, and reliability to support better healthcare outcomes.",
+              text: desc,
               fontFamily: 'Gilroy-SemiBold',
               maxLines: 10,
               fontSize: 10.88,
@@ -94,8 +124,8 @@ class LabDetails extends StatelessWidget {
                     height: ScallingConfig.scale(15),
                   ),
                   SizedBox(width: ScallingConfig.scale(8)),
-                  const CustomText(
-                    text: "4915 Muller Radial, 84904, USA",
+                  CustomText(
+                    text: address,
                     fontFamily: "Gilroy-SemiBold",
                     fontSize: 14,
                     color: AppColors.tertiaryColor,
@@ -115,8 +145,8 @@ class LabDetails extends StatelessWidget {
                     height: ScallingConfig.scale(15),
                   ),
                   SizedBox(width: ScallingConfig.scale(8)),
-                  const CustomText(
-                    text: "Open at 9:00am",
+                  CustomText(
+                    text: open,
                     fontFamily: "Gilroy-SemiBold",
                     fontSize: 14,
                     color: AppColors.tertiaryColor,
@@ -132,16 +162,55 @@ class LabDetails extends StatelessWidget {
               fontSize: 14,
               color: AppColors.themeDarkGrey,
             ),
-            CustomCheckBox(text: "1. Complete Blood Count (CBC", width: Utils.windowWidth(context) * 0.9),
-            CustomCheckBox(text: "2. Blood Sugar (Fasting / Random)", width: Utils.windowWidth(context) * 0.9),
-            CustomCheckBox(text: "3. Liver Function Test (LFT)", width: Utils.windowWidth(context) * 0.9),
+            ...availableTests.asMap().entries.map((entry) {
+              final i = entry.key;
+              final testName = entry.value;
+              return Padding(
+                padding: EdgeInsets.symmetric(vertical: 4),
+                child: Row(
+                  children: [
+                    SizedBox(width: Utils.windowWidth(context) * 0.05),
+                    Checkbox(
+                      value: _selectedTests.contains(testName),
+                      onChanged: (val) {
+                        setState(() {
+                          if (val == true) {
+                            _selectedTests.add(testName);
+                          } else {
+                            _selectedTests.remove(testName);
+                          }
+                        });
+                      },
+                      activeColor: AppColors.primaryColor,
+                    ),
+                    Expanded(
+                      child: CustomText(
+                        text: "${i + 1}. $testName",
+                        fontSize: 13,
+                        color: AppColors.themeDarkGrey,
+                      ),
+                    ),
+                    SizedBox(width: Utils.windowWidth(context) * 0.05),
+                  ],
+                ),
+              );
+            }).toList(),
             SizedBox(height: ScallingConfig.scale(12)),
             CustomButton(
               width: Utils.windowWidth(context) * 0.9,
               borderRadius: 70,
               label: "Schedule Now",
               onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const FillLabForm()));
+                if (_selectedTests.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Please select at least one test")),
+                  );
+                  return;
+                }
+                Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => FillLabForm(
+                  labData: widget.labData,
+                  selectedTests: _selectedTests,
+                )));
               },
             ),
             const SizedBox(height: 20),
@@ -151,7 +220,7 @@ class LabDetails extends StatelessWidget {
     );
   }
 
-  Widget _buildWebLayout(BuildContext context) {
+  Widget _buildWebLayout(BuildContext context, String name, String address, String open, String desc, String image, List<String> availableTests) {
     return Container(
       color: const Color(0xFFF8FAFC),
       child: Column(
@@ -200,7 +269,9 @@ class LabDetails extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(32),
                                 image: DecorationImage(
-                                  image: AssetImage(ImagePaths.lab3),
+                                  image: image.startsWith('assets') 
+                                      ? AssetImage(image) as ImageProvider
+                                      : NetworkImage(image),
                                   fit: BoxFit.cover,
                                 ),
                                 boxShadow: [
@@ -222,13 +293,13 @@ class LabDetails extends StatelessWidget {
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(12),
                                       ),
-                                      child: const Row(
+                                      child: Row(
                                         children: [
-                                          Icon(Icons.star_rounded, color: Colors.amber, size: 18),
-                                          SizedBox(width: 4),
-                                          CustomText(text: "4.9", fontWeight: FontWeight.bold),
-                                          SizedBox(width: 4),
-                                          CustomText(text: "(120+ Reviews)", color: Colors.grey, fontSize: 12),
+                                          const Icon(Icons.star_rounded, color: Colors.amber, size: 18),
+                                          const SizedBox(width: 4),
+                                          CustomText(text: "${widget.labData?['rating'] ?? 4.9}", fontWeight: FontWeight.bold),
+                                          const SizedBox(width: 4),
+                                          const CustomText(text: "(120+ Reviews)", color: Colors.grey, fontSize: 12),
                                         ],
                                       ),
                                     ),
@@ -239,17 +310,17 @@ class LabDetails extends StatelessWidget {
                             const SizedBox(height: 32),
                             
                             // Lab Info Task
-                            const CustomText(
-                              text: "Quantum Spar Lab",
+                            CustomText(
+                              text: name,
                               fontSize: 32,
                               fontWeight: FontWeight.w900,
                               fontFamily: "Gilroy-Bold",
                             ),
                             const SizedBox(height: 16),
-                            const CustomText(
-                              text: "Our laboratory combines advanced diagnostic technology with the expertise of highly qualified professionals, ensuring every test is conducted with precision, accuracy, and reliability to support better healthcare outcomes. We are committed to providing world-class diagnostic services using the latest medical equipment.",
+                            CustomText(
+                              text: desc,
                               fontSize: 16,
-                              color: Color(0xFF64748B),
+                              color: const Color(0xFF64748B),
                               maxLines: 5,
                             ),
                             const SizedBox(height: 32),
@@ -257,9 +328,9 @@ class LabDetails extends StatelessWidget {
                             // Info Grid
                             Row(
                               children: [
-                                _buildInfoCard(Icons.location_on_rounded, "Address", "4915 Muller Radial, USA", Colors.blue),
+                                _buildInfoCard(Icons.location_on_rounded, "Address", address, Colors.blue),
                                 const SizedBox(width: 20),
-                                _buildInfoCard(Icons.access_time_filled_rounded, "Working Hours", "09:00 AM - 08:00 PM", Colors.orange),
+                                _buildInfoCard(Icons.access_time_filled_rounded, "Working Hours", open, Colors.orange),
                                 const SizedBox(width: 20),
                                 _buildInfoCard(Icons.home_work_rounded, "Service", "Home Sample Available", Colors.green),
                               ],
@@ -302,22 +373,18 @@ class LabDetails extends StatelessWidget {
                                 color: Colors.grey,
                               ),
                               const SizedBox(height: 24),
-                              _buildWebCheckbox("Complete Blood Count (CBC)"),
-                              _buildWebCheckbox("Blood Sugar (Fasting / Random)"),
-                              _buildWebCheckbox("Liver Function Test (LFT)"),
-                              _buildWebCheckbox("Kidney Profile (KFT)"),
-                              _buildWebCheckbox("Lipid Profile"),
+                              ...availableTests.map((t) => _buildWebCheckbox(t)).toList(),
                               const SizedBox(height: 32),
                               
                               const Divider(height: 1, color: Color(0xFFF1F5F9)),
                               const SizedBox(height: 32),
                               
-                              const Row(
+                              Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  CustomText(text: "Estimated Total", color: Color(0xFF64748B)),
+                                  const CustomText(text: "Estimated Total", color: Color(0xFF64748B)),
                                   CustomText(
-                                    text: "\$45.00",
+                                    text: "Rs. ${_selectedTests.length * 3000}",
                                     fontSize: 24,
                                     fontWeight: FontWeight.w900,
                                     color: AppColors.primaryColor,
@@ -334,7 +401,16 @@ class LabDetails extends StatelessWidget {
                                   colors: [AppColors.primaryColor, Color(0xFF1E40AF)],
                                 ),
                                 onPressed: () {
-                                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => const FillLabForm()));
+                                  if (_selectedTests.isEmpty) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text("Please select at least one test")),
+                                    );
+                                    return;
+                                  }
+                                  Navigator.of(context).push(MaterialPageRoute(builder: (ctx) => FillLabForm(
+                                    labData: widget.labData,
+                                    selectedTests: _selectedTests,
+                                  )));
                                 },
                               ),
                               const SizedBox(height: 16),
@@ -403,32 +479,47 @@ class LabDetails extends StatelessWidget {
   }
 
   Widget _buildWebCheckbox(String label) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 20,
-            height: 20,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              border: Border.all(color: const Color(0xFFCBD5E1), width: 2),
+    final bool isSelected = _selectedTests.contains(label);
+    return InkWell(
+      onTap: () {
+        setState(() {
+          if (isSelected) {
+            _selectedTests.remove(label);
+          } else {
+            _selectedTests.add(label);
+          }
+        });
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? AppColors.primaryColor.withOpacity(0.05) : const Color(0xFFF8FAFC),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: isSelected ? AppColors.primaryColor : const Color(0xFFF1F5F9)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: isSelected ? AppColors.primaryColor : const Color(0xFFCBD5E1), width: 2),
+                color: isSelected ? AppColors.primaryColor : Colors.transparent,
+              ),
+              child: isSelected ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(child: CustomText(text: label, fontSize: 14)),
-          const CustomText(text: "\$15.00", fontSize: 13, color: Colors.grey),
-        ],
+            const SizedBox(width: 12),
+            Expanded(child: CustomText(text: label, fontSize: 14, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+            const CustomText(text: "Rs. 3000", fontSize: 13, color: Colors.grey),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 
 

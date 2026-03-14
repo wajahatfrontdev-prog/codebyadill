@@ -427,7 +427,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
 
-    if (selectedRole == "lab_technician") {
+    if (selectedRole == "Laboratory") {
       if (isDesktop) {
         // ═══════════════════════════════════════════════════════════════
         // WEB LAYOUT FOR LAB TECHNICIAN
@@ -966,7 +966,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         );
       }
-    } else if (selectedRole == "patient") {
+    } else if (selectedRole == "Patient") {
       if (isDesktop) {
         content = Container(
           decoration: const BoxDecoration(color: Color(0xFFF8FAFC)),
@@ -1321,11 +1321,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         );
       }
-    } else if (selectedRole == "instructor") {
+    } else if (selectedRole == "Instructor") {
       content = const InstructorHome();
-    } else if (selectedRole == "pharmacist") {
+    } else if (selectedRole == "Pharmacy") {
       content = const PharmacyHome();
-    } else if (selectedRole == "student") {
+    } else if (selectedRole == "Student") {
       content = const StudentHome();
     }
 

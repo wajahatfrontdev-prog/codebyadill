@@ -73,42 +73,64 @@ class App extends ConsumerStatefulWidget {
 class _AppState extends ConsumerState<App> {
   Widget content = SplashScreen();
 
- @override
+  @override
   void initState() {
     super.initState();
-    loadData();
     splash();
-  
   }
 
-  void loadData() async{
-        final userWalkthrough = await SharedPref().getUserWalkthrough();
-        ref.watch(authProvider.notifier).setUserWalkthrough(userWalkthrough ?? false);
+  Future<void> loadData() async {
+    try {
+      final userWalkthrough = await SharedPref().getUserWalkthrough();
+      ref.read(authProvider.notifier).setUserWalkthrough(userWalkthrough ?? false);
 
-          print("$userWalkthrough" + ' ' + "===========>");
-        final token = await SharedPref().getToken();
-        ref.watch(authProvider.notifier).setUserToken(token!);
-
-        final userData = await SharedPref().getUserData();
-        ref.watch(commonProvider.notifier).setUserData(userData!);
-
+      print("$userWalkthrough ===========>");
+      
+      final token = await SharedPref().getToken();
+      print("🔑 Loaded token from cache: ${token != null ? '${token.substring(0, 20)}...' : 'null'}");
+      
+      if (token != null && token.isNotEmpty) {
+        ref.read(authProvider.notifier).setUserToken(token);
+        
         final userRole = await SharedPref().getUserRole();
-        ref.watch(authProvider.notifier).setUserRole(userRole!);
+        print("👤 Loaded role from cache: $userRole");
+        
+        if (userRole != null) {
+          ref.read(authProvider.notifier).setUserRole(userRole);
+        }
 
+        final userDataMap = await SharedPref().getUserData();
+        if (userDataMap != null) {
+          print("📋 Loaded user data from cache: ${userDataMap.email} - ${userDataMap.role}");
+          ref.read(authProvider.notifier).setUser(userDataMap);
+        }
+      } else {
+        print("⚠️ No token found in cache, user needs to login");
+      }
+    } catch (e) {
+      print("❌ Error loading data: $e");
+      // Clear any partial state on error
+      ref.read(authProvider.notifier).setUserLogout();
+    }
   }
 
-  void splash () async{
-    await Future.delayed(const Duration(seconds: 6));
+  void splash() async {
+    // Wait for data loading and splash delay
+    await loadData();
+    await Future.delayed(const Duration(seconds: 3));
 
-    if(!mounted) return;
+    if (!mounted) return;
 
-    final bool userWalkthrough = ref.watch(authProvider).userWalkthrough;
-    final String userRole = ref.watch(authProvider).userRole;
-    final String? token = ref.watch(authProvider).token;
-    
+    final auth = ref.read(authProvider);
     
     setState(() {
-      content = Walkthrough(); 
+      if (auth.isLoggedIn && auth.token != null) {
+        content = const TabsScreen();
+      } else if (auth.userWalkthrough) {
+        content = LoginScreen();
+      } else {
+        content = const Walkthrough();
+      }
     });
   }  
 
