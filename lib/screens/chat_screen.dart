@@ -31,7 +31,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isLoading = true;
   bool _isSending = false;
   bool _isTyping = false;
-  String? _currentUserId;
+  String _currentUserId = '';
 
   @override
   void initState() {
@@ -40,9 +40,18 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _initialize() async {
-    await _loadCurrentUser();
-    await _loadChatHistory();
-    _setupTypingListener();
+    try {
+      await _loadCurrentUser();
+      await _loadChatHistory();
+      _setupTypingListener();
+    } catch (e) {
+      print('❌ Initialization error: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> _loadCurrentUser() async {
@@ -50,14 +59,14 @@ class _ChatScreenState extends State<ChatScreen> {
       final userData = await SharedPref().getUserData();
       if (mounted) {
         setState(() {
-          _currentUserId = userData?.id;
+          _currentUserId = userData?.id ?? '';
         });
       }
     } catch (e) {
       print('❌ Error loading current user: $e');
       if (mounted) {
         setState(() {
-          _currentUserId = null;
+          _currentUserId = '';
         });
       }
     }
@@ -76,21 +85,35 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _loadChatHistory() async {
     try {
       print('🔍 Loading chat history for user: ${widget.userId}');
+      print('📝 User name: ${widget.userName}');
+      
+      if (widget.userId.isEmpty) {
+        throw Exception('User ID is empty');
+      }
+      
       final messages = await _chatService.getChatHistory(widget.userId);
       print('✅ Received ${messages.length} messages');
       
-      setState(() {
-        _messages = messages;
-        _isLoading = false;
-      });
-      _scrollToBottom();
-      await _chatService.markAsRead(widget.userId);
+      if (mounted) {
+        setState(() {
+          _messages = messages;
+          _isLoading = false;
+        });
+        _scrollToBottom();
+        // markAsRead is non-critical, don't await or let it crash chat load
+        _chatService.markAsRead(widget.userId).catchError((_) {});
+      }
     } catch (e) {
       print('❌ Error loading chat history: $e');
-      setState(() => _isLoading = false);
+      print('❌ Stack trace: ${StackTrace.current}');
       if (mounted) {
+        setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load messages: $e')),
+          SnackBar(
+            content: Text('Failed to load messages: ${e.toString()}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
+          ),
         );
       }
     }
@@ -124,7 +147,10 @@ class _ChatScreenState extends State<ChatScreen> {
       );
       
       setState(() {
-        _messages.add(result['data']);
+        final newMsg = result['data'];
+        if (newMsg != null) {
+          _messages.add(newMsg);
+        }
         _isSending = false;
       });
       _scrollToBottom();

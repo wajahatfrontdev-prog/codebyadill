@@ -1030,14 +1030,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         );
 
         if (result['success']) {
-          // Fetch user profile after registration
-          final profileResult = await _userService.getUserProfile();
+          // Set token in provider first
+          final token = result['data']['token'];
+          ref.read(authProvider.notifier).setUserToken(token);
+          
+          // Fetch user profile after registration, passing token directly
+          final profileResult = await _userService.getUserProfile(token: token);
           
           if (profileResult['success'] && mounted) {
             final userData = profileResult['user'];
             final user = app_user.User.fromJson(userData);
             ref.read(authProvider.notifier).setUser(user);
-            ref.read(authProvider.notifier).setUserToken(result['data']['token']);
             
             // Redirect based on user role
             if (user.role == 'Laboratory') {
