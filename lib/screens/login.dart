@@ -299,6 +299,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   if (val == null || val.isEmpty) {
                                     return "Please enter your password";
                                   }
+                                  if (!isLogin && val.length < 6) {
+                                    return "Password must be at least 6 characters";
+                                  }
                                   return null;
                                 },
                               ),
@@ -768,6 +771,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             validator: (val) {
                               if (val == null || val.isEmpty) {
                                 return "Please enter your password";
+                              }
+                              if (!isLogin && val.length < 6) {
+                                return "Password must be at least 6 characters";
                               }
                               return null;
                             },

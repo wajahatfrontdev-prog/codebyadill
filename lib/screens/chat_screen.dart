@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:async';
 import 'package:intl/intl.dart';
 import '../services/chat_service.dart';
 import '../utils/theme.dart';
@@ -32,6 +33,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isSending = false;
   bool _isTyping = false;
   String _currentUserId = '';
+  Timer? _pollTimer;
 
   @override
   void initState() {
@@ -44,6 +46,10 @@ class _ChatScreenState extends State<ChatScreen> {
       await _loadCurrentUser();
       await _loadChatHistory();
       _setupTypingListener();
+      // Poll for new messages every 5 seconds
+      _pollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+        _loadChatHistory(silent: true);
+      });
     } catch (e) {
       print('❌ Initialization error: $e');
       if (mounted) {
@@ -82,31 +88,28 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  Future<void> _loadChatHistory() async {
+  Future<void> _loadChatHistory({bool silent = false}) async {
     try {
-      print('🔍 Loading chat history for user: ${widget.userId}');
-      print('📝 User name: ${widget.userName}');
-      
-      if (widget.userId.isEmpty) {
-        throw Exception('User ID is empty');
-      }
-      
+      if (widget.userId.isEmpty) throw Exception('User ID is empty');
+
       final messages = await _chatService.getChatHistory(widget.userId);
-      print('✅ Received ${messages.length} messages');
-      
+
       if (mounted) {
+        final prevCount = _messages.length;
         setState(() {
           _messages = messages;
-          _isLoading = false;
+          if (!silent) _isLoading = false;
         });
-        _scrollToBottom();
-        // markAsRead is non-critical, don't await or let it crash chat load
+        // Only scroll to bottom if new messages arrived
+        if (messages.length > prevCount) {
+          _scrollToBottom();
+        }
+        if (!silent) _isLoading = false;
         _chatService.markAsRead(widget.userId).catchError((_) {});
       }
     } catch (e) {
       print('❌ Error loading chat history: $e');
-      print('❌ Stack trace: ${StackTrace.current}');
-      if (mounted) {
+      if (mounted && !silent) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -490,6 +493,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    _pollTimer?.cancel();
     _messageController.dispose();
     _scrollController.dispose();
     _messageFocusNode.dispose();
