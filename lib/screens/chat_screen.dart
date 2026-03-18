@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../services/chat_service.dart';
 import '../utils/theme.dart';
 import '../utils/shared_pref.dart';
+import 'video_call.dart';
 
 class ChatScreen extends StatefulWidget {
   final String userId;
@@ -173,6 +174,12 @@ class _ChatScreenState extends State<ChatScreen> {
     await _loadChatHistory();
   }
 
+  // Creates a consistent channel name from both user IDs (sorted so both sides join same channel)
+  String _buildChannelName() {
+    final ids = [_currentUserId, widget.userId]..sort();
+    return 'call_${ids[0]}_${ids[1]}';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -228,6 +235,32 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.videocam, color: Colors.black),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => VideoCall(
+                  channelName: _buildChannelName(),
+                  remoteUserName: widget.userName,
+                  isAudioOnly: false,
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.call, color: Colors.black),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => VideoCall(
+                  channelName: _buildChannelName(),
+                  remoteUserName: widget.userName,
+                  isAudioOnly: true,
+                ),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.black),
             onPressed: _refreshMessages,

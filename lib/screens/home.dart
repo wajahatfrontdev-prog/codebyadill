@@ -734,7 +734,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                       label: "Start Video Call",
                                       color: const Color(0xFFF59E0B),
                                       onTap: () => Navigator.of(context).push(
-                                        MaterialPageRoute(builder: (ctx) => const VideoCall()),
+                                        MaterialPageRoute(builder: (ctx) => const VideoCall(
+                                          channelName: 'call_quick',
+                                          remoteUserName: 'Doctor',
+                                        )),
                                       ),
                                     ),
                                   ],
@@ -2016,7 +2019,10 @@ class DoctorConsultationCard extends StatelessWidget {
                         onPressed: () {
                           Navigator.of(
                             context,
-                          ).push(MaterialPageRoute(builder: (ctx) => VideoCall()));
+                          ).push(MaterialPageRoute(builder: (ctx) => VideoCall(
+                            channelName: 'call_join',
+                            remoteUserName: 'Doctor',
+                          )));
                         },
                       ),
                     ],
@@ -2193,7 +2199,10 @@ class DoctorConsultationCard extends StatelessWidget {
                               trailingIcon: const Icon(Icons.bolt_rounded, color: Colors.white, size: 20),
                               onPressed: () {
                                 Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (ctx) => const VideoCall()),
+                                  MaterialPageRoute(builder: (ctx) => const VideoCall(
+                                    channelName: 'call_quick',
+                                    remoteUserName: 'Doctor',
+                                  )),
                                 );
                               },
                             ),
