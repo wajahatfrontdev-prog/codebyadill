@@ -9,6 +9,7 @@ import 'package:icare/screens/doctors_list.dart';
 import 'package:icare/screens/filters.dart';
 import 'package:icare/screens/lab_filters.dart';
 import 'package:icare/screens/patient_filters.dart';
+import 'package:icare/screens/patient_dashboard.dart';
 import 'package:icare/screens/pharmacy_home.dart';
 import 'package:icare/screens/profile_edit.dart';
 import 'package:icare/screens/upcoming_appointments.dart';
@@ -1184,145 +1185,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         );
       } else {
-        content = Center(
-          child: Column(
-            children: [
-              CustomInputField(
-                width: Utils.windowWidth(context) * 0.9,
-                hintText: "Search",
-                trailingIcon: SvgWrapper(
-                  assetPath: ImagePaths.filters,
-                  onPress: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (ctx) => const PatientFiltersScreen()),
-                    );
-                  },
-                ),
-                leadingIcon: SvgWrapper(assetPath: ImagePaths.search),
-              ),
-              SizedBox(height: ScallingConfig.scale(20)),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CustomRecordCard(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (ctx) => const ActiveOrdersScreen()),
-                      );
-                    },
-                    label: "Active Orders",
-                    number: "120",
-                    icon: SvgWrapper(assetPath: ImagePaths.lab_tech),
-                  ),
-                  SizedBox(width: ScallingConfig.scale(10)),
-                  CustomRecordCard(
-                    onTap: () {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(builder: (ctx) => const CompletedReportsScreen()),
-                      );
-                    },
-                    color: AppColors.primaryColor,
-                    label: "Completed Reports",
-                    number: "32",
-                    icon: SvgWrapper(assetPath: ImagePaths.lab_tech),
-                  )
-                ],
-              ),
-              SizedBox(height: ScallingConfig.scale(15)),
-              Row(
-                children: [
-                  CustomText(
-                    text: "Todays’s Appointments",
-                    padding: const EdgeInsets.only(left: 20),
-                    isBold: true,
-                  ),
-                  CustomText(
-                    text: "(in 20 min)",
-                    padding: const EdgeInsets.only(left: 8),
-                    color: AppColors.themeRed,
-                    isBold: true,
-                  ),
-                ],
-              ),
-              const DoctorConsultationCard(),
-              SizedBox(height: ScallingConfig.scale(10)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(25.0)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    CustomText(
-                      text: "Doctors List",
-                      fontFamily: "Gilroy-Bold",
-                      fontSize: 16.78,
-                      color: AppColors.primary500,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    CustomText(
-                      text: "View All",
-                      fontFamily: "Gilroy-SemiBold",
-                      fontSize: 14.78,
-                      underline: true,
-                      onTap: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (ctx) => const DoctorsList()),
-                        );
-                      },
-                      color: AppColors.primaryColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: ScallingConfig.scale(20)),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: ScallingConfig.scale(15)),
-                child: _loadingDoctors
-                    ? const Center(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: CircularProgressIndicator(),
-                        ),
-                      )
-                    : _topDoctors.isEmpty
-                        ? Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: CustomText(
-                                text: 'No doctors available',
-                                fontSize: 14,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (_topDoctors.isNotEmpty)
-                                DoctorProfileCard(
-                                  doctor: _topDoctors[0],
-                                  width: Utils.windowWidth(context) * 0.4,
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: ScallingConfig.verticalScale(10),
-                                  ),
-                                ),
-                              if (_topDoctors.length > 1) ...[
-                                const SizedBox(width: 15),
-                                DoctorProfileCard(
-                                  doctor: _topDoctors[1],
-                                  width: Utils.windowWidth(context) * 0.4,
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: ScallingConfig.verticalScale(10),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-              ),
-              SizedBox(height: ScallingConfig.scale(80),)
-            ],
-          ),
-        );
+        content = const PatientDashboard();
       }
     } else if (selectedRole == "Instructor") {
       content = const InstructorHome();
