@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '../services/api_service.dart';
 
 // Background message handler — must be top-level function
 @pragma('vm:entry-point')
@@ -129,8 +130,14 @@ class FcmService {
   Future<String?> getAndSaveToken() async {
     final token = await getToken();
     if (token != null) {
-      print('📱 FCM Token ready to send to backend: $token');
-      // TODO: send token to backend via API when backend supports it
+      print('📱 Sending FCM token to backend...');
+      try {
+        final apiService = ApiService();
+        await apiService.post('/users/fcm-token', {'fcmToken': token});
+        print('✅ FCM token saved to backend');
+      } catch (e) {
+        print('⚠️ Could not save FCM token to backend: $e');
+      }
     }
     return token;
   }
