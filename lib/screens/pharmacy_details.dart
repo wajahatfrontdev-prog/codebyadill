@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:icare/services/cart_service.dart';
 import 'package:icare/services/pharmacy_service.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
@@ -21,16 +22,45 @@ class PharmacyDetailsScreen extends StatefulWidget {
 
 class _PharmacyDetailsScreenState extends State<PharmacyDetailsScreen> {
   final PharmacyService _pharmacyService = PharmacyService();
+  final CartService _cartService = CartService();
   final ImagePicker _picker = ImagePicker();
   List<dynamic> _medicines = [];
   bool _isLoading = true;
   String _searchQuery = '';
   XFile? _selectedPrescription;
+  final Set<String> _addingToCart = {};
 
   @override
   void initState() {
     super.initState();
     _fetchMedicines();
+  }
+
+  Future<void> _addToCart(dynamic med) async {
+    final id = med['_id']?.toString() ?? '';
+    if (id.isEmpty || _addingToCart.contains(id)) return;
+    setState(() => _addingToCart.add(id));
+    try {
+      await _cartService.addItem(id, 1);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('${med['productName']} added to cart'),
+          backgroundColor: AppColors.primaryColor,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ));
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Failed to add to cart. Please try again.'),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ));
+      }
+    } finally {
+      if (mounted) setState(() => _addingToCart.remove(id));
+    }
   }
 
   Future<void> _fetchMedicines() async {
@@ -390,6 +420,8 @@ class _PharmacyDetailsScreenState extends State<PharmacyDetailsScreen> {
   }
 
   Widget _buildMedicineCard(dynamic med) {
+    final id = med['_id']?.toString() ?? '';
+    final isAdding = _addingToCart.contains(id);
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -440,22 +472,33 @@ class _PharmacyDetailsScreenState extends State<PharmacyDetailsScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               CustomText(
-                text: "\$${med['price'] ?? 0.0}",
+                text: "Rs ${med['price'] ?? 0.0}",
                 color: AppColors.primaryColor,
                 fontWeight: FontWeight.w900,
                 fontSize: 16,
               ),
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryColor,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.add_rounded,
-                  color: Colors.white,
-                  size: 20,
+              GestureDetector(
+                onTap: isAdding ? null : () => _addToCart(med),
+                child: Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: isAdding ? Colors.grey[300] : AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: isAdding
+                      ? const Padding(
+                          padding: EdgeInsets.all(6),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.add_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
                 ),
               ),
             ],
