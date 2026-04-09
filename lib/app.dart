@@ -112,7 +112,7 @@ class _AppState extends ConsumerState<App> {
         }
       }
     } catch (e) {
-      print("❌ Error loading auth: $e");
+      debugPrint("Auth check error: $e");
       if (mounted) {
         setState(() {
           _isLoading = false;
