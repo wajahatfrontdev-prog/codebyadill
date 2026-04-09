@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class WhatsAppFloatingButton extends StatelessWidget {
-  static const String phoneNumber = '923333646229';
+  static const String phoneNumber = '923068961564';
   static const String defaultMessage =
       'Hello! I would like to inquire about your services.';
 
