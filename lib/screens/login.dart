@@ -1089,45 +1089,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 ..._buildDynamicFields(isMobile: true),
                               ] else ...[
-                                // Banking-style: tapping email/password triggers biometric if enabled
-                                if (_biometricEnabled)
-                                  GestureDetector(
-                                    onTap: _triggerBiometricLogin,
-                                    child: AbsorbPointer(
-                                      child: _buildMobileField(
-                                        "Username or Email",
-                                        Icons.person_outline,
-                                        usernameController,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  _buildMobileField(
-                                    "Username or Email",
-                                    Icons.person_outline,
-                                    usernameController,
-                                  ),
+                                _buildMobileField(
+                                  "Username or Email",
+                                  Icons.person_outline,
+                                  usernameController,
+                                ),
                               ],
                               const SizedBox(height: 5),
-                              if (_biometricEnabled && isLogin)
-                                GestureDetector(
-                                  onTap: _triggerBiometricLogin,
-                                  child: AbsorbPointer(
-                                    child: _buildMobileField(
-                                      "Enter Your Password",
-                                      Icons.key,
-                                      passwordController,
-                                      isPassword: true,
-                                    ),
-                                  ),
-                                )
-                              else
-                                _buildMobileField(
-                                  "Enter Your Password",
-                                  Icons.key,
-                                  passwordController,
-                                  isPassword: true,
-                                ),
+                              _buildMobileField(
+                                "Enter Your Password",
+                                Icons.key,
+                                passwordController,
+                                isPassword: true,
+                              ),
                               if (!isLogin) ...[
                                 const SizedBox(height: 5),
                                 _buildMobileField(
