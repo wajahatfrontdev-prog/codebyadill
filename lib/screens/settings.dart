@@ -14,6 +14,7 @@ import 'package:icare/screens/terms_and_conditions.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/services/security_service.dart';
+import 'package:icare/services/biometric_service.dart';
 import 'package:icare/widgets/app_modals.dart';
 import 'package:icare/widgets/back_button.dart';
 import 'package:icare/widgets/custom_button.dart';
@@ -28,13 +29,21 @@ class SettingsScreen extends ConsumerStatefulWidget {
 
 class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   final SecurityService _securityService = SecurityService();
+  final BiometricService _biometricService = BiometricService();
   bool _is2FAEnabled = false;
-  bool _isBiometricEnabled = true;
+  bool _isBiometricEnabled = false;
+  bool _biometricAvailable = false;
 
   @override
   void initState() {
     super.initState();
-    // In a real app, fetch initial states from backend/local storage
+    _loadBiometricState();
+  }
+
+  Future<void> _loadBiometricState() async {
+    final available = await _biometricService.isAvailable();
+    final enabled = await _biometricService.isEnabled();
+    if (mounted) setState(() { _biometricAvailable = available; _isBiometricEnabled = enabled; });
   }
 
   Future<void> _toggle2FA(bool value) async {
@@ -119,13 +128,26 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   }
 
   Future<void> _toggleBiometrics(bool value) async {
-    try {
-      await _securityService.updateBiometricPreference(value);
-      setState(() => _isBiometricEnabled = value);
-    } catch (e) {
+    if (!_biometricAvailable) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update Biometrics: $e')),
+        const SnackBar(content: Text('Biometric authentication not available on this device')),
       );
+      return;
+    }
+    if (value) {
+      final success = await _biometricService.authenticate(
+        reason: 'Verify your identity to enable biometric login',
+      );
+      if (success) {
+        await _biometricService.enable();
+        if (mounted) setState(() => _isBiometricEnabled = true);
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Biometric login enabled'), backgroundColor: Color(0xFF10B981)),
+        );
+      }
+    } else {
+      await _biometricService.disable();
+      if (mounted) setState(() => _isBiometricEnabled = false);
     }
   }
 

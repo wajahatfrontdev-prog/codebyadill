@@ -10,9 +10,11 @@ import 'package:icare/screens/lab_profile_setup.dart';
 import 'package:icare/screens/pharmacy_profile_setup.dart';
 import 'package:icare/screens/student_profile_setup.dart';
 import 'package:icare/services/auth_service.dart';
+import 'package:icare/services/biometric_service.dart';
 import 'package:icare/services/user_service.dart';
 import 'package:icare/models/user.dart' as app_user;
 import 'package:icare/utils/imagePaths.dart';
+import 'package:icare/utils/shared_pref.dart';
 import 'package:icare/utils/theme.dart';
 import 'package:icare/utils/utils.dart';
 import 'package:icare/widgets/custom_text.dart';
@@ -43,9 +45,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
   final AuthService _authService = AuthService();
   final UserService _userService = UserService();
+  final BiometricService _biometricService = BiometricService();
   bool rememberMe = false;
   bool isLogin = true;
   bool isLoading = false;
+  bool _biometricAvailable = false;
+  bool _biometricEnabled = false;
   String selectedSignupRole = 'Patient';
 
   @override
@@ -66,6 +71,95 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
     _logoController.forward();
     _checkExistingRole();
+    _initBiometric();
+  }
+
+  Future<void> _initBiometric() async {
+    final available = await _biometricService.isAvailable();
+    final enabled = await _biometricService.isEnabled();
+    if (mounted) setState(() { _biometricAvailable = available; _biometricEnabled = enabled; });
+    // Auto-prompt biometric if enabled and user has a saved token
+    if (available && enabled) {
+      final token = await SharedPref().getToken();
+      if (token != null && token.isNotEmpty) {
+        await Future.delayed(const Duration(milliseconds: 600));
+        _triggerBiometricLogin();
+      }
+    }
+  }
+
+  Future<void> _triggerBiometricLogin() async {
+    final label = await _biometricService.getBiometricLabel();
+    final success = await _biometricService.authenticate(
+      reason: 'Use $label to sign in to iCare',
+    );
+    if (!mounted) return;
+    if (!success) {
+      // User cancelled — just let them type manually, no error needed
+      return;
+    }
+    // Token already stored — just load profile and navigate
+    final token = await SharedPref().getToken();
+    if (token == null || token.isEmpty) {
+      // Token expired — ask user to login with password
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Session expired. Please login with your password.'),
+        backgroundColor: Colors.orange,
+        behavior: SnackBarBehavior.floating,
+      ));
+      return;
+    }
+    setState(() => isLoading = true);
+    ref.read(authProvider.notifier).setUserToken(token);
+    final profileResult = await _userService.getUserProfile(token: token);
+    if (profileResult['success'] && mounted) {
+      final user = app_user.User.fromJson(profileResult['user']);
+      ref.read(authProvider.notifier).setUser(user);
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const TabsScreen()),
+      );
+    } else {
+      if (mounted) setState(() => isLoading = false);
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Could not load profile. Please login with password.'),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ));
+    }
+  }
+
+  Future<void> _offerBiometricEnrollment() async {
+    if (!_biometricAvailable || _biometricEnabled) return;
+    final label = await _biometricService.getBiometricLabel();
+    if (!mounted) return;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(children: [
+          Icon(Icons.fingerprint_rounded, color: AppColors.primaryColor, size: 28),
+          const SizedBox(width: 10),
+          Expanded(child: Text('Enable $label Login')),
+        ]),
+        content: Text('Sign in faster next time using $label instead of your password.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Not Now'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await _biometricService.enable();
+              if (mounted) setState(() => _biometricEnabled = true);
+              if (mounted) Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryColor, foregroundColor: Colors.white),
+            child: Text('Enable $label'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -995,19 +1089,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ),
                                 ..._buildDynamicFields(isMobile: true),
                               ] else ...[
-                                _buildMobileField(
-                                  "Username or Email",
-                                  Icons.person_outline,
-                                  usernameController,
-                                ),
+                                // Banking-style: tapping email/password triggers biometric if enabled
+                                if (_biometricEnabled)
+                                  GestureDetector(
+                                    onTap: _triggerBiometricLogin,
+                                    child: AbsorbPointer(
+                                      child: _buildMobileField(
+                                        "Username or Email",
+                                        Icons.person_outline,
+                                        usernameController,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  _buildMobileField(
+                                    "Username or Email",
+                                    Icons.person_outline,
+                                    usernameController,
+                                  ),
                               ],
                               const SizedBox(height: 5),
-                              _buildMobileField(
-                                "Enter Your Password",
-                                Icons.key,
-                                passwordController,
-                                isPassword: true,
-                              ),
+                              if (_biometricEnabled && isLogin)
+                                GestureDetector(
+                                  onTap: _triggerBiometricLogin,
+                                  child: AbsorbPointer(
+                                    child: _buildMobileField(
+                                      "Enter Your Password",
+                                      Icons.key,
+                                      passwordController,
+                                      isPassword: true,
+                                    ),
+                                  ),
+                                )
+                              else
+                                _buildMobileField(
+                                  "Enter Your Password",
+                                  Icons.key,
+                                  passwordController,
+                                  isPassword: true,
+                                ),
                               if (!isLogin) ...[
                                 const SizedBox(height: 5),
                                 _buildMobileField(
@@ -1020,6 +1140,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               if (isLogin) _buildRememberForgotRow(),
                               const SizedBox(height: 20),
                               _buildSubmitButton(),
+                              if (isLogin && _biometricEnabled)
+                                _buildBiometricButton(),
                               if (isLogin) _buildMobileSocialRow(),
                             ],
                           ),
@@ -1131,6 +1253,36 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildBiometricButton() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: GestureDetector(
+        onTap: isLoading ? null : _triggerBiometricLogin,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.primaryColor.withOpacity(0.4)),
+            borderRadius: BorderRadius.circular(30),
+            color: AppColors.primaryColor.withOpacity(0.05),
+          ),
+          child: isLoading
+              ? const Center(child: SizedBox(height: 20, width: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2)))
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.fingerprint_rounded, color: AppColors.primaryColor, size: 26),
+                    const SizedBox(width: 10),
+                    Text('Sign in with Biometric',
+                        style: TextStyle(color: AppColors.primaryColor, fontWeight: FontWeight.w600, fontSize: 15)),
+                  ],
+                ),
+        ),
+      ),
     );
   }
 
@@ -1281,7 +1433,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             final user = app_user.User.fromJson(profileResult['user']);
             ref.read(authProvider.notifier).setUser(user);
             ref.read(authProvider.notifier).setUserToken(token);
-            Navigator.of(context).pushReplacement(
+            await _offerBiometricEnrollment();
+            if (mounted) Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (ctx) => const TabsScreen()),
             );
           } else {

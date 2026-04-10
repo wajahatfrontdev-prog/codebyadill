@@ -198,6 +198,16 @@ class CustomDrawer extends ConsumerWidget {
             context,
           ).push(MaterialPageRoute(builder: (ctx) => const Courses()));
         }),
+        _drawerItem('Help & Support', Icons.help_outline_rounded, () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (ctx) => const HelpAndSupport()));
+        }),
+        _drawerItem('Settings', Icons.settings_rounded, () {
+          Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (ctx) => const SettingsScreen()));
+        }),
       ];
     } else if (selectedRole == "Doctor") {
       drawerItems = [
