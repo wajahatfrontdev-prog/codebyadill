@@ -10,6 +10,9 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',Arial,sans-serif;
   color:#1a1a2e;background:#fff;
   -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 :root{
   --blue:#0036BC;--sky:#14B1FF;--red:#E8001D;
@@ -228,7 +231,7 @@ nav{
 .pb-btn{background:rgba(255,255,255,.22);border-radius:6px;height:24px;margin-top:4px;}
 
 /* FOOTER */
-footer{background:#0a1a4a;color:#ccc;padding:44px 80px 24px;}
+footer{background:#0a1a4a;color:#ccc;padding:44px 80px 24px;margin-top:auto;}
 .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:44px;margin-bottom:36px;}
 .footer-brand{font-size:22px;font-weight:800;color:#fff;margin-bottom:13px;}
 .footer-brand span{color:var(--sky);}
@@ -399,151 +402,7 @@ footer{background:#0a1a4a;color:#ccc;padding:44px 80px 24px;}
   <div class="slider-dots" id="sliderDots"></div>
 </div>
 
-<!-- SPECIALTIES -->
-<div class="section">
-  <div class="section-header">
-    <h2>Browse by Specialty</h2>
-    <p>Find the right specialist for your health needs</p>
-  </div>
-  <div class="spec-grid">
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/3063/3063176.png" alt=""></div><h4>Cardiologist</h4><p>Heart &amp; Vascular</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/3063/3063246.png" alt=""></div><h4>Neurologist</h4><p>Brain &amp; Nerves</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/2913/2913570.png" alt=""></div><h4>Orthopedic</h4><p>Bones &amp; Joints</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/3774/3774278.png" alt=""></div><h4>Pediatrician</h4><p>Child Specialist</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/2913/2913464.png" alt=""></div><h4>Dentist</h4><p>Oral &amp; Dental</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/3063/3063181.png" alt=""></div><h4>Eye Specialist</h4><p>Ophthalmology</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/3063/3063201.png" alt=""></div><h4>Pulmonologist</h4><p>Lungs &amp; Chest</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/2913/2913397.png" alt=""></div><h4>Dermatologist</h4><p>Skin &amp; Hair</p></div>
-    <div class="spec-card"><div class="spec-icon"><img src="https://cdn-icons-png.flaticon.com/512/4128/4128176.png" alt=""></div><h4>Gynecologist</h4><p>Women's Health</p></div>
-    <div class="spec-card view-all"><div class="spec-icon" style="background:#d0eeff;"><img src="https://cdn-icons-png.flaticon.com/512/709/709612.png" alt=""></div><h4>View All</h4><p>50+ Specialties</p></div>
-  </div>
-</div>
 
-<!-- CONSULT ONLINE -->
-<div class="consult-section">
-  <div class="section-header">
-    <h2>Consult Online</h2>
-    <p>Talk to verified doctors within minutes from the comfort of your home</p>
-  </div>
-  <div class="slider-outer">
-    <button class="slider-btn prev" id="prevBtn">&#8592;</button>
-    <div class="slider-viewport">
-      <div class="slider-track" id="sliderTrack">
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr. Ahmed Khan"></div>
-          <div class="doc-name">Dr. Ahmed Khan</div><div class="doc-spec">Cardiologist</div>
-          <div class="doc-exp">15 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="rating-val">4.9 (342)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 1,200</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Dr. Sara Malik"></div>
-          <div class="doc-name">Dr. Sara Malik</div><div class="doc-spec">Gynecologist</div>
-          <div class="doc-exp">12 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="rating-val">4.8 (289)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 1,000</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/men/45.jpg" alt="Dr. Bilal Ahmed"></div>
-          <div class="doc-name">Dr. Bilal Ahmed</div><div class="doc-spec">Neurologist</div>
-          <div class="doc-exp">10 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span><span class="rating-val">4.7 (198)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 1,500</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Dr. Hina Raza"></div>
-          <div class="doc-name">Dr. Hina Raza</div><div class="doc-spec">Dermatologist</div>
-          <div class="doc-exp">8 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="rating-val">4.9 (412)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 900</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/men/52.jpg" alt="Dr. Usman Ali"></div>
-          <div class="doc-name">Dr. Usman Ali</div><div class="doc-spec">Pediatrician</div>
-          <div class="doc-exp">14 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="rating-val">4.8 (320)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 800</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/women/22.jpg" alt="Dr. Ayesha Noor"></div>
-          <div class="doc-name">Dr. Ayesha Noor</div><div class="doc-spec">Psychiatrist</div>
-          <div class="doc-exp">11 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9734;</span><span class="rating-val">4.6 (175)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 1,100</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/men/78.jpg" alt="Dr. Kamran Baig"></div>
-          <div class="doc-name">Dr. Kamran Baig</div><div class="doc-spec">Orthopedic Surgeon</div>
-          <div class="doc-exp">18 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="rating-val">4.9 (511)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 1,800</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-        <div class="doc-card">
-          <div class="doc-avatar"><img src="https://randomuser.me/api/portraits/women/55.jpg" alt="Dr. Zara Sheikh"></div>
-          <div class="doc-name">Dr. Zara Sheikh</div><div class="doc-spec">ENT Specialist</div>
-          <div class="doc-exp">9 years experience</div>
-          <div class="doc-rating"><span class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="rating-val">4.8 (230)</span></div>
-          <div class="doc-fee"><span class="doc-fee-lbl">Video Fee</span><span class="doc-fee-amt">Rs. 950</span></div>
-          <button class="btn-consult">Consult Now</button>
-        </div>
-
-      </div>
-    </div>
-    <button class="slider-btn next" id="nextBtn">&#8594;</button>
-  </div>
-  <div class="slider-dots" id="sliderDots"></div>
-</div>
-
-<!-- HOW IT WORKS -->
-<div class="how-section">
-  <div class="section-header">
-    <h2>How iCare Works</h2>
-    <p>Get quality healthcare in 4 simple steps</p>
-  </div>
-  <div class="steps-grid">
-    <div class="step-card"><div class="step-num">1</div><h4>Search &amp; Select</h4><p>Find the right doctor by specialty, condition, or name</p></div>
-    <div class="step-card"><div class="step-num">2</div><h4>Book Appointment</h4><p>Choose a convenient time slot and confirm your booking</p></div>
-    <div class="step-card"><div class="step-num">3</div><h4>Video Consult</h4><p>Connect via secure HD video call with your doctor</p></div>
-    <div class="step-card"><div class="step-num">4</div><h4>Get Prescription</h4><p>Receive digital prescriptions and follow-up care plans</p></div>
-  </div>
-</div>
-
-<!-- APP BANNER -->
-<div class="app-section">
-  <div class="app-text">
-    <h2>Download the iCare App</h2>
-    <p>Get instant access to 500+ doctors, lab results,<br>prescriptions, and health records — all in one place.</p>
-    <div class="app-badges">
-      <div class="app-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-        App Store
-      </div>
-      <div class="app-badge">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M3.18 23.76c.31.17.66.2.99.09l.07-.04 11.07-6.39-2.39-2.4-9.74 8.74zm15.66-10.72L16.49 11.5l2.49-2.49 2.34 1.35c.67.39.67 1.39 0 1.78l-2.48 1.4zM3.59.54C3.27.44 2.93.46 2.62.63l-.05.03L13.95 12 3.59.54zm.22 1.28L13.2 11.15 4.15 16.64l-.06-.03-.08-.05a1 1 0 0 1-.5-.86V3.1c0-.37.21-.7.5-.87l-.2 1.19z"/></svg>
-        Google Play
-      </div>
-    </div>
-  </div>
-  <div class="app-phones">
-    <div class="phone-mock" style="height:140px;"><div class="pb f"></div><div class="pb m"></div><div class="pb s"></div><div class="pb f"></div><div class="pb-btn"></div></div>
-    <div class="phone-mock" style="height:168px;"><div class="pb m"></div><div class="pb f"></div><div class="pb s"></div><div class="pb f"></div><div class="pb m"></div><div class="pb-btn"></div></div>
-  </div>
-</div>
 
 <!-- HOW IT WORKS -->
 <div class="how-section">

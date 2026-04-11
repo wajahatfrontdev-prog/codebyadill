@@ -165,7 +165,7 @@ class PublicHome extends StatelessWidget {
                 // App Download Section
                 _AppDownloadBanner(),
 
-                const SizedBox(height: 40),
+                // Footer (no gap)
                 _Footer(),
               ],
             ),
