@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'api_service.dart';
 
 class TaskService {
@@ -11,7 +12,7 @@ class TaskService {
       );
       return response.data['tasks'];
     } catch (e) {
-      print('Error fetching tasks: $e');
+      debugPrint('Error fetching tasks: $e');
       rethrow;
     }
   }
@@ -26,7 +27,7 @@ class TaskService {
       });
       return response.data['task'];
     } catch (e) {
-      print('Error updating task status: $e');
+      debugPrint('Error updating task status: $e');
       rethrow;
     }
   }

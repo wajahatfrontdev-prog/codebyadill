@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:icare/services/api_service.dart';
 
 class InstructorService {
@@ -102,7 +103,7 @@ class InstructorService {
       );
       return response.data['courses'] as List;
     } catch (e) {
-      print('Error getting my courses: $e');
+      debugPrint('Error getting my courses: $e');
       rethrow;
     }
   }
@@ -163,7 +164,7 @@ class InstructorService {
       });
       return response.data;
     } catch (e) {
-      print('Error assigning course: $e');
+      debugPrint('Error assigning course: $e');
       rethrow;
     }
   }
@@ -181,7 +182,7 @@ class InstructorService {
       );
       return response.data['precautions'] as List;
     } catch (e) {
-      print('Error getting my precautions: $e');
+      debugPrint('Error getting my precautions: $e');
       rethrow;
     }
   }
@@ -234,7 +235,7 @@ class InstructorService {
       final response = await _apiService.get('/instructors/stats');
       return response.data['stats'] ?? {};
     } catch (e) {
-      print('Error getting stats: $e');
+      debugPrint('Error getting stats: $e');
       rethrow;
     }
   }
@@ -245,7 +246,7 @@ class InstructorService {
       final response = await _apiService.get('/instructors/assigned-learners');
       return response.data['learners'] ?? [];
     } catch (e) {
-      print('Error getting assigned learners: $e');
+      debugPrint('Error getting assigned learners: $e');
       rethrow;
     }
   }

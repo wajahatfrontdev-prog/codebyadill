@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import 'package:icare/utils/api_constants.dart';
 import 'package:icare/utils/shared_pref.dart';
@@ -15,7 +16,7 @@ class ReminderService {
       );
       return response.data['reminders'] as List;
     } on DioException catch (e) {
-      print('Error fetching reminders: ${e.message}');
+      debugPrint('Error fetching reminders: ${e.message}');
       return [];
     }
   }
@@ -42,7 +43,7 @@ class ReminderService {
         options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
     } on DioException catch (e) {
-      print('Error deleting reminder: ${e.message}');
+      debugPrint('Error deleting reminder: ${e.message}');
     }
   }
 }

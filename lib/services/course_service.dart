@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:icare/models/course.dart';
 import 'package:icare/services/api_service.dart';
 
@@ -121,7 +122,7 @@ class CourseService {
       final response = await _apiService.get('/students/courses');
       return response.data['courses'] ?? [];
     } catch (e) {
-      print('Error listing public courses: $e');
+      debugPrint('Error listing public courses: $e');
       rethrow;
     }
   }
@@ -132,7 +133,7 @@ class CourseService {
       final response = await _apiService.get('/students/courses/$courseId');
       return response.data['course'];
     } catch (e) {
-      print('Error getting course details: $e');
+      debugPrint('Error getting course details: $e');
       rethrow;
     }
   }
@@ -140,14 +141,14 @@ class CourseService {
   // Buy/Enroll in a course
   Future<Map<String, dynamic>> buyCourse(String courseId) async {
     try {
-      print('Attempting to buy course: $courseId');
+      debugPrint('Attempting to buy course: $courseId');
       final response = await _apiService.post('/students/courses/enrollments', {
         'courseId': courseId,
       });
-      print('Buy course response: ${response.data}');
+      debugPrint('Buy course response: ${response.data}');
       return response.data;
     } catch (e) {
-      print('Error buying course: $e');
+      debugPrint('Error buying course: $e');
       rethrow;
     }
   }
@@ -165,7 +166,7 @@ class CourseService {
       });
       return response.data;
     } catch (e) {
-      print('Error assigning health program: $e');
+      debugPrint('Error assigning health program: $e');
       rethrow;
     }
   }
@@ -176,7 +177,7 @@ class CourseService {
       final response = await _apiService.get('/instructor/learners');
       return response.data['learners'] ?? [];
     } catch (e) {
-      print('Error fetching assigned learners: $e');
+      debugPrint('Error fetching assigned learners: $e');
       return [];
     }
   }
@@ -189,7 +190,7 @@ class CourseService {
       );
       return response.data['items'] ?? response.data['enrollments'] ?? [];
     } catch (e) {
-      print('Error getting my purchases: $e');
+      debugPrint('Error getting my purchases: $e');
       rethrow;
     }
   }
@@ -206,7 +207,7 @@ class CourseService {
       );
       return response.data;
     } catch (e) {
-      print('Error updating progress: $e');
+      debugPrint('Error updating progress: $e');
       rethrow;
     }
   }
@@ -219,7 +220,7 @@ class CourseService {
       );
       return response.data['certificates'] ?? [];
     } catch (e) {
-      print('Error getting my certificates: $e');
+      debugPrint('Error getting my certificates: $e');
       rethrow;
     }
   }
@@ -244,7 +245,7 @@ class CourseService {
       );
       return response.data;
     } catch (e) {
-      print('Error submitting quiz result: $e');
+      debugPrint('Error submitting quiz result: $e');
       rethrow;
     }
   }
@@ -265,7 +266,7 @@ class CourseService {
       );
       return response.data['posts'] ?? [];
     } catch (e) {
-      print('Error getting forum posts: $e');
+      debugPrint('Error getting forum posts: $e');
       return [];
     }
   }
@@ -278,7 +279,7 @@ class CourseService {
       final response = await _apiService.post('/community/posts', postData);
       return response.data;
     } catch (e) {
-      print('Error creating forum post: $e');
+      debugPrint('Error creating forum post: $e');
       rethrow;
     }
   }
@@ -288,7 +289,7 @@ class CourseService {
     try {
       await _apiService.post('/community/posts/$postId/like', {});
     } catch (e) {
-      print('Error liking forum post: $e');
+      debugPrint('Error liking forum post: $e');
     }
   }
 
@@ -299,7 +300,7 @@ class CourseService {
         'content': comment,
       });
     } catch (e) {
-      print('Error adding forum comment: $e');
+      debugPrint('Error adding forum comment: $e');
       rethrow;
     }
   }

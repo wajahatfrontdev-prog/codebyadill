@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 import '../utils/shared_pref.dart';
 import 'api_config.dart';
@@ -15,7 +16,6 @@ class ApiService {
       headers: {'Content-Type': 'application/json'},
     ),
   );
-
   final SharedPref _sharedPref = SharedPref();
 
   Future<void> _setAuthToken({String? providedToken}) async {
@@ -23,20 +23,20 @@ class ApiService {
 
     if (token == null) {
       token = await _sharedPref.getToken();
-      print(
+      debugPrint(
         "🔑 ApiService: Token from SharedPref: ${token != null ? '${token.substring(0, 20)}...' : 'null'}",
       );
     } else {
-      print(
+      debugPrint(
         "🔑 ApiService: Using provided token: ${token.substring(0, 20)}...",
       );
     }
 
     if (token != null) {
       _dio.options.headers['Authorization'] = 'Bearer $token';
-      print("✅ ApiService: Authorization header set");
+      debugPrint("✅ ApiService: Authorization header set");
     } else {
-      print("⚠️ ApiService: No token found, request will be unauthorized");
+      debugPrint("⚠️ ApiService: No token found, request will be unauthorized");
     }
   }
 
