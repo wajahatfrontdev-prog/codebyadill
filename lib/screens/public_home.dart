@@ -904,7 +904,7 @@ class _SpecialtyGrid extends StatelessWidget {
       child: Wrap(
         spacing: 14,
         runSpacing: 14,
-        alignment: WrapAlignment.center,
+        alignment: isMobile ? WrapAlignment.center : WrapAlignment.center,
         children: _specialties.map((spec) {
           final isViewAll = spec['isViewAll'] == true;
           return _SpecialtyCard(
