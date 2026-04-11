@@ -176,7 +176,7 @@ class _TabsScreenState extends ConsumerState<TabsScreen> {
     } else {
       // Default to Patient dashboard
       if (currentIndex == 0) {
-        activePage = const PatientDashboard();
+        activePage = const HomeScreen();
       } else if (currentIndex == 1) {
         activePage = BookingsScreen(tabs: true);
       } else if (currentIndex == 2) {
