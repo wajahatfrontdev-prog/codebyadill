@@ -11,6 +11,7 @@ import 'package:icare/screens/pharmacy_profile_setup.dart';
 import 'package:icare/screens/student_profile_setup.dart';
 import 'package:icare/services/auth_service.dart';
 import 'package:icare/services/biometric_service.dart';
+import 'package:icare/services/google_auth_service.dart';
 import 'package:icare/services/user_service.dart';
 import 'package:icare/models/user.dart' as app_user;
 import 'package:icare/utils/imagePaths.dart';
@@ -46,6 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final AuthService _authService = AuthService();
   final UserService _userService = UserService();
   final BiometricService _biometricService = BiometricService();
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
   bool rememberMe = false;
   bool isLogin = true;
   bool isLoading = false;
@@ -951,9 +953,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                           Row(
                                             children: [
                                               Expanded(
-                                                child: _webSocialButton(
-                                                  ImagePaths.google_icon,
-                                                  "Google",
+                                                child: GestureDetector(
+                                                  onTap: _handleGoogleSignIn,
+                                                  child: _webSocialButton(
+                                                    ImagePaths.google_icon,
+                                                    "Google",
+                                                  ),
                                                 ),
                                               ),
                                               const SizedBox(width: 16),
@@ -1295,9 +1300,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _socialButton(ImagePaths.facebook_icon, "Facebook"),
+            _socialButton(ImagePaths.facebook_icon, "Facebook", onTap: null),
             const SizedBox(width: 20),
-            _socialButton(ImagePaths.google_icon, "Google"),
+            _socialButton(ImagePaths.google_icon, "Google", onTap: _handleGoogleSignIn),
           ],
         ),
       ],
@@ -1330,20 +1335,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     );
   }
 
-  Widget _socialButton(String assetPath, String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.grey.shade300),
-      ),
-      child: Row(
-        children: [
-          Image.asset(assetPath, width: 24, height: 24),
-          const SizedBox(width: 8),
-          Text(label, style: TextStyle(color: Colors.grey[700], fontSize: 12)),
-        ],
+  Widget _socialButton(String assetPath, String label, {VoidCallback? onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 13, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: Colors.grey.shade300),
+        ),
+        child: Row(
+          children: [
+            Image.asset(assetPath, width: 24, height: 24),
+            const SizedBox(width: 8),
+            Text(label, style: TextStyle(color: Colors.grey[700], fontSize: 12)),
+          ],
+        ),
       ),
     );
   }
@@ -1389,6 +1397,40 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
       ],
     );
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    setState(() => isLoading = true);
+    try {
+      final result = await _googleAuthService.signInWithGoogle();
+      if (result['success'] == true && mounted) {
+        final userData = result['user'] as Map<String, dynamic>;
+        final token = result['data']['token']?.toString() ?? '';
+        ref.read(authProvider.notifier).setUserToken(token);
+        final user = app_user.User.fromJson(userData);
+        ref.read(authProvider.notifier).setUser(user);
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const TabsScreen()),
+        );
+      } else if (mounted) {
+        final msg = result['message']?.toString() ?? 'Google sign in failed';
+        if (msg != 'Sign in cancelled') {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(msg),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+          ));
+        }
+      }
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Error: ${e.toString()}'),
+        backgroundColor: Colors.red,
+        behavior: SnackBarBehavior.floating,
+      ));
+    } finally {
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   void _handleSubmit() async {
