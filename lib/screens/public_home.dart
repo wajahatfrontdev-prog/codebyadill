@@ -122,6 +122,26 @@ class PublicHome extends StatelessWidget {
 
                 const SizedBox(height: 60),
 
+                // Consult Online Section (Doctors Slider)
+                Container(
+                  color: const Color(0xFFF4F8FF),
+                  padding: const EdgeInsets.symmetric(vertical: 60),
+                  child: _CenteredSection(
+                    child: Column(
+                      children: [
+                        _SectionHeader(
+                          title: 'Consult Online',
+                          subtitle: 'Talk to verified doctors within minutes from the comfort of your home',
+                        ),
+                        const SizedBox(height: 40),
+                        _DoctorsSlider(),
+                      ],
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 60),
+
                 // How it Works Section
                 Container(
                   color: Colors.white,
@@ -146,84 +166,6 @@ class PublicHome extends StatelessWidget {
                 _AppDownloadBanner(),
 
                 const SizedBox(height: 40),
-
-                _CenteredSection(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SectionHeader(
-                        title: 'Connect To Doctor',
-                        subtitle: 'Talk to verified doctors within minutes',
-                      ),
-                      const SizedBox(height: 16),
-                      _CardGrid(
-                        items: _doctors.map((d) => _CardData(
-                          title: d['name']!,
-                          subtitle: d['spec']!,
-                          imageUrl: d['img'],
-                          icon: Icons.person_rounded,
-                          iconColor: const Color(0xFF0036BC),
-                        )).toList(),
-                        cardWidth: 140,
-                        cardHeight: 180,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                _CenteredSection(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SectionHeader(
-                        title: 'Pharmacies',
-                        subtitle: 'Order medicines from trusted pharmacies',
-                      ),
-                      const SizedBox(height: 16),
-                      _CardGrid(
-                        items: _pharmacies.map((p) => _CardData(
-                          title: p['name']!,
-                          subtitle: p['area']!,
-                          icon: Icons.local_pharmacy_rounded,
-                          iconColor: const Color(0xFF10B981),
-                          iconBg: const Color(0xFFD1FAE5),
-                        )).toList(),
-                        cardWidth: 160,
-                        cardHeight: 120,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
-                _CenteredSection(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _SectionHeader(
-                        title: 'Laboratories',
-                        subtitle: 'Book lab tests from certified laboratories',
-                      ),
-                      const SizedBox(height: 16),
-                      _CardGrid(
-                        items: _labs.map((l) => _CardData(
-                          title: l['name']!,
-                          subtitle: l['area']!,
-                          icon: Icons.biotech_rounded,
-                          iconColor: const Color(0xFF8B5CF6),
-                          iconBg: const Color(0xFFEDE9FE),
-                        )).toList(),
-                        cardWidth: 160,
-                        cardHeight: 120,
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 60),
                 _Footer(),
               ],
             ),
@@ -573,6 +515,357 @@ class _CenteredSection extends StatelessWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
         child: child,
+      ),
+    );
+  }
+}
+
+// ── Doctors Slider ───────────────────────────────────────────────────────────
+class _DoctorsSlider extends StatefulWidget {
+  @override
+  State<_DoctorsSlider> createState() => _DoctorsSliderState();
+}
+
+class _DoctorsSliderState extends State<_DoctorsSlider> {
+  final PageController _pageController = PageController(viewportFraction: 0.25);
+  int _currentPage = 0;
+
+  static const _doctors = [
+    {'name': 'Dr. Ahmed Khan', 'spec': 'Cardiologist', 'exp': '15 years experience', 'rating': '4.9', 'reviews': '342', 'fee': 'Rs. 1,200', 'img': 'https://randomuser.me/api/portraits/men/32.jpg'},
+    {'name': 'Dr. Sara Malik', 'spec': 'Gynecologist', 'exp': '12 years experience', 'rating': '4.8', 'reviews': '289', 'fee': 'Rs. 1,000', 'img': 'https://randomuser.me/api/portraits/women/44.jpg'},
+    {'name': 'Dr. Bilal Ahmed', 'spec': 'Neurologist', 'exp': '10 years experience', 'rating': '4.7', 'reviews': '198', 'fee': 'Rs. 1,500', 'img': 'https://randomuser.me/api/portraits/men/45.jpg'},
+    {'name': 'Dr. Hina Raza', 'spec': 'Dermatologist', 'exp': '8 years experience', 'rating': '4.9', 'reviews': '412', 'fee': 'Rs. 900', 'img': 'https://randomuser.me/api/portraits/women/68.jpg'},
+    {'name': 'Dr. Usman Ali', 'spec': 'Pediatrician', 'exp': '14 years experience', 'rating': '4.8', 'reviews': '320', 'fee': 'Rs. 800', 'img': 'https://randomuser.me/api/portraits/men/52.jpg'},
+    {'name': 'Dr. Ayesha Noor', 'spec': 'Psychiatrist', 'exp': '11 years experience', 'rating': '4.6', 'reviews': '175', 'fee': 'Rs. 1,100', 'img': 'https://randomuser.me/api/portraits/women/22.jpg'},
+    {'name': 'Dr. Kamran Baig', 'spec': 'Orthopedic Surgeon', 'exp': '18 years experience', 'rating': '4.9', 'reviews': '511', 'fee': 'Rs. 1,800', 'img': 'https://randomuser.me/api/portraits/men/78.jpg'},
+    {'name': 'Dr. Zara Sheikh', 'spec': 'ENT Specialist', 'exp': '9 years experience', 'rating': '4.8', 'reviews': '230', 'fee': 'Rs. 950', 'img': 'https://randomuser.me/api/portraits/women/55.jpg'},
+  ];
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 700;
+    
+    if (isMobile) {
+      return SizedBox(
+        height: 280,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          itemCount: _doctors.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (_, i) => _DoctorCard(doctor: _doctors[i]),
+        ),
+      );
+    }
+
+    return Column(
+      children: [
+        Stack(
+          children: [
+            SizedBox(
+              height: 320,
+              child: PageView.builder(
+                controller: _pageController,
+                onPageChanged: (page) => setState(() => _currentPage = page),
+                itemCount: _doctors.length,
+                itemBuilder: (_, i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: _DoctorCard(doctor: _doctors[i]),
+                ),
+              ),
+            ),
+            Positioned(
+              left: 20,
+              top: 140,
+              child: _SliderButton(
+                icon: Icons.arrow_back,
+                onTap: () {
+                  if (_currentPage > 0) {
+                    _pageController.previousPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  }
+                },
+                enabled: _currentPage > 0,
+              ),
+            ),
+            Positioned(
+              right: 20,
+              top: 140,
+              child: _SliderButton(
+                icon: Icons.arrow_forward,
+                onTap: () {
+                  if (_currentPage < _doctors.length - 4) {
+                    _pageController.nextPage(
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeOut,
+                    );
+                  }
+                },
+                enabled: _currentPage < _doctors.length - 4,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        _SliderDots(
+          total: (_doctors.length / 4).ceil(),
+          current: (_currentPage / 4).floor(),
+        ),
+      ],
+    );
+  }
+}
+
+class _SliderButton extends StatelessWidget {
+  final IconData icon;
+  final VoidCallback onTap;
+  final bool enabled;
+
+  const _SliderButton({
+    required this.icon,
+    required this.onTap,
+    required this.enabled,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: enabled ? onTap : null,
+      child: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: enabled ? const Color(0xFF0036BC) : Colors.grey[300],
+          shape: BoxShape.circle,
+          boxShadow: enabled
+              ? [
+                  BoxShadow(
+                    color: const Color(0xFF0036BC).withOpacity(0.3),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ]
+              : null,
+        ),
+        child: Icon(
+          icon,
+          color: enabled ? Colors.white : Colors.grey[500],
+          size: 20,
+        ),
+      ),
+    );
+  }
+}
+
+class _SliderDots extends StatelessWidget {
+  final int total;
+  final int current;
+
+  const _SliderDots({required this.total, required this.current});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(total, (i) {
+        final isActive = i == current;
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 250),
+          width: isActive ? 28 : 8,
+          height: 8,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          decoration: BoxDecoration(
+            color: isActive ? const Color(0xFF0036BC) : Colors.grey[300],
+            borderRadius: BorderRadius.circular(4),
+          ),
+        );
+      }),
+    );
+  }
+}
+
+class _DoctorCard extends StatefulWidget {
+  final Map<String, String> doctor;
+
+  const _DoctorCard({required this.doctor});
+
+  @override
+  State<_DoctorCard> createState() => _DoctorCardState();
+}
+
+class _DoctorCardState extends State<_DoctorCard> {
+  bool _hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: 220,
+        padding: const EdgeInsets.all(18),
+        transform: Matrix4.identity()..translate(0.0, _hovered ? -4.0 : 0.0),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: _hovered ? const Color(0xFF14B1FF) : const Color(0xFFE8ECF5),
+            width: _hovered ? 2 : 1.5,
+          ),
+          boxShadow: [
+            if (_hovered)
+              BoxShadow(
+                color: const Color(0xFF14B1FF).withOpacity(0.15),
+                blurRadius: 28,
+                offset: const Offset(0, 8),
+              ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: const Color(0xFF14B1FF),
+                  width: 2.5,
+                ),
+              ),
+              child: ClipOval(
+                child: Image.network(
+                  widget.doctor['img']!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Container(
+                    color: const Color(0xFFE8F4FF),
+                    child: const Icon(
+                      Icons.person,
+                      size: 40,
+                      color: Color(0xFF0036BC),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              widget.doctor['name']!,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF0036BC),
+                fontFamily: 'Gilroy-Bold',
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.doctor['spec']!,
+              style: TextStyle(
+                fontSize: 11.5,
+                color: Colors.grey[600],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              widget.doctor['exp']!,
+              style: TextStyle(
+                fontSize: 10.5,
+                color: Colors.grey[500],
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.star, color: Color(0xFFF5A623), size: 14),
+                const Icon(Icons.star, color: Color(0xFFF5A623), size: 14),
+                const Icon(Icons.star, color: Color(0xFFF5A623), size: 14),
+                const Icon(Icons.star, color: Color(0xFFF5A623), size: 14),
+                Icon(
+                  double.parse(widget.doctor['rating']!) >= 4.8
+                      ? Icons.star
+                      : Icons.star_border,
+                  color: const Color(0xFFF5A623),
+                  size: 14,
+                ),
+                const SizedBox(width: 4),
+                Text(
+                  '${widget.doctor['rating']} (${widget.doctor['reviews']})',
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F9FF),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Video Fee',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  Text(
+                    widget.doctor['fee']!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      color: Color(0xFF0036BC),
+                      fontFamily: 'Gilroy-Bold',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () {},
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0036BC),
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Consult Now',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w700,
+                    fontFamily: 'Gilroy-Bold',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
