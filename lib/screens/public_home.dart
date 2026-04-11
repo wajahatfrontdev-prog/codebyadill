@@ -1663,3 +1663,72 @@ class _FooterColumn extends StatelessWidget {
     );
   }
 }
+
+/// The scrollable body content of the public home page, without the top navbar.
+/// Used on the logged-in patient home page so the layout matches the public home.
+class PublicHomeBody extends StatelessWidget {
+  const PublicHomeBody({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _Banner(),
+        const SizedBox(height: 40),
+        _CenteredSection(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _SectionHeader(
+                title: 'Browse by Specialty',
+                subtitle: 'Find the right specialist for your health needs',
+              ),
+              const SizedBox(height: 24),
+              _SpecialtyGrid(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 60),
+        Container(
+          color: const Color(0xFFF4F8FF),
+          padding: const EdgeInsets.symmetric(vertical: 60),
+          child: _CenteredSection(
+            child: Column(
+              children: [
+                _SectionHeader(
+                  title: 'Consult Online',
+                  subtitle:
+                      'Talk to verified doctors within minutes from the comfort of your home',
+                ),
+                const SizedBox(height: 40),
+                _DoctorsSlider(),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 60),
+        Container(
+          color: Colors.white,
+          padding: const EdgeInsets.symmetric(vertical: 60),
+          child: _CenteredSection(
+            child: Column(
+              children: [
+                _SectionHeader(
+                  title: 'How iCare Works',
+                  subtitle: 'Get quality healthcare in 4 simple steps',
+                ),
+                const SizedBox(height: 40),
+                _HowItWorksSteps(),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 60),
+        _AppDownloadBanner(),
+        const SizedBox(height: 40),
+        _Footer(),
+      ],
+    );
+  }
+}
