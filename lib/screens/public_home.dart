@@ -1,536 +1,533 @@
 import 'package:flutter/material.dart';
 import 'package:icare/screens/login.dart';
-import 'package:icare/screens/select_user_type.dart';
+import 'package:icare/screens/signup.dart';
+import 'package:icare/screens/work_with_us_signup.dart';
 import 'package:icare/utils/imagePaths.dart';
 import 'package:icare/utils/theme.dart';
 
 class PublicHome extends StatelessWidget {
   const PublicHome({super.key});
 
+  // ── Dummy data ──────────────────────────────────────────────────────────────
+  static const List<Map<String, String>> _doctors = [
+    {'name': 'Dr. Ahmed Khan', 'spec': 'Cardiologist', 'img': 'https://randomuser.me/api/portraits/men/32.jpg'},
+    {'name': 'Dr. Sara Malik', 'spec': 'Gynecologist', 'img': 'https://randomuser.me/api/portraits/women/44.jpg'},
+    {'name': 'Dr. Bilal Ahmed', 'spec': 'Neurologist', 'img': 'https://randomuser.me/api/portraits/men/45.jpg'},
+    {'name': 'Dr. Hina Raza', 'spec': 'Dermatologist', 'img': 'https://randomuser.me/api/portraits/women/68.jpg'},
+    {'name': 'Dr. Usman Ali', 'spec': 'Pediatrician', 'img': 'https://randomuser.me/api/portraits/men/52.jpg'},
+    {'name': 'Dr. Ayesha Noor', 'spec': 'Psychiatrist', 'img': 'https://randomuser.me/api/portraits/women/22.jpg'},
+  ];
+
+  static const List<Map<String, String>> _pharmacies = [
+    {'name': 'MedPlus Pharmacy', 'area': 'Gulshan, Karachi'},
+    {'name': 'HealthCare Pharma', 'area': 'DHA, Lahore'},
+    {'name': 'City Pharmacy', 'area': 'F-7, Islamabad'},
+    {'name': 'Al-Shifa Pharmacy', 'area': 'Saddar, Karachi'},
+    {'name': 'Cure Pharmacy', 'area': 'Model Town, Lahore'},
+    {'name': 'Wellness Pharma', 'area': 'G-11, Islamabad'},
+  ];
+
+  static const List<Map<String, String>> _labs = [
+    {'name': 'Chughtai Lab', 'area': 'Lahore'},
+    {'name': 'Essa Lab', 'area': 'Karachi'},
+    {'name': 'Excel Labs', 'area': 'Islamabad'},
+    {'name': 'Shaukat Khanum Lab', 'area': 'Lahore'},
+    {'name': 'Agha Khan Lab', 'area': 'Karachi'},
+    {'name': 'Islamabad Diagnostic', 'area': 'Islamabad'},
+  ];
+
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth >= 900;
-
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(
         slivers: [
-          // App Bar with Sign In button
+          // ── Sticky Navbar ──────────────────────────────────────────────────
           SliverAppBar(
             backgroundColor: Colors.white,
             elevation: 0,
             pinned: true,
             floating: true,
-            toolbarHeight: 80,
-            flexibleSpace: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 1920),
-                padding: EdgeInsets.symmetric(
-                  horizontal: isDesktop ? 60 : 20,
-                  vertical: 16,
-                ),
-                child: Row(
-                  children: [
-                    // Logo
-                    Row(
-                      children: [
-                        Image.asset(ImagePaths.logo, width: 45, height: 45),
-                        const SizedBox(width: 12),
-                        const Text(
-                          'iCare',
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.w900,
-                            color: AppColors.primaryColor,
-                            fontFamily: 'Gilroy-Bold',
-                            letterSpacing: 0.5,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    // Sign In Button
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
+            toolbarHeight: 72,
+            surfaceTintColor: Colors.white,
+            shadowColor: const Color(0x1A0036BC),
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                border: Border(bottom: BorderSide(color: Color(0xFFE8ECF5), width: 1)),
+              ),
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                  child: Row(
+                    children: [
+                      // Logo only — no text
+                      Image.asset(ImagePaths.logo, width: 44, height: 44),
+                      const Spacer(),
+                      // 3 buttons
+                      _NavButton(
+                        label: 'Sign In',
+                        filled: true,
+                        onTap: () => Navigator.of(context).push(
                           MaterialPageRoute(builder: (_) => const LoginScreen()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: isDesktop ? 32 : 24,
-                          vertical: isDesktop ? 16 : 12,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: Text(
-                        'Sign In',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: isDesktop ? 16 : 14,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Gilroy-Bold',
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 10),
+                      _NavButton(
+                        label: 'Sign Up',
+                        filled: false,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const SignupScreen(role: 'patient')),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      _NavButton(
+                        label: 'Work With Us',
+                        filled: false,
+                        accent: true,
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const WorkWithUsSignup()),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
 
-          // Content
           SliverToBoxAdapter(
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 1920),
-                child: Column(
-                  children: [
-                    // Hero Section
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 60 : 20,
-                        vertical: isDesktop ? 80 : 40,
-                      ),
-                      child: isDesktop ? _buildDesktopHero(context) : _buildMobileHero(context),
-                    ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // ── Banner ──────────────────────────────────────────────────
+                _Banner(),
 
-                    // Services Section
-                    Container(
-                      color: const Color(0xFFF8FAFC),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 60 : 20,
-                        vertical: isDesktop ? 80 : 40,
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Our Services',
-                            style: TextStyle(
-                              fontSize: isDesktop ? 36 : 28,
-                              fontWeight: FontWeight.w900,
-                              color: const Color(0xFF0F172A),
-                              fontFamily: 'Gilroy-Bold',
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Complete healthcare ecosystem at your fingertips',
-                            style: TextStyle(
-                              fontSize: isDesktop ? 18 : 16,
-                              color: Colors.grey[600],
-                              fontFamily: 'Gilroy-Medium',
-                            ),
-                          ),
-                          SizedBox(height: isDesktop ? 60 : 40),
-                          isDesktop
-                              ? Row(
-                                  children: [
-                                    Expanded(child: _buildServiceCard(
-                                      Icons.medical_services_rounded,
-                                      'Doctor Consultations',
-                                      'Connect with qualified doctors via video calls',
-                                      const Color(0xFF3B82F6),
-                                    )),
-                                    const SizedBox(width: 24),
-                                    Expanded(child: _buildServiceCard(
-                                      Icons.science_rounded,
-                                      'Lab Tests',
-                                      'Book lab tests and get reports online',
-                                      const Color(0xFF8B5CF6),
-                                    )),
-                                    const SizedBox(width: 24),
-                                    Expanded(child: _buildServiceCard(
-                                      Icons.local_pharmacy_rounded,
-                                      'Pharmacy',
-                                      'Order medicines with prescription',
-                                      const Color(0xFF10B981),
-                                    )),
-                                    const SizedBox(width: 24),
-                                    Expanded(child: _buildServiceCard(
-                                      Icons.school_rounded,
-                                      'Learning',
-                                      'Access health courses and programs',
-                                      const Color(0xFFF59E0B),
-                                    )),
-                                  ],
-                                )
-                              : Column(
-                                  children: [
-                                    _buildServiceCard(
-                                      Icons.medical_services_rounded,
-                                      'Doctor Consultations',
-                                      'Connect with qualified doctors via video calls',
-                                      const Color(0xFF3B82F6),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildServiceCard(
-                                      Icons.science_rounded,
-                                      'Lab Tests',
-                                      'Book lab tests and get reports online',
-                                      const Color(0xFF8B5CF6),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildServiceCard(
-                                      Icons.local_pharmacy_rounded,
-                                      'Pharmacy',
-                                      'Order medicines with prescription',
-                                      const Color(0xFF10B981),
-                                    ),
-                                    const SizedBox(height: 16),
-                                    _buildServiceCard(
-                                      Icons.school_rounded,
-                                      'Learning',
-                                      'Access health courses and programs',
-                                      const Color(0xFFF59E0B),
-                                    ),
-                                  ],
-                                ),
-                        ],
-                      ),
-                    ),
+                const SizedBox(height: 40),
 
-                    // CTA Section
-                    Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 60 : 20,
-                        vertical: isDesktop ? 80 : 40,
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Ready to get started?',
-                            style: TextStyle(
-                              fontSize: isDesktop ? 36 : 28,
-                              fontWeight: FontWeight.w900,
-                              color: const Color(0xFF0F172A),
-                              fontFamily: 'Gilroy-Bold',
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            'Join thousands of users managing their health with iCare',
-                            style: TextStyle(
-                              fontSize: isDesktop ? 18 : 16,
-                              color: Colors.grey[600],
-                              fontFamily: 'Gilroy-Medium',
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(height: isDesktop ? 40 : 32),
-                          SizedBox(
-                            width: isDesktop ? 300 : double.infinity,
-                            height: 56,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.of(context).push(
-                                  MaterialPageRoute(builder: (_) => const SelectUserType()),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                'Get Started',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w700,
-                                  fontFamily: 'Gilroy-Bold',
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                // ── Connect To Doctor carousel ───────────────────────────────
+                _SectionHeader(title: 'Connect To Doctor'),
+                const SizedBox(height: 16),
+                _DoctorCarousel(doctors: _doctors),
 
-                    // Footer
-                    Container(
-                      color: const Color(0xFF0F172A),
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isDesktop ? 60 : 20,
-                        vertical: 40,
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset(ImagePaths.logo, width: 40, height: 40),
-                              const SizedBox(width: 12),
-                              const Text(
-                                'iCare',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.w900,
-                                  color: Colors.white,
-                                  fontFamily: 'Gilroy-Bold',
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            '© 2026 iCare. All rights reserved.',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.6),
-                              fontFamily: 'Gilroy-Medium',
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+                const SizedBox(height: 40),
+
+                // ── Pharmacies carousel ──────────────────────────────────────
+                _SectionHeader(title: 'Pharmacies'),
+                const SizedBox(height: 16),
+                _PharmacyCarousel(pharmacies: _pharmacies),
+
+                const SizedBox(height: 40),
+
+                // ── Laboratories carousel ────────────────────────────────────
+                _SectionHeader(title: 'Laboratories'),
+                const SizedBox(height: 16),
+                _LabCarousel(labs: _labs),
+
+                const SizedBox(height: 60),
+
+                // ── Footer ───────────────────────────────────────────────────
+                _Footer(),
+              ],
             ),
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _buildDesktopHero(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+// ── Navbar Button ─────────────────────────────────────────────────────────────
+class _NavButton extends StatelessWidget {
+  final String label;
+  final bool filled;
+  final bool accent;
+  final VoidCallback onTap;
+
+  const _NavButton({
+    required this.label,
+    required this.filled,
+    required this.onTap,
+    this.accent = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+    if (isMobile && label == 'Work With Us') {
+      // On mobile show compact icon button
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFF10B981).withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: const Color(0xFF10B981), width: 1.5),
+          ),
+          child: const Icon(Icons.work_outline_rounded, color: Color(0xFF10B981), size: 18),
+        ),
+      );
+    }
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: isMobile ? 12 : 20,
+          vertical: isMobile ? 8 : 10,
+        ),
+        decoration: BoxDecoration(
+          color: filled
+              ? AppColors.primaryColor
+              : accent
+                  ? const Color(0xFF10B981).withOpacity(0.08)
+                  : Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(
+            color: filled
+                ? AppColors.primaryColor
+                : accent
+                    ? const Color(0xFF10B981)
+                    : AppColors.primaryColor,
+            width: 1.5,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: filled
+                ? Colors.white
+                : accent
+                    ? const Color(0xFF10B981)
+                    : AppColors.primaryColor,
+            fontWeight: FontWeight.w700,
+            fontSize: isMobile ? 12 : 14,
+            fontFamily: 'Gilroy-Bold',
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Banner ────────────────────────────────────────────────────────────────────
+class _Banner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final w = MediaQuery.of(context).size.width;
+    final h = w < 600 ? 200.0 : (w < 900 ? 280.0 : 420.0);
+    return SizedBox(
+      width: double.infinity,
+      height: h,
+      child: Image.asset(
+        ImagePaths.banner,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => Container(
+          height: h,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [Color(0xFF0036BC), Color(0xFF035BE5), Color(0xFF14B1FF)],
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: const [
+                Text(
+                  'Your Health, Expert Care',
+                  style: TextStyle(
+                    fontSize: 36,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.white,
+                    fontFamily: 'Gilroy-Bold',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                SizedBox(height: 12),
+                Text(
+                  'Anytime, Anywhere',
+                  style: TextStyle(fontSize: 18, color: Colors.white70),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Section Header ────────────────────────────────────────────────────────────
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  const _SectionHeader({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.w900,
+          color: Color(0xFF0036BC),
+          fontFamily: 'Gilroy-Bold',
+        ),
+      ),
+    );
+  }
+}
+
+// ── Doctor Carousel ───────────────────────────────────────────────────────────
+class _DoctorCarousel extends StatelessWidget {
+  final List<Map<String, String>> doctors;
+  const _DoctorCarousel({required this.doctors});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 180,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: doctors.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        itemBuilder: (_, i) {
+          final d = doctors[i];
+          return Container(
+            width: 140,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE8ECF5), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 36,
+                  backgroundImage: NetworkImage(d['img']!),
+                  backgroundColor: const Color(0xFFE8F4FF),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    d['name']!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0036BC),
+                      fontFamily: 'Gilroy-Bold',
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  d['spec']!,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey,
+                    fontFamily: 'Gilroy-Medium',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Pharmacy Carousel ─────────────────────────────────────────────────────────
+class _PharmacyCarousel extends StatelessWidget {
+  final List<Map<String, String>> pharmacies;
+  const _PharmacyCarousel({required this.pharmacies});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: pharmacies.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        itemBuilder: (_, i) {
+          final p = pharmacies[i];
+          return Container(
+            width: 160,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE8ECF5), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF10B981).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.local_pharmacy_rounded, color: Color(0xFF10B981), size: 24),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    p['name']!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                      fontFamily: 'Gilroy-Bold',
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  p['area']!,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Lab Carousel ──────────────────────────────────────────────────────────────
+class _LabCarousel extends StatelessWidget {
+  final List<Map<String, String>> labs;
+  const _LabCarousel({required this.labs});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 120,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        itemCount: labs.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 14),
+        itemBuilder: (_, i) {
+          final l = labs[i];
+          return Container(
+            width: 160,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE8ECF5), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF8B5CF6).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.biotech_rounded, color: Color(0xFF8B5CF6), size: 24),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    l['name']!,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF0F172A),
+                      fontFamily: 'Gilroy-Bold',
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Text(
+                  l['area']!,
+                  style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+class _Footer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: const Color(0xFF0A1A4A),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Image.asset(ImagePaths.logo, width: 36, height: 36),
+              const SizedBox(width: 10),
               const Text(
-                'Your Complete',
+                'iCare Virtual Hospital',
                 style: TextStyle(
-                  fontSize: 56,
-                  fontWeight: FontWeight.w900,
-                  color: Color(0xFF0F172A),
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
                   fontFamily: 'Gilroy-Bold',
-                  height: 1.1,
                 ),
-              ),
-              const Text(
-                'Healthcare Platform',
-                style: TextStyle(
-                  fontSize: 56,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.primaryColor,
-                  fontFamily: 'Gilroy-Bold',
-                  height: 1.1,
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                'Connect with doctors, book lab tests, order medicines, and access health programs - all in one place.',
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Colors.grey[600],
-                  fontFamily: 'Gilroy-Medium',
-                  height: 1.6,
-                ),
-              ),
-              const SizedBox(height: 40),
-              Row(
-                children: [
-                  SizedBox(
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const SelectUserType()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        elevation: 0,
-                      ),
-                      child: const Text(
-                        'Get Started',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Gilroy-Bold',
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  SizedBox(
-                    height: 56,
-                    child: OutlinedButton(
-                      onPressed: () {
-                        // Scroll to services section
-                      },
-                      style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: AppColors.primaryColor, width: 2),
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text(
-                        'Learn More',
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w700,
-                          fontFamily: 'Gilroy-Bold',
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
               ),
             ],
           ),
-        ),
-        const SizedBox(width: 80),
-        Expanded(
-          child: Container(
-            height: 500,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF001E6C),
-                  Color(0xFF0036BC),
-                  Color(0xFF035BE5),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.medical_services_rounded,
-                size: 200,
-                color: Colors.white.withOpacity(0.3),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildMobileHero(BuildContext context) {
-    return Column(
-      children: [
-        const Text(
-          'Your Complete Healthcare Platform',
-          style: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFF0F172A),
-            fontFamily: 'Gilroy-Bold',
-            height: 1.2,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 16),
-        Text(
-          'Connect with doctors, book lab tests, order medicines, and access health programs.',
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.grey[600],
-            fontFamily: 'Gilroy-Medium',
-            height: 1.6,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 32),
-        SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const SelectUserType()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.primaryColor,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              elevation: 0,
-            ),
-            child: const Text(
-              'Get Started',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Gilroy-Bold',
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildServiceCard(IconData icon, String title, String description, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(32),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: 80,
-            height: 80,
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(icon, size: 40, color: color),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF0F172A),
-              fontFamily: 'Gilroy-Bold',
-            ),
-            textAlign: TextAlign.center,
-          ),
           const SizedBox(height: 12),
           Text(
-            description,
-            style: TextStyle(
-              fontSize: 15,
-              color: Colors.grey[600],
-              fontFamily: 'Gilroy-Medium',
-              height: 1.5,
-            ),
-            textAlign: TextAlign.center,
+            '© 2026 iCare. All rights reserved.',
+            style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.6)),
           ),
         ],
       ),
