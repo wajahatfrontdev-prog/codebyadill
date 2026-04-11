@@ -12,6 +12,6 @@ fi
 
 # Build Flutter web
 echo "Building Flutter web..."
-flutter build web --release --web-renderer html
+flutter build web --release
 
 echo "Build complete!"
