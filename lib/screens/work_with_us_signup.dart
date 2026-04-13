@@ -88,10 +88,9 @@ class WorkWithUsSignup extends ConsumerWidget {
                   final color = r['color'] as Color;
                   return GestureDetector(
                     onTap: () {
-                      ref.read(authProvider.notifier).setUserRole(r['role'] as String);
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) => const LoginScreen(),
+                          builder: (_) => LoginScreen(initialSignup: true, initialRole: r['role'] as String),
                         ),
                       );
                     },

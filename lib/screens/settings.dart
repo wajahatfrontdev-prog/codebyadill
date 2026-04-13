@@ -7,6 +7,7 @@ import 'package:icare/screens/certificates_screen.dart';
 import 'package:icare/screens/change_password.dart';
 import 'package:icare/screens/courses.dart';
 import 'package:icare/screens/login.dart';
+import 'package:icare/screens/public_home.dart';
 import 'package:icare/screens/notification_settings.dart';
 import 'package:icare/screens/privacy_policy.dart';
 import 'package:icare/screens/reset_password.dart';
@@ -360,7 +361,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               CustomButton(
                 borderRadius: 30,
                 onPressed: () {
-                  // Logout logic
+                  ref.read(authProvider.notifier).setUserLogout();
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (ctx) => const PublicHome()),
+                    (route) => false,
+                  );
                 },
                 label: "Logout",
               ),

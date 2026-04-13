@@ -71,7 +71,7 @@ class PublicHome extends StatelessWidget {
                         label: 'Sign In',
                         filled: true,
                         onTap: () => Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          MaterialPageRoute(builder: (_) => const LoginScreen(hideSignup: true)),
                         ),
                       ),
                       const SizedBox(width: 10),

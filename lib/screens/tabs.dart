@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:icare/screens/public_home.dart';
 import 'package:flutter/material.dart';
 import 'package:icare/widgets/whatsapp_button.dart';
 import 'package:icare/screens/admin_dashboard.dart';
@@ -1676,8 +1677,10 @@ class _WebSidebar extends ConsumerWidget {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 28),
             child: GestureDetector(
               onTap: () {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (ctx) => LoginScreen()),
+                ref.read(authProvider.notifier).setUserLogout();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(builder: (ctx) => const PublicHome()),
+                  (route) => false,
                 );
               },
               child: Container(
