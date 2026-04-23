@@ -15,4 +15,4 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-<!-- Quick update: verified adil branch and pushed a small change. -->
+<!-- Auto-deploy to Vercel enabled via GitHub Actions on every push to main. -->
