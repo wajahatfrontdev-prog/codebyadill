@@ -46,9 +46,23 @@ class Doctor {
       return [];
     }
 
+    // Handle both nested user object and flat format from backend
+    Map<String, dynamic> userJson;
+    if (json['user'] != null && json['user'] is Map) {
+      userJson = json['user'] as Map<String, dynamic>;
+    } else {
+      userJson = {
+        '_id': json['_id'] ?? json['id'] ?? '',
+        'name': json['name'] ?? '',
+        'email': json['email'] ?? '',
+        'phoneNumber': json['phoneNumber'] ?? '',
+        'role': json['role'] ?? 'doctor',
+      };
+    }
+
     return Doctor(
-      id: json['_id'] ?? '',
-      user: User.fromJson(json['user'] ?? {}),
+      id: json['_id'] ?? json['id'] ?? '',
+      user: User.fromJson(userJson),
       specialization: json['specialization'],
       consultationType: parseConsultationType(json['consultationType']),
       languages: json['languages'] != null
@@ -68,17 +82,32 @@ class Doctor {
               ? List<String>.from(json['availability']['availableDays'])
               : []),
       availableTime: json['availableTime'] != null
-          ? AvailableTime.fromJson(json['availableTime'])
+          ? (json['availableTime'] is String
+              ? _parseTimeString(json['availableTime'])
+              : AvailableTime.fromJson(json['availableTime']))
           : (json['availability']?['availableTime'] != null
               ? AvailableTime.fromJson(json['availability']['availableTime'])
               : null),
       isApproved: json['isApproved'] ?? false,
       ratings: json['ratings'] != null
-          ? List<double>.from(json['ratings'].map((r) => r.toDouble()))
-          : [],
+          ? (json['ratings'] is List
+              ? List<double>.from(json['ratings'].map((r) => (r as num).toDouble()))
+              : [((json['ratings'] as num).toDouble())])
+          : (json['rating'] != null
+              ? [(json['rating'] as num).toDouble()]
+              : []),
       reviews: json['reviews'] != null
           ? List<String>.from(json['reviews'])
           : [],
+    );
+  }
+
+  static AvailableTime _parseTimeString(String timeStr) {
+    // Parse "9:00 AM - 5:00 PM" format
+    final parts = timeStr.split(' - ');
+    return AvailableTime(
+      start: parts.isNotEmpty ? parts[0].trim() : '',
+      end: parts.length > 1 ? parts[1].trim() : '',
     );
   }
 
