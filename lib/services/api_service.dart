@@ -82,7 +82,6 @@ class ApiService {
     return await _dio.post(
       endpoint,
       data: formData,
-      options: Options(headers: {'Content-Type': 'multipart/form-data'}),
     );
   }
 }
